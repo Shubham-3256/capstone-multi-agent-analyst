@@ -1,0 +1,22 @@
+{
+    "report_id": "f5e3370f-891a-423d-aed4-10ae8e255163",
+    "dataset_hash": "619f4ad4d7d03675019f0e51a493d3155102f0d7272a4e41fcc70d747a396647",
+    "pipeline_version": "1.0.0",
+    "model_version": "gpt-4o",
+    "charts_included": [],
+    "sections": [
+        "cover_page",
+        "executive_summary",
+        "dataset_overview",
+        "data_quality",
+        "feature_engineering",
+        "machine_learning",
+        "visualizations",
+        "business_insights",
+        "recommendations",
+        "risks",
+        "technical_appendix",
+        "references"
+    ],
+    "generation_timestamp": "2026-07-18T19:55:01.490476+00:00"
+}
