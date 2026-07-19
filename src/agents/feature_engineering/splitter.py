@@ -1,6 +1,5 @@
 """Splitting engine for dividing datasets into train, validation and test splits."""
 
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -21,7 +20,7 @@ class TrainValidationSplitter:
         train_ratio: float = 0.70,
         val_ratio: float = 0.15,
         test_ratio: float = 0.15,
-        random_seed: int = 42
+        random_seed: int = 42,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, SplitReport]:
         """Split dataset DataFrame into Train, Validation, and Test segments.
 
@@ -37,10 +36,14 @@ class TrainValidationSplitter:
         Returns:
             Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, SplitReport]: Train, Val, Test, and SplitReport.
         """
-        logger.info(f"TrainValidationSplitter: Splitting dataset (strategy={strategy.upper()}, ratios=[{train_ratio}, {val_ratio}, {test_ratio}])")
+        logger.info(
+            f"TrainValidationSplitter: Splitting dataset (strategy={strategy.upper()}, ratios=[{train_ratio}, {val_ratio}, {test_ratio}])"
+        )
 
         # Verify ratios sum to 1.0 (approximately)
-        assert abs(train_ratio + val_ratio + test_ratio - 1.0) < 1e-5, "Ratios must sum to 1.0"
+        assert (
+            abs(train_ratio + val_ratio + test_ratio - 1.0) < 1e-5
+        ), "Ratios must sum to 1.0"
 
         # Safeguard for extremely small datasets to prevent empty or single-class splits
         total_rows = len(df)
@@ -53,7 +56,7 @@ class TrainValidationSplitter:
                 train_shape=list(df.shape),
                 val_shape=list(df.shape),
                 test_shape=list(df.shape),
-                strategy="bypass_small_dataset"
+                strategy="bypass_small_dataset",
             )
             return df, df, df, report
 
@@ -75,10 +78,7 @@ class TrainValidationSplitter:
 
             # Split train vs temp
             train_df, temp_df = train_test_split(
-                df,
-                test_size=temp_ratio,
-                random_state=random_seed,
-                stratify=y
+                df, test_size=temp_ratio, random_state=random_seed, stratify=y
             )
 
             # Split temp into val and test
@@ -89,31 +89,29 @@ class TrainValidationSplitter:
                 temp_df,
                 test_size=(1.0 - val_split_ratio),
                 random_state=random_seed,
-                stratify=y_temp
+                stratify=y_temp,
             )
         else:
             # Default Random Split
             # Split train vs temp
             train_df, temp_df = train_test_split(
-                df,
-                test_size=temp_ratio,
-                random_state=random_seed
+                df, test_size=temp_ratio, random_state=random_seed
             )
 
             # Split temp into val and test
             val_split_ratio = val_ratio / temp_ratio
             val_df, test_df = train_test_split(
-                temp_df,
-                test_size=(1.0 - val_split_ratio),
-                random_state=random_seed
+                temp_df, test_size=(1.0 - val_split_ratio), random_state=random_seed
             )
 
         report = SplitReport(
             train_shape=list(train_df.shape),
             val_shape=list(val_df.shape),
             test_shape=list(test_df.shape),
-            strategy=strategy
+            strategy=strategy,
         )
 
-        logger.info(f"TrainValidationSplitter: Split shapes - Train: {train_df.shape}, Val: {val_df.shape}, Test: {test_df.shape}")
+        logger.info(
+            f"TrainValidationSplitter: Split shapes - Train: {train_df.shape}, Val: {val_df.shape}, Test: {test_df.shape}"
+        )
         return train_df, val_df, test_df, report

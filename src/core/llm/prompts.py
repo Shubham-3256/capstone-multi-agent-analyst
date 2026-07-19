@@ -1,5 +1,6 @@
 """Core prompt templates for business summary, operations quality, and modeling interpretations."""
 
+
 class PromptTemplates:
     """Consolidated prompt prompts catalog for AutoML business translations."""
 

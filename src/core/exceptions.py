@@ -1,6 +1,6 @@
 """Exceptions module for the Multi-Agent AI Data Analyst.
 
-Defines the custom hierarchical exception architecture used for explicit error 
+Defines the custom hierarchical exception architecture used for explicit error
 propagation, handling, and debugging across all system layers.
 """
 
@@ -9,11 +9,13 @@ from typing import Any
 
 class ProjectException(Exception):
     """Base exception class for all errors originating from the project.
-    
+
     All custom errors in the application inherit from this class.
     """
 
-    def __init__(self, message: str, code: str | None = None, details: Any | None = None) -> None:
+    def __init__(
+        self, message: str, code: str | None = None, details: Any | None = None
+    ) -> None:
         """Initialize ProjectException with messaging, diagnostic codes, and context.
 
         Args:

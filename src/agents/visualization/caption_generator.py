@@ -28,12 +28,16 @@ class CaptionGenerator:
 
         if total_nulls == 0:
             summary = "The dataset has complete values without missing records."
-            details = "All columns have 100% data density, requiring no imputation blocks."
+            details = (
+                "All columns have 100% data density, requiring no imputation blocks."
+            )
         else:
             highest_col = null_counts.idxmax()
             highest_val = null_counts.max()
             pct = round((highest_val / len(df)) * 100, 2)
-            summary = f"Detected missing values in the dataset (total nulls = {total_nulls})."
+            summary = (
+                f"Detected missing values in the dataset (total nulls = {total_nulls})."
+            )
             details = f"Column '{highest_col}' has the highest missing cells: {highest_val} ({pct}% of rows)."
 
         return ChartCaption(summary=summary, details=details)
@@ -52,7 +56,7 @@ class CaptionGenerator:
         if numeric_df.empty or numeric_df.shape[1] < 2:
             return ChartCaption(
                 summary="Correlation analysis skipped.",
-                details="Insufficient numeric features to compute correlation matrix."
+                details="Insufficient numeric features to compute correlation matrix.",
             )
 
         corr = numeric_df.corr().abs()
@@ -86,14 +90,20 @@ class CaptionGenerator:
             ChartCaption: Generated caption.
         """
         if col not in df.columns:
-            return ChartCaption(summary="Distribution skipped.", details="Column not found.")
+            return ChartCaption(
+                summary="Distribution skipped.", details="Column not found."
+            )
 
         series = df[col].dropna()
         is_numeric = pd.api.types.is_numeric_dtype(series)
 
         if is_numeric:
             skew = series.skew()
-            skew_desc = "positively skewed" if skew > 1 else ("negatively skewed" if skew < -1 else "symmetric")
+            skew_desc = (
+                "positively skewed"
+                if skew > 1
+                else ("negatively skewed" if skew < -1 else "symmetric")
+            )
             summary = f"Numeric distribution metrics for feature '{col}'."
             details = f"The variable shows a {skew_desc} shape (skewness={round(skew, 3)}, mean={round(float(series.mean()), 3)})."
         else:
@@ -105,7 +115,9 @@ class CaptionGenerator:
         return ChartCaption(summary=summary, details=details)
 
     @staticmethod
-    def generate_leaderboard_caption(leaderboard: Leaderboard, task_type: str) -> ChartCaption:
+    def generate_leaderboard_caption(
+        leaderboard: Leaderboard, task_type: str
+    ) -> ChartCaption:
         """Generate caption comparing scores on the leaderboard.
 
         Args:
@@ -116,7 +128,9 @@ class CaptionGenerator:
             ChartCaption: Generated caption.
         """
         if not leaderboard.entries:
-            return ChartCaption(summary="Leaderboard empty.", details="No candidate models evaluated.")
+            return ChartCaption(
+                summary="Leaderboard empty.", details="No candidate models evaluated."
+            )
 
         best_entry = leaderboard.entries[0]
         metric_name = "macro F1 score" if task_type == "classification" else "RMSE"
@@ -127,7 +141,9 @@ class CaptionGenerator:
         return ChartCaption(summary=summary, details=details)
 
     @staticmethod
-    def generate_importance_caption(importances: list[FeatureImportance]) -> ChartCaption:
+    def generate_importance_caption(
+        importances: list[FeatureImportance],
+    ) -> ChartCaption:
         """Generate caption ranking feature importances.
 
         Args:
@@ -137,10 +153,17 @@ class CaptionGenerator:
             ChartCaption: Generated caption.
         """
         if not importances:
-            return ChartCaption(summary="No importances extracted.", details="Feature importance profiles are empty.")
+            return ChartCaption(
+                summary="No importances extracted.",
+                details="Feature importance profiles are empty.",
+            )
 
         best_feat = importances[0]
-        summary = f"The feature column '{best_feat.column}' has the highest predictive value."
-        details = f"Calculated model coefficient score: {round(best_feat.importance, 4)}."
+        summary = (
+            f"The feature column '{best_feat.column}' has the highest predictive value."
+        )
+        details = (
+            f"Calculated model coefficient score: {round(best_feat.importance, 4)}."
+        )
 
         return ChartCaption(summary=summary, details=details)

@@ -28,7 +28,11 @@ class FileCheckpointStore:
     def load(self, workflow_id: str) -> WorkflowState | None:
         """Load a prior snapshot when it exists."""
         path = self.directory / f"{workflow_id}.json"
-        return WorkflowState.model_validate_json(path.read_text(encoding="utf-8")) if path.exists() else None
+        return (
+            WorkflowState.model_validate_json(path.read_text(encoding="utf-8"))
+            if path.exists()
+            else None
+        )
 
 
 def memory_checkpointer() -> MemorySaver:

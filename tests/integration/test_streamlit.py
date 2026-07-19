@@ -1,11 +1,13 @@
 """Integration tests verifying Streamlit session states, navigation contexts, and mock component configurations."""
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import MagicMock, patch
 
 
 class MockSessionState(dict):
     """Mock dictionary simulating Streamlit's session state object attributes access."""
+
     def __getattr__(self, key):
         try:
             return self[key]
@@ -26,16 +28,17 @@ def mock_streamlit():
         state.result = None
         state.current_page = "Home"
 
-        with patch("streamlit.sidebar") as sidebar, \
-             patch("streamlit.columns") as columns, \
-             patch("streamlit.markdown") as markdown, \
-             patch("streamlit.dataframe") as dataframe, \
-             patch("streamlit.button") as button, \
-             patch("streamlit.selectbox") as selectbox, \
-             patch("streamlit.warning") as warning, \
-             patch("streamlit.info") as info, \
-             patch("streamlit.error") as error:
-             
+        with (
+            patch("streamlit.sidebar") as sidebar,
+            patch("streamlit.columns") as columns,
+            patch("streamlit.markdown") as markdown,
+            patch("streamlit.dataframe") as dataframe,
+            patch("streamlit.button") as button,
+            patch("streamlit.selectbox") as selectbox,
+            patch("streamlit.warning") as warning,
+            patch("streamlit.info") as info,
+            patch("streamlit.error") as error,
+        ):
             # Yield mocks dictionary
             yield {
                 "session_state": state,
@@ -47,7 +50,7 @@ def mock_streamlit():
                 "selectbox": selectbox,
                 "warning": warning,
                 "info": info,
-                "error": error
+                "error": error,
             }
 
 
@@ -55,7 +58,7 @@ def test_streamlit_session_state_and_reload(mock_streamlit):
     """Verify Streamlit UI state management: button clicks, reload contexts, and page navigation routing."""
     st_mocks = mock_streamlit
     state = st_mocks["session_state"]
-    
+
     # 1. Assert initial state values are resolved correctly
     assert state.workflow_id == "test-session-wf"
     assert state.current_page == "Home"

@@ -1,6 +1,5 @@
 """Repository for managing DatasetRecord persistence."""
 
-
 from sqlalchemy.orm import Session
 
 from src.database.models import DatasetRecord
@@ -39,7 +38,11 @@ class DatasetRepository:
         Returns:
             Optional[DatasetRecord]: Found record or None.
         """
-        return self.session.query(DatasetRecord).filter(DatasetRecord.id == record_id).first()
+        return (
+            self.session.query(DatasetRecord)
+            .filter(DatasetRecord.id == record_id)
+            .first()
+        )
 
     def get_by_hash(self, file_hash: str) -> DatasetRecord | None:
         """Find a dataset by its SHA-256 checksum string.
@@ -50,7 +53,11 @@ class DatasetRepository:
         Returns:
             Optional[DatasetRecord]: Matching record or None.
         """
-        return self.session.query(DatasetRecord).filter(DatasetRecord.file_hash == file_hash).first()
+        return (
+            self.session.query(DatasetRecord)
+            .filter(DatasetRecord.file_hash == file_hash)
+            .first()
+        )
 
     def get_all(self) -> list[DatasetRecord]:
         """Fetch all tracked datasets.

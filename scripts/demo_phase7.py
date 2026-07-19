@@ -1,24 +1,25 @@
 """Demo script for Phase 7 - Visualization Agent chart sweeps validation."""
 
 import sys
-import joblib
 from pathlib import Path
+
+import joblib
 import pandas as pd
 
 # Add project root directory to path to enable local package importing
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from src.core import get_logger
-from src.database import init_db, DatabaseManager
 from src.agents.machine_learning.models import (
-    MachineLearningResult,
-    TaskReport,
+    FeatureImportance,
     Leaderboard,
     LeaderboardEntry,
-    FeatureImportance
+    MachineLearningResult,
+    TaskReport,
 )
 from src.agents.visualization.agent import VisualizationAgent
+from src.core import get_logger
+from src.database import DatabaseManager, init_db
 
 logger = get_logger("demo_phase7")
 
@@ -35,37 +36,36 @@ def create_mock_ml_result() -> MachineLearningResult:
     best_model_path = models_dir / "best_model_dummy.joblib"
 
     # Fit and save a dummy classifier model to joblib to enable loading
-    from sklearn.ensemble import RandomForestClassifier
     import numpy as np
+    from sklearn.ensemble import RandomForestClassifier
+
     model = RandomForestClassifier(random_state=42)
     model.fit(np.array([[1], [2], [3], [4]]), np.array([0, 1, 0, 1]))
     joblib.dump(model, str(best_model_path))
 
-    task_report = TaskReport(
-        task_type="classification",
-        classes=[0, 1],
-        is_binary=True
-    )
+    task_report = TaskReport(task_type="classification", classes=[0, 1], is_binary=True)
 
-    leaderboard = Leaderboard(entries=[
-        LeaderboardEntry(
-            model_name="Random Forest",
-            rank=1,
-            score=0.915,
-            metrics={"accuracy": 0.92, "f1": 0.915}
-        ),
-        LeaderboardEntry(
-            model_name="Logistic Regression",
-            rank=2,
-            score=0.825,
-            metrics={"accuracy": 0.84, "f1": 0.825}
-        )
-    ])
+    leaderboard = Leaderboard(
+        entries=[
+            LeaderboardEntry(
+                model_name="Random Forest",
+                rank=1,
+                score=0.915,
+                metrics={"accuracy": 0.92, "f1": 0.915},
+            ),
+            LeaderboardEntry(
+                model_name="Logistic Regression",
+                rank=2,
+                score=0.825,
+                metrics={"accuracy": 0.84, "f1": 0.825},
+            ),
+        ]
+    )
 
     importances = [
         FeatureImportance(column="monthly_charges", importance=0.62),
         FeatureImportance(column="age", importance=0.28),
-        FeatureImportance(column="city_london", importance=0.10)
+        FeatureImportance(column="city_london", importance=0.10),
     ]
 
     return MachineLearningResult(
@@ -75,7 +75,7 @@ def create_mock_ml_result() -> MachineLearningResult:
         leaderboard=leaderboard,
         best_metrics={"accuracy": 0.92, "f1": 0.915},
         feature_importances=importances,
-        duration_seconds=2.45
+        duration_seconds=2.45,
     )
 
 
@@ -89,12 +89,25 @@ def run_visualization_demo() -> None:
     init_db()
 
     # 2. Get mock input DataFrame
-    df = pd.DataFrame({
-        "age": [34, 45, 23, 56, 38, 29, 62, 41, 33, 47],
-        "monthly_charges": [65.5, 80.0, 35.4, 110.25, 70.1, 55.0, 95.5, 85.0, 45.0, 78.5],
-        "city_london": [0, 1, 0, 0, 1, 0, 1, 0, 0, 1]
-    })
-    
+    df = pd.DataFrame(
+        {
+            "age": [34, 45, 23, 56, 38, 29, 62, 41, 33, 47],
+            "monthly_charges": [
+                65.5,
+                80.0,
+                35.4,
+                110.25,
+                70.1,
+                55.0,
+                95.5,
+                85.0,
+                45.0,
+                78.5,
+            ],
+            "city_london": [0, 1, 0, 0, 1, 0, 1, 0, 0, 1],
+        }
+    )
+
     # 3. Create processed val.csv splits to enable model visualizer data reload checks
     processed_dir = project_root / "workspace" / "processed"
     processed_dir.mkdir(parents=True, exist_ok=True)
@@ -109,11 +122,8 @@ def run_visualization_demo() -> None:
     # 5. Run plotting sweeps via Agent orchestrator
     with DatabaseManager.get_session() as session:
         agent = VisualizationAgent(session)
-        
-        result = agent.run(
-            dataset_profile=df,
-            ml_result=ml_result
-        )
+
+        result = agent.run(dataset_profile=df, ml_result=ml_result)
 
     # 6. Display visualizers metadata reports
     print("\n" + "=" * 60)

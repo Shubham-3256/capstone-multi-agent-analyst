@@ -13,13 +13,30 @@ logger = get_logger(__name__)
 class ModelingConfig(BaseModel):
     """Configuration for cross validation and hyperparameter tuning sweeps."""
 
-    cv_folds: int = Field(default=5, description="Number of folds to use for cross validation")
-    tuning_mode: str = Field(default="fast", description="Tuning grid depth ('fast' or 'full')")
-    tuning_search_type: str = Field(default="random", description="Tuning search algorithm ('random' or 'grid')")
-    n_iter_search: int = Field(default=5, description="Number of parameter settings sampled in RandomizedSearchCV")
-    n_jobs: int = Field(default=-1, description="Number of parallel workers to execute (-1 to use all cores)")
-    random_seed: int = Field(default=42, description="Random split and estimator initialization seed")
-    timeout_seconds: int = Field(default=600, description="Max allowed execution timeout limit in seconds per model")
+    cv_folds: int = Field(
+        default=5, description="Number of folds to use for cross validation"
+    )
+    tuning_mode: str = Field(
+        default="fast", description="Tuning grid depth ('fast' or 'full')"
+    )
+    tuning_search_type: str = Field(
+        default="random", description="Tuning search algorithm ('random' or 'grid')"
+    )
+    n_iter_search: int = Field(
+        default=5,
+        description="Number of parameter settings sampled in RandomizedSearchCV",
+    )
+    n_jobs: int = Field(
+        default=-1,
+        description="Number of parallel workers to execute (-1 to use all cores)",
+    )
+    random_seed: int = Field(
+        default=42, description="Random split and estimator initialization seed"
+    )
+    timeout_seconds: int = Field(
+        default=600,
+        description="Max allowed execution timeout limit in seconds per model",
+    )
 
 
 class ModelSelectionConfig(BaseModel):
@@ -32,9 +49,9 @@ class ModelSelectionConfig(BaseModel):
             "random_forest",
             "gradient_boosting",
             "k_neighbors",
-            "gaussian_nb"
+            "gaussian_nb",
         ],
-        description="Candidate models to train for classification tasks"
+        description="Candidate models to train for classification tasks",
     )
     regression_candidates: list[str] = Field(
         default=[
@@ -43,9 +60,9 @@ class ModelSelectionConfig(BaseModel):
             "lasso",
             "decision_tree",
             "random_forest",
-            "gradient_boosting"
+            "gradient_boosting",
         ],
-        description="Candidate models to train for regression tasks"
+        description="Candidate models to train for regression tasks",
     )
 
 
@@ -72,5 +89,7 @@ class MachineLearningConfig(BaseModel):
                 logger.info(f"Loaded machine learning config from: {yaml_path}")
                 return cls(**content)
             except Exception as e:
-                logger.warning(f"Failed to load yaml config from {yaml_path}: {e}. Using defaults.")
+                logger.warning(
+                    f"Failed to load yaml config from {yaml_path}: {e}. Using defaults."
+                )
         return cls()

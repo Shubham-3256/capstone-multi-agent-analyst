@@ -2,15 +2,16 @@
 
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 # Add project root directory to path to enable local package importing
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from src.core import get_logger
-from src.database import init_db, DatabaseManager
 from src.agents.feature_engineering.agent import FeatureEngineeringAgent
+from src.core import get_logger
+from src.database import DatabaseManager, init_db
 
 logger = get_logger("demo_phase5")
 
@@ -24,11 +25,77 @@ def create_demo_clean_dataset() -> pd.DataFrame:
     # 15 rows of customer data
     data = {
         "customer_id": [f"C{i:03d}" for i in range(1, 16)],  # Identifier
-        "age": [34, 45, 23, 56, 38, 29, 62, 41, 33, 47, 51, 26, 30, 44, 37],  # Numeric (Standard scaler)
-        "monthly_charges": [65.5, 80.0, 35.4, 110.25, 70.1, 55.0, 95.5, 85.0, 45.0, 78.5, 90.0, 40.0, 60.0, 105.0, 68.0],  # Numeric (Standard scaler)
-        "city": ["NY", "London", "NY", "Chicago", "London", "NY", "London", "Chicago", "NY", "London", "NY", "London", "Chicago", "NY", "London"],  # Low cardinality -> One Hot
-        "joined_date": pd.to_datetime(["2020-01-15", "2021-06-20", "2022-12-05", "2019-08-11", "2020-11-23", "2021-02-14", "2018-04-30", "2020-07-09", "2022-03-25", "2021-10-18", "2019-12-01", "2022-08-08", "2021-04-12", "2020-09-30", "2021-01-01"]),  # Datetime
-        "churn": [0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0]  # Target
+        "age": [
+            34,
+            45,
+            23,
+            56,
+            38,
+            29,
+            62,
+            41,
+            33,
+            47,
+            51,
+            26,
+            30,
+            44,
+            37,
+        ],  # Numeric (Standard scaler)
+        "monthly_charges": [
+            65.5,
+            80.0,
+            35.4,
+            110.25,
+            70.1,
+            55.0,
+            95.5,
+            85.0,
+            45.0,
+            78.5,
+            90.0,
+            40.0,
+            60.0,
+            105.0,
+            68.0,
+        ],  # Numeric (Standard scaler)
+        "city": [
+            "NY",
+            "London",
+            "NY",
+            "Chicago",
+            "London",
+            "NY",
+            "London",
+            "Chicago",
+            "NY",
+            "London",
+            "NY",
+            "London",
+            "Chicago",
+            "NY",
+            "London",
+        ],  # Low cardinality -> One Hot
+        "joined_date": pd.to_datetime(
+            [
+                "2020-01-15",
+                "2021-06-20",
+                "2022-12-05",
+                "2019-08-11",
+                "2020-11-23",
+                "2021-02-14",
+                "2018-04-30",
+                "2020-07-09",
+                "2022-03-25",
+                "2021-10-18",
+                "2019-12-01",
+                "2022-08-08",
+                "2021-04-12",
+                "2020-09-30",
+                "2021-01-01",
+            ]
+        ),  # Datetime
+        "churn": [0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0],  # Target
     }
     return pd.DataFrame(data)
 
@@ -44,17 +111,16 @@ def run_feature_engineering_demo() -> None:
 
     # 2. Get mock cleaned DataFrame
     df = create_demo_clean_dataset()
-    logger.info(f"Loaded clean dataset. Dimensions: {df.shape[0]} rows, {df.shape[1]} columns.")
+    logger.info(
+        f"Loaded clean dataset. Dimensions: {df.shape[0]} rows, {df.shape[1]} columns."
+    )
 
     # 3. Run Pre-processing Pipeline via Agent
     with DatabaseManager.get_session() as session:
         agent = FeatureEngineeringAgent(session)
-        
+
         # Executes: Detect -> Generate -> Encode -> Scale -> Select -> Split -> Save Pipeline
-        result = agent.run(
-            dataframe=df,
-            target_column="churn"
-        )
+        result = agent.run(dataframe=df, target_column="churn")
 
     # 4. Print structured results
     print("\n" + "=" * 60)

@@ -49,21 +49,30 @@ def downcast_dataframe(df: pd.DataFrame, inplace: bool = False) -> pd.DataFrame:
             working_df[col] = pd.to_numeric(working_df[col], downcast="float")
 
         # 3. Categorical Conversion
-        elif (is_object_dtype(col_type) or is_string_dtype(col_type)) and not isinstance(col_type, pd.CategoricalDtype):
+        elif (
+            is_object_dtype(col_type) or is_string_dtype(col_type)
+        ) and not isinstance(col_type, pd.CategoricalDtype):
             unique_count = working_df[col].nunique()
             # If unique values are small fraction of total, convert to category
-            if unique_count / num_rows < OptimizationConfig.CATEGORY_CARDINALITY_THRESHOLD:
+            if (
+                unique_count / num_rows
+                < OptimizationConfig.CATEGORY_CARDINALITY_THRESHOLD
+            ):
                 working_df[col] = working_df[col].astype("category")
 
     final_memory = working_df.memory_usage(deep=True).sum()
     saved = initial_memory - final_memory
     saving_pct = (saved / initial_memory) * 100 if initial_memory > 0 else 0.0
-    logger.info(f"Memory Optimization: Compressed from {initial_memory / (1024*1024):.2f} MB to {final_memory / (1024*1024):.2f} MB ({saving_pct:.1f}% reduction)")
+    logger.info(
+        f"Memory Optimization: Compressed from {initial_memory / (1024 * 1024):.2f} MB to {final_memory / (1024 * 1024):.2f} MB ({saving_pct:.1f}% reduction)"
+    )
 
     return working_df
 
 
-def stream_large_dataset(filepath: Path, chunk_size: int = OptimizationConfig.CHUNK_SIZE) -> Generator[pd.DataFrame, None, None]:
+def stream_large_dataset(
+    filepath: Path, chunk_size: int = OptimizationConfig.CHUNK_SIZE
+) -> Generator[pd.DataFrame, None, None]:
     """Yield compressed chunks of a large dataset iteratively to avoid full memory loading.
 
     Args:
@@ -76,7 +85,15 @@ def stream_large_dataset(filepath: Path, chunk_size: int = OptimizationConfig.CH
     suffix = filepath.suffix.lower()
     if suffix != ".csv":
         # Fall back to single-load if not CSV
-        df = pd.read_csv(filepath) if suffix == ".csv" else pd.read_parquet(filepath) if suffix in {".parquet", ".pq"} else pd.read_excel(filepath)
+        df = (
+            pd.read_csv(filepath)
+            if suffix == ".csv"
+            else (
+                pd.read_parquet(filepath)
+                if suffix in {".parquet", ".pq"}
+                else pd.read_excel(filepath)
+            )
+        )
         yield downcast_dataframe(df, inplace=True)
         return
 

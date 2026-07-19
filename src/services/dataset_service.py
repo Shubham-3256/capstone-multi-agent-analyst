@@ -50,7 +50,7 @@ class DatasetService:
     def register_dataset(self, file_path: Path, filename: str) -> DatasetRecord:
         """Move a file to the uploads workspace and record it in the database tracking.
 
-        If a file with the identical hash matches existing tracking records, the 
+        If a file with the identical hash matches existing tracking records, the
         pre-existing tracking details are returned immediately to prevent duplicate data.
 
         Args:
@@ -62,7 +62,9 @@ class DatasetService:
         """
         logger.info(f"Registering dataset from source: {file_path}")
         if not file_path.exists() or not file_path.is_file():
-            raise DatasetException(f"Target registration file does not exist or is invalid: {file_path}")
+            raise DatasetException(
+                f"Target registration file does not exist or is invalid: {file_path}"
+            )
 
         try:
             # 1. Check sum mapping
@@ -70,7 +72,9 @@ class DatasetService:
             existing_record = self.repo.get_by_hash(checksum)
 
             if existing_record:
-                logger.info(f"Dataset already registered with checksum: {checksum}. ID: {existing_record.id}")
+                logger.info(
+                    f"Dataset already registered with checksum: {checksum}. ID: {existing_record.id}"
+                )
                 return existing_record
 
             # 2. Determine file properties
@@ -87,7 +91,9 @@ class DatasetService:
                 row_count, col_count = df.shape
             except Exception as e:
                 # Log warning but proceed with file registration
-                logger.warning(f"Could not extract shape dimension properties during registration: {e}")
+                logger.warning(
+                    f"Could not extract shape dimension properties during registration: {e}"
+                )
 
             # 5. Build database record
             new_record = DatasetRecord(
@@ -97,7 +103,7 @@ class DatasetService:
                 file_size_bytes=file_size,
                 row_count=row_count,
                 column_count=col_count,
-                status="uploaded"
+                status="uploaded",
             )
 
             saved = self.repo.create(new_record)
@@ -170,4 +176,6 @@ class DatasetService:
             return success
         except Exception as e:
             logger.error(f"Failed to delete dataset {record_id}: {e}")
-            raise DatasetException(f"Error occurred during dataset deletion: {e}") from e
+            raise DatasetException(
+                f"Error occurred during dataset deletion: {e}"
+            ) from e

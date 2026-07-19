@@ -3,7 +3,7 @@
 import hashlib
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -36,7 +36,9 @@ logger = get_logger(__name__)
 class ReportGenerationAgent:
     """Orchestrates report compilation, asset transfers, and exports in MD/HTML/PDF/DOCX formats."""
 
-    def __init__(self, db_session: Session | None = None, config: ReportConfig | None = None) -> None:
+    def __init__(
+        self, db_session: Session | None = None, config: ReportConfig | None = None
+    ) -> None:
         """Initialize ReportGenerationAgent.
 
         Args:
@@ -58,7 +60,7 @@ class ReportGenerationAgent:
         ml_result: MachineLearningResult | None = None,
         visualization_result: VisualizationResult | None = None,
         business_result: BusinessInsightResult | None = None,
-        template_type: str = "executive"
+        template_type: str = "executive",
     ) -> ReportResult:
         """Orchestrate document assembly and export cycles.
 
@@ -80,7 +82,7 @@ class ReportGenerationAgent:
         log_record = ExecutionLog(
             task_name="report_generation_pipeline",
             agent_name="ReportGenerationAgent",
-            status="running"
+            status="running",
         )
         self.log_repo.create(log_record)
         self.db.commit()
@@ -96,7 +98,7 @@ class ReportGenerationAgent:
                 feature_result=feature_result,
                 ml_result=ml_result,
                 visualization_result=visualization_result,
-                business_result=business_result
+                business_result=business_result,
             )
 
             # 2. Build sections and assign durable, sequential citations.
@@ -104,56 +106,73 @@ class ReportGenerationAgent:
             citations = CitationManager()
             for section in sections.values():
                 section.figures = [
-                    figure.model_copy(update={
-                        "label": citations.register_figure(figure.file_path, figure.caption)
-                    })
+                    figure.model_copy(
+                        update={
+                            "label": citations.register_figure(
+                                figure.file_path, figure.caption
+                            )
+                        }
+                    )
                     for figure in section.figures
                 ]
                 section.tables = [
-                    table.model_copy(update={
-                        "label": citations.register_table(table.description, table.description)
-                    })
+                    table.model_copy(
+                        update={
+                            "label": citations.register_table(
+                                table.description, table.description
+                            )
+                        }
+                    )
                     for table in section.tables
                 ]
             sections["references"].content_markdown += (
-                "\n\n" + citations.register_reference(
+                "\n\n"
+                + citations.register_reference(
                     "platform", "Multi-Agent AI Data Analyst reporting pipeline."
-                ) + " Multi-Agent AI Data Analyst reporting pipeline."
+                )
+                + " Multi-Agent AI Data Analyst reporting pipeline."
             )
 
             # 3. Organize Assets (Charts / Tables)
             # Create subdirs
-            assets_rel_paths = AssetManager.organize_assets(
-                charts_paths=context.charts_paths,
-                target_dir=base_dir,
-                resize_width=600
-            ) or []
+            assets_rel_paths = (
+                AssetManager.organize_assets(
+                    charts_paths=context.charts_paths,
+                    target_dir=base_dir,
+                    resize_width=600,
+                )
+                or []
+            )
 
             # 4. Generate Metadata catalog parameters
-            created_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+            created_at = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
             metadata = ReportMetadata(
                 title=f"Analytics Report - {context.dataset_name}",
                 template_type=template_type,
-                created_at=created_at
+                created_at=created_at,
             )
 
             # 5. Render template
-            sections_md = {sec_id: sec.content_markdown for sec_id, sec in sections.items()}
+            sections_md = {
+                sec_id: sec.content_markdown for sec_id, sec in sections.items()
+            }
             meta_dict = {
                 "title": metadata.title,
                 "author": metadata.author,
-                "created_at": metadata.created_at
+                "created_at": metadata.created_at,
             }
             compiled_md = TemplateEngine.render(template_type, meta_dict, sections_md)
 
             # 6. Generate Manifest catalog entry
             # Calculate mock dataset hash signature
-            dataset_hash = hashlib.sha256(context.dataset_profile_str.encode("utf-8")).hexdigest()
+            dataset_hash = hashlib.sha256(
+                context.dataset_profile_str.encode("utf-8")
+            ).hexdigest()
             manifest = ManifestGenerator.generate_manifest(
                 dataset_hash=dataset_hash,
                 charts_included=assets_rel_paths,
                 sections=list(sections_md.keys()),
-                target_dir=base_dir
+                target_dir=base_dir,
             )
 
             # 7. Perform validation
@@ -202,27 +221,31 @@ class ReportGenerationAgent:
                 log_id=log_record.id,
                 status="completed",
                 duration_seconds=duration,
-                error_message=f"Generated report formats in {base_dir}"
+                error_message=f"Generated report formats in {base_dir}",
             )
             self.db.commit()
 
-            logger.info(f"ReportGenerationAgent: Execution completed in {round(duration, 4)}s. Files generated.")
+            logger.info(
+                f"ReportGenerationAgent: Execution completed in {round(duration, 4)}s. Files generated."
+            )
             return ReportResult(
                 is_success=is_valid,
                 output_paths=out_paths,
                 manifest=manifest,
                 metadata=metadata,
-                duration_seconds=duration
+                duration_seconds=duration,
             )
 
         except Exception as e:
             duration = time.time() - start_time
-            logger.exception(f"ReportGenerationAgent: Orchestration pipeline failed: {e}")
+            logger.exception(
+                f"ReportGenerationAgent: Orchestration pipeline failed: {e}"
+            )
             self.log_repo.update_status(
                 log_id=log_record.id,
                 status="failed",
                 duration_seconds=duration,
-                error_message=f"Orchestration error: {str(e)}"
+                error_message=f"Orchestration error: {str(e)}",
             )
             self.db.commit()
             raise ValueError(f"Agent error running ReportGenerationAgent: {e}") from e

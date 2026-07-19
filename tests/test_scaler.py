@@ -1,15 +1,18 @@
 """Unit tests for NumericalScaler custom transformer."""
 
 import pandas as pd
+
 from src.agents.feature_engineering.scaler import NumericalScaler
 
 
 def test_numerical_scaler():
     """Test scaling selections (Standard vs Robust scaling)."""
-    df = pd.DataFrame({
-        "age": [20, 25, 30, 35, 40],  # No outliers -> Standard/MinMax
-        "salary": [50000, 52000, 48000, 51000, 1000000]  # Heavy outlier -> Robust
-    })
+    df = pd.DataFrame(
+        {
+            "age": [20, 25, 30, 35, 40],  # No outliers -> Standard/MinMax
+            "salary": [50000, 52000, 48000, 51000, 1000000],  # Heavy outlier -> Robust
+        }
+    )
 
     scaler = NumericalScaler(outlier_threshold=0.1)
     scaler.fit(df)

@@ -18,6 +18,5 @@ class ExecutiveSummaryBuilder:
             str: Compiled prompt.
         """
         return PromptTemplates.EXECUTIVE_SUMMARY.format(
-            dataset_summary=dataset_summary,
-            leaderboard=leaderboard
+            dataset_summary=dataset_summary, leaderboard=leaderboard
         )

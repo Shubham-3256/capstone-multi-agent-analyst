@@ -1,6 +1,6 @@
 """SQLAlchemy database models for application logging and dataset management."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import Column, DateTime, Float, Integer, String, Text
 
@@ -20,9 +20,16 @@ class DatasetRecord(Base):
     file_size_bytes = Column(Integer, nullable=False)
     row_count = Column(Integer, nullable=True)
     column_count = Column(Integer, nullable=True)
-    status = Column(String(50), default="uploaded", nullable=False)  # uploaded, cleaned, analyzed, failed
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    status = Column(
+        String(50), default="uploaded", nullable=False
+    )  # uploaded, cleaned, analyzed, failed
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
 
     def to_dict(self) -> dict:
         """Convert ORM object to a flat dictionary payload."""
@@ -48,12 +55,19 @@ class ExecutionLog(Base):
     id = Column(String(36), primary_key=True, default=generate_secure_id)
     task_name = Column(String(255), nullable=False)
     agent_name = Column(String(255), nullable=True)
-    status = Column(String(50), default="pending", nullable=False)  # pending, running, completed, failed
+    status = Column(
+        String(50), default="pending", nullable=False
+    )  # pending, running, completed, failed
     parameters = Column(Text, nullable=True)  # JSON-serialized parameter payload
     error_message = Column(Text, nullable=True)
     duration_seconds = Column(Float, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
 
     def to_dict(self) -> dict:
         """Convert ORM object to a dictionary representation."""
@@ -83,7 +97,7 @@ class ReportRecord(Base):
     manifest_json = Column(Text, nullable=False)
     output_paths_json = Column(Text, nullable=False)
     duration_seconds = Column(Float, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
 
 
 class WorkflowExecution(Base):
@@ -97,4 +111,4 @@ class WorkflowExecution(Base):
     history_json = Column(Text, nullable=False)
     errors_json = Column(Text, nullable=False)
     timing_json = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), nullable=False)

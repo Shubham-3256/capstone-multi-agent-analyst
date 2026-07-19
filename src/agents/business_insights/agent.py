@@ -51,7 +51,7 @@ class BusinessInsightAgent:
         dataset_profile: Any,
         feature_result: FeatureEngineeringResult | None = None,
         ml_result: MachineLearningResult | None = None,
-        visualization_result: VisualizationResult | None = None
+        visualization_result: VisualizationResult | None = None,
     ) -> BusinessInsightResult:
         """Execute Business Intelligence translations.
 
@@ -66,14 +66,16 @@ class BusinessInsightAgent:
         Returns:
             BusinessInsightResult: Compiled structured corporate reports.
         """
-        logger.info("BusinessInsightAgent: Initiating corporate translation analysis...")
+        logger.info(
+            "BusinessInsightAgent: Initiating corporate translation analysis..."
+        )
         start_time = time.time()
 
         # Create audit execution log
         log_record = ExecutionLog(
             task_name="business_insights_pipeline",
             agent_name="BusinessInsightAgent",
-            status="running"
+            status="running",
         )
         self.log_repo.create(log_record)
         self.db.commit()
@@ -95,7 +97,9 @@ class BusinessInsightAgent:
 
                 leaderboard_records = []
                 for entry in ml_result.leaderboard.entries:
-                    leaderboard_records.append(f"Rank {entry.rank}: {entry.model_name} (Score={entry.score})")
+                    leaderboard_records.append(
+                        f"Rank {entry.rank}: {entry.model_name} (Score={entry.score})"
+                    )
                 leaderboard_str = "; ".join(leaderboard_records)
 
                 importances_records = []
@@ -115,41 +119,55 @@ class BusinessInsightAgent:
 
             # 2. Section Prompt builds and LLM calls
             # A. Executive Summary
-            exec_prompt = ExecutiveSummaryBuilder.build_prompt(profile_summary, leaderboard_str)
+            exec_prompt = ExecutiveSummaryBuilder.build_prompt(
+                profile_summary, leaderboard_str
+            )
             exec_resp = self.llm.generate(exec_prompt)
             exec_summary = StructuredParser.parse_response(exec_resp, ExecutiveSummary)
 
             # B. Data Quality Assessment
             quality_prompt = DataQualityBuilder.build_prompt(missing_meta, corr_meta)
             quality_resp = self.llm.generate(quality_prompt)
-            dataset_insight = StructuredParser.parse_response(quality_resp, DatasetInsight)
+            dataset_insight = StructuredParser.parse_response(
+                quality_resp, DatasetInsight
+            )
 
             # C. Model Performance Analysis
-            model_prompt = ModelAnalysisBuilder.build_prompt(leaderboard_str, best_model_name, best_metrics_str)
+            model_prompt = ModelAnalysisBuilder.build_prompt(
+                leaderboard_str, best_model_name, best_metrics_str
+            )
             model_resp = self.llm.generate(model_prompt)
             model_insight = StructuredParser.parse_response(model_resp, ModelInsight)
 
             # D. Strategic Recommendations
-            recs_prompt = BusinessRecommendationsBuilder.build_prompt(best_metrics_str, importances_str)
+            recs_prompt = BusinessRecommendationsBuilder.build_prompt(
+                best_metrics_str, importances_str
+            )
             recs_resp = self.llm.generate(recs_prompt)
             # Support parsing single recommendation array or single item mapping
             try:
                 # Expecting single structured recommendation model mapping
-                recommendation = StructuredParser.parse_response(recs_resp, Recommendation)
+                recommendation = StructuredParser.parse_response(
+                    recs_resp, Recommendation
+                )
                 recommendations = [recommendation]
             except Exception:
                 # Fallback parsed items using dynamic feature reference
                 feat_fallback = "features"
                 if ml_result and getattr(ml_result, "feature_importances", None):
                     feat_fallback = ml_result.feature_importances[0].column
-                recommendations = [Recommendation(
-                    title=f"Optimize engineering for {feat_fallback}",
-                    description=f"Further audit and transform feature variables like {feat_fallback} to boost predictive margins.",
-                    actionability="High"
-                )]
+                recommendations = [
+                    Recommendation(
+                        title=f"Optimize engineering for {feat_fallback}",
+                        description=f"Further audit and transform feature variables like {feat_fallback} to boost predictive margins.",
+                        actionability="High",
+                    )
+                ]
 
             # E. Risk Audits
-            risks_prompt = RiskAnalysisBuilder.build_prompt(best_metrics_str, importances_str)
+            risks_prompt = RiskAnalysisBuilder.build_prompt(
+                best_metrics_str, importances_str
+            )
             risks_resp = self.llm.generate(risks_prompt)
             try:
                 risk_item = StructuredParser.parse_response(risks_resp, RiskItem)
@@ -158,16 +176,22 @@ class BusinessInsightAgent:
                 feat_fallback = "features"
                 if ml_result and getattr(ml_result, "feature_importances", None):
                     feat_fallback = ml_result.feature_importances[0].column
-                risks = [RiskItem(
-                    severity="Medium",
-                    probability="Low",
-                    description=f"Model sensitivity vulnerabilities targeting feature variance in {feat_fallback}."
-                )]
+                risks = [
+                    RiskItem(
+                        severity="Medium",
+                        probability="Low",
+                        description=f"Model sensitivity vulnerabilities targeting feature variance in {feat_fallback}.",
+                    )
+                ]
 
             # F. Confidence verification
-            conf_prompt = ConfidenceBuilder.build_prompt(best_metrics_str, profile_summary)
+            conf_prompt = ConfidenceBuilder.build_prompt(
+                best_metrics_str, profile_summary
+            )
             conf_resp = self.llm.generate(conf_prompt)
-            confidence_report = StructuredParser.parse_response(conf_resp, ConfidenceReport)
+            confidence_report = StructuredParser.parse_response(
+                conf_resp, ConfidenceReport
+            )
 
             # 3. Retrieve token costs from session cost tracker
             session_stats = CostTracker.get_session_summary()
@@ -181,11 +205,13 @@ class BusinessInsightAgent:
                 log_id=log_record.id,
                 status="completed",
                 duration_seconds=duration,
-                error_message=f"Generated executive report. Estimated Cost: ${round(session_stats['session_cost'], 6)}"
+                error_message=f"Generated executive report. Estimated Cost: ${round(session_stats['session_cost'], 6)}",
             )
             self.db.commit()
 
-            logger.info(f"BusinessInsightAgent: Analysis completed successfully in {round(duration, 4)}s")
+            logger.info(
+                f"BusinessInsightAgent: Analysis completed successfully in {round(duration, 4)}s"
+            )
             return BusinessInsightResult(
                 executive_summary=exec_summary,
                 dataset_insight=dataset_insight,
@@ -195,9 +221,9 @@ class BusinessInsightAgent:
                 confidence_report=confidence_report,
                 token_usage={
                     "input_tokens": session_stats["session_input_tokens"],
-                    "output_tokens": session_stats["session_output_tokens"]
+                    "output_tokens": session_stats["session_output_tokens"],
                 },
-                estimated_cost_usd=session_stats["session_cost"]
+                estimated_cost_usd=session_stats["session_cost"],
             )
 
         except Exception as e:
@@ -207,7 +233,7 @@ class BusinessInsightAgent:
                 log_id=log_record.id,
                 status="failed",
                 duration_seconds=duration,
-                error_message=f"Orchestration error: {str(e)}"
+                error_message=f"Orchestration error: {str(e)}",
             )
             self.db.commit()
             raise ValueError(f"Agent error running BusinessInsightAgent: {e}") from e

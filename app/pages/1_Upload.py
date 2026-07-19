@@ -28,13 +28,11 @@ def main() -> None:
     setup_page("Upload & Run")
 
     st.title("📂 Ingestion & Execution Panel")
-    st.markdown(
-        """
+    st.markdown("""
         Upload your structured dataset (CSV, Excel, or Parquet) and select the target variable. 
         If you select a target, the workflow will run automated feature engineering and model training. 
         If left blank, the pipeline will skip modeling and jump to visualizations and insights.
-        """
-    )
+        """)
     st.divider()
 
     uploaded_file = upload_dataset()
@@ -63,10 +61,12 @@ def main() -> None:
                 "🎯 Select Target Variable (Optional)",
                 options=columns,
                 index=0,
-                help="Variable to predict. Leaving this blank skips ML/AutoML modeling."
+                help="Variable to predict. Leaving this blank skips ML/AutoML modeling.",
             )
 
-            st.session_state.target_column = selected_target if selected_target else None
+            st.session_state.target_column = (
+                selected_target if selected_target else None
+            )
 
             # Render Execute Button
             st.markdown("### Run Analytics Engine")
@@ -84,7 +84,7 @@ def main() -> None:
                     result = service.run(
                         dataset_path=str(saved_path),
                         target_column=target,
-                        on_event=progress_viewer
+                        on_event=progress_viewer,
                     )
 
                     set_workflow_result(result)

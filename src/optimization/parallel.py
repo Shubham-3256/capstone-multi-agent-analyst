@@ -18,7 +18,7 @@ def parallel_map(
     func: Callable[[T], R],
     items: list[T],
     max_workers: int = OptimizationConfig.PARALLEL_JOBS,
-    use_processes: bool = False
+    use_processes: bool = False,
 ) -> list[R]:
     """Execute a mapping function over a collection of items in parallel.
 
@@ -44,7 +44,9 @@ def parallel_map(
     if workers <= 1 or len(items) == 1:
         return [func(item) for item in items]
 
-    logger.info(f"Parallel Execution: Processing {len(items)} items using {workers} workers (mode={'processes' if use_processes else 'threads'})")
+    logger.info(
+        f"Parallel Execution: Processing {len(items)} items using {workers} workers (mode={'processes' if use_processes else 'threads'})"
+    )
 
     results: list[R] = []
     if use_processes:

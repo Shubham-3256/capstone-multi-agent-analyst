@@ -15,7 +15,9 @@ logger = get_logger(__name__)
 class LLMCache:
     """JSON-file backed cache client for indexing and retrieving LLM prompt responses."""
 
-    def __init__(self, cache_file: Path | None = None, ttl_seconds: int = 86400) -> None:
+    def __init__(
+        self, cache_file: Path | None = None, ttl_seconds: int = 86400
+    ) -> None:
         """Initialize LLMCache.
 
         Args:
@@ -36,9 +38,13 @@ class LLMCache:
             try:
                 with open(self.cache_file, encoding="utf-8") as f:
                     self.data_ = json.load(f)
-                logger.info(f"LLMCache: Loaded {len(self.data_)} cached entries from {self.cache_file}")
+                logger.info(
+                    f"LLMCache: Loaded {len(self.data_)} cached entries from {self.cache_file}"
+                )
             except Exception as e:
-                logger.warning(f"LLMCache: Failed to load cache file: {e}. Starting fresh.")
+                logger.warning(
+                    f"LLMCache: Failed to load cache file: {e}. Starting fresh."
+                )
 
     def _save_cache(self) -> None:
         """Internal helper to save cache index dictionary to disk."""
@@ -79,13 +85,17 @@ class LLMCache:
         age = time.time() - timestamp
 
         if age > self.ttl_seconds:
-            logger.info(f"LLMCache: Cache hit for key {prompt_hash[:8]} but expired (age: {round(age, 1)}s > TTL: {self.ttl_seconds}s).")
+            logger.info(
+                f"LLMCache: Cache hit for key {prompt_hash[:8]} but expired (age: {round(age, 1)}s > TTL: {self.ttl_seconds}s)."
+            )
             # Prune expired entry
             del self.data_[prompt_hash]
             self._save_cache()
             return None
 
-        logger.info(f"LLMCache: Cache HIT for key {prompt_hash[:8]} (age: {round(age, 1)}s)")
+        logger.info(
+            f"LLMCache: Cache HIT for key {prompt_hash[:8]} (age: {round(age, 1)}s)"
+        )
         return entry.get("response")
 
     def set(self, prompt: str, response: str) -> None:
@@ -96,9 +106,6 @@ class LLMCache:
             response: LLM response text.
         """
         prompt_hash = self.calculate_hash(prompt)
-        self.data_[prompt_hash] = {
-            "timestamp": time.time(),
-            "response": response
-        }
+        self.data_[prompt_hash] = {"timestamp": time.time(), "response": response}
         self._save_cache()
         logger.info(f"LLMCache: Cached response for key {prompt_hash[:8]}")

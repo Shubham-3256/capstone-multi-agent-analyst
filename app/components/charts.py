@@ -38,7 +38,7 @@ def render_chart(chart_meta: Any) -> None:
     details = getattr(caption_obj, "details", "") if caption_obj else ""
 
     st.markdown(f"### {title}")
-    
+
     if chart_id == "missing_heatmap" and not getattr(chart_meta, "file_path", ""):
         st.info("No missing values detected.")
         return
@@ -55,7 +55,10 @@ def render_chart(chart_meta: Any) -> None:
             with open(html_path, encoding="utf-8") as f:
                 html_content = f.read()
             import urllib.parse
-            data_url = "data:text/html;charset=utf-8," + urllib.parse.quote(html_content)
+
+            data_url = "data:text/html;charset=utf-8," + urllib.parse.quote(
+                html_content
+            )
             st.iframe(data_url, height=450)
             rendered = True
         except Exception as e:
@@ -88,7 +91,7 @@ def render_chart(chart_meta: Any) -> None:
                 data=btn_bytes,
                 file_name=f"{chart_id}.png",
                 mime="image/png",
-                key=f"dl_png_{chart_id}"
+                key=f"dl_png_{chart_id}",
             )
 
     if html_path and html_path.exists():
@@ -100,6 +103,5 @@ def render_chart(chart_meta: Any) -> None:
                 data=html_bytes,
                 file_name=f"{chart_id}.html",
                 mime="text/html",
-                key=f"dl_html_{chart_id}"
+                key=f"dl_html_{chart_id}",
             )
-

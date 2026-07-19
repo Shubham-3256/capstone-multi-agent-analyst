@@ -8,11 +8,11 @@ def test_ranking_classification():
     metrics = {
         "RandomForest": {"f1": 0.85, "accuracy": 0.88},
         "LogisticRegression": {"f1": 0.72, "accuracy": 0.76},
-        "GradientBoosting": {"f1": 0.91, "accuracy": 0.93}
+        "GradientBoosting": {"f1": 0.91, "accuracy": 0.93},
     }
-    
+
     leaderboard, best = ModelRanker.rank_models(metrics, "classification")
-    
+
     assert best == "GradientBoosting"
     assert leaderboard.entries[0].model_name == "GradientBoosting"
     assert leaderboard.entries[1].model_name == "RandomForest"
@@ -25,11 +25,11 @@ def test_ranking_regression():
     metrics = {
         "Ridge": {"rmse": 1.25, "r2": 0.81},
         "LinearRegression": {"rmse": 1.48, "r2": 0.75},
-        "RandomForest": {"rmse": 0.92, "r2": 0.90}
+        "RandomForest": {"rmse": 0.92, "r2": 0.90},
     }
-    
+
     leaderboard, best = ModelRanker.rank_models(metrics, "regression")
-    
+
     assert best == "RandomForest"
     assert leaderboard.entries[0].model_name == "RandomForest"
     assert leaderboard.entries[1].model_name == "Ridge"

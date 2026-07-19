@@ -47,7 +47,7 @@ class FeatureEngineeringAgent:
         self,
         dataframe: pd.DataFrame,
         target_column: str,
-        config_path: Path | None = None
+        config_path: Path | None = None,
     ) -> FeatureEngineeringResult:
         """Execute feature engineering pipeline: Detect -> Generate -> Encode -> Scale -> Select -> Split -> Save Pipeline.
 
@@ -70,11 +70,13 @@ class FeatureEngineeringAgent:
             task_name="feature_engineering_pipeline",
             agent_name="FeatureEngineeringAgent",
             status="running",
-            parameters=str({
-                "target_column": target_column,
-                "strategy": config.split.strategy,
-                "selection_method": config.selection.method
-            })
+            parameters=str(
+                {
+                    "target_column": target_column,
+                    "strategy": config.split.strategy,
+                    "selection_method": config.selection.method,
+                }
+            ),
         )
         self.log_repo.create(log_record)
         self.db.commit()
@@ -83,10 +85,14 @@ class FeatureEngineeringAgent:
             # 1. Feature Detection
             detect_report = FeatureDetector.detect(dataframe, target_column)
             feature_types = detect_report["feature_types"]
-            identifier_cols = [col for col, t in feature_types.items() if t == "identifier"]
+            identifier_cols = [
+                col for col, t in feature_types.items() if t == "identifier"
+            ]
 
             # 2. Leakage Detection
-            leak_report = LeakageDetector.detect_leakage(dataframe, target_column, identifier_cols)
+            leak_report = LeakageDetector.detect_leakage(
+                dataframe, target_column, identifier_cols
+            )
 
             # 3. Train/Validation/Test Split
             train_df, val_df, test_df, split_report = TrainValidationSplitter.split(
@@ -96,32 +102,46 @@ class FeatureEngineeringAgent:
                 train_ratio=config.split.train_ratio,
                 val_ratio=config.split.val_ratio,
                 test_ratio=config.split.test_ratio,
-                random_seed=config.split.random_seed
+                random_seed=config.split.random_seed,
             )
 
             # Extract target vectors for fitting
-            y_train = train_df[target_column] if target_column in train_df.columns else None
+            y_train = (
+                train_df[target_column] if target_column in train_df.columns else None
+            )
 
             # 4. Build and Fit scikit-learn preprocessing pipeline on train features
             pipeline = PipelineBuilder.build_and_fit(
                 df_train=train_df,
                 y_train=y_train,
                 config=config,
-                target_column=target_column
+                target_column=target_column,
             )
 
             # 5. Transform Train, Validation, and Test datasets using fitted pipeline
-            X_train = train_df.drop(columns=[target_column]) if target_column in train_df.columns else train_df
+            X_train = (
+                train_df.drop(columns=[target_column])
+                if target_column in train_df.columns
+                else train_df
+            )
             X_train_trans = pipeline.transform(X_train)
             if target_column in train_df.columns:
                 X_train_trans[target_column] = train_df[target_column].values
 
-            X_val = val_df.drop(columns=[target_column]) if target_column in val_df.columns else val_df
+            X_val = (
+                val_df.drop(columns=[target_column])
+                if target_column in val_df.columns
+                else val_df
+            )
             X_val_trans = pipeline.transform(X_val)
             if target_column in val_df.columns:
                 X_val_trans[target_column] = val_df[target_column].values
 
-            X_test = test_df.drop(columns=[target_column]) if target_column in test_df.columns else test_df
+            X_test = (
+                test_df.drop(columns=[target_column])
+                if target_column in test_df.columns
+                else test_df
+            )
             X_test_trans = pipeline.transform(X_test)
             if target_column in test_df.columns:
                 X_test_trans[target_column] = test_df[target_column].values
@@ -145,13 +165,16 @@ class FeatureEngineeringAgent:
             encoder_step = pipeline.named_steps["encoder"]
             encoding_report = EncodingReport(
                 strategy_used=encoder_step.strategies_,
-                mappings={k: {str(cat): int(idx) for idx, cat in enumerate(v.categories_[0])} for k, v in encoder_step.onehot_transformers_.items()}
+                mappings={
+                    k: {str(cat): int(idx) for idx, cat in enumerate(v.categories_[0])}
+                    for k, v in encoder_step.onehot_transformers_.items()
+                },
             )
 
             scaler_step = pipeline.named_steps["scaler"]
             scaling_report = ScalingReport(
                 scaler_type=scaler_step.scalers_,
-                scaling_parameters=scaler_step.scaling_params_
+                scaling_parameters=scaler_step.scaling_params_,
             )
 
             selector_step = pipeline.named_steps["selector"]
@@ -160,7 +183,7 @@ class FeatureEngineeringAgent:
                 original_count=X_train.shape[1],
                 selected_count=len(selector_step.columns_to_keep_),
                 selected_features=selector_step.columns_to_keep_,
-                feature_importances=selector_step.feature_importances_
+                feature_importances=selector_step.feature_importances_,
             )
 
             # 8. Register split files in database DatasetRecords
@@ -180,7 +203,7 @@ class FeatureEngineeringAgent:
                         file_size_bytes=file_size,
                         row_count=rows,
                         column_count=cols,
-                        status=status_label
+                        status=status_label,
                     )
                     self.dataset_repo.create(record)
                 else:
@@ -189,20 +212,22 @@ class FeatureEngineeringAgent:
                     record.column_count = cols
                 return record
 
-            train_record = register_split(train_filepath, "train_split", *X_train_trans.shape)
+            train_record = register_split(
+                train_filepath, "train_split", *X_train_trans.shape
+            )
             register_split(val_filepath, "val_split", *X_val_trans.shape)
             register_split(test_filepath, "test_split", *X_test_trans.shape)
 
             # Update log as completed
             duration = time.time() - start_time
             self.log_repo.update_status(
-                log_id=log_record.id,
-                status="completed",
-                duration_seconds=duration
+                log_id=log_record.id, status="completed", duration_seconds=duration
             )
             self.db.commit()
 
-            logger.info(f"FeatureEngineeringAgent: Pipeline run completed in {round(duration, 4)}s")
+            logger.info(
+                f"FeatureEngineeringAgent: Pipeline run completed in {round(duration, 4)}s"
+            )
             return FeatureEngineeringResult(
                 dataset_id=train_record.id,
                 is_success=True,
@@ -216,7 +241,7 @@ class FeatureEngineeringAgent:
                 train_filepath=str(train_filepath),
                 val_filepath=str(val_filepath),
                 test_filepath=str(test_filepath),
-                duration_seconds=duration
+                duration_seconds=duration,
             )
 
         except Exception as e:
@@ -226,7 +251,9 @@ class FeatureEngineeringAgent:
                 log_id=log_record.id,
                 status="failed",
                 duration_seconds=duration,
-                error_message=f"Pipeline error: {str(e)}"
+                error_message=f"Pipeline error: {str(e)}",
             )
             self.db.commit()
-            raise DatasetException(f"Pipeline error executing FeatureEngineeringAgent: {e}") from e
+            raise DatasetException(
+                f"Pipeline error executing FeatureEngineeringAgent: {e}"
+            ) from e

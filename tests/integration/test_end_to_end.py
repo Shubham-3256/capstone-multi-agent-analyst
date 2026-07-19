@@ -1,21 +1,27 @@
 """Exhaustive Integration test verifying complete end-to-end data analytics workflow execution."""
 
-import pytest
 import pandas as pd
-from pathlib import Path
+import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.database.base import Base
-from src.database.models import ExecutionLog, DatasetRecord, ReportRecord, WorkflowExecution
-from src.orchestration.graph import WorkflowGraph
+from src.database.models import (
+    DatasetRecord,
+    ExecutionLog,
+    ReportRecord,
+    WorkflowExecution,
+)
 from src.orchestration.config import WorkflowConfig
+from src.orchestration.graph import WorkflowGraph
 
 
 @pytest.fixture
 def clean_db():
     """Fixture providing clean in-memory SQLite database session."""
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False}
+    )
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
@@ -29,22 +35,40 @@ def test_complete_end_to_end_pipeline(clean_db):
     """Verify full workflow runs successfully (Upload -> Data Intel -> FE -> ML -> Viz -> Business -> Report -> History)."""
     # 1. Create a dummy dataset inside workspace
     from src.core.paths import Paths
+
     temp_dir = Paths.WORKSPACE_DIR / "temp"
     temp_dir.mkdir(parents=True, exist_ok=True)
     dataset_file = temp_dir / "e2e_dataset.csv"
-    
+
     # 20 samples to ensure robust StratifiedKFold validation splits
-    df = pd.DataFrame({
-        "user_id": [f"U{i}" for i in range(20)],
-        "age": [20, 25, 30, 35, 40, 45, 50, 55, 60, 65] * 2,
-        "income": [40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000] * 2,
-        "satisfaction_score": [1.2, 3.4, 2.5, 4.0, 3.1, 4.5, 3.8, 4.9, 2.0, 4.1] * 2,
-        "churn": [0, 0, 1, 0, 1, 0, 0, 1, 1, 0] * 2
-    })
+    df = pd.DataFrame(
+        {
+            "user_id": [f"U{i}" for i in range(20)],
+            "age": [20, 25, 30, 35, 40, 45, 50, 55, 60, 65] * 2,
+            "income": [
+                40000,
+                50000,
+                60000,
+                70000,
+                80000,
+                90000,
+                100000,
+                110000,
+                120000,
+                130000,
+            ]
+            * 2,
+            "satisfaction_score": [1.2, 3.4, 2.5, 4.0, 3.1, 4.5, 3.8, 4.9, 2.0, 4.1]
+            * 2,
+            "churn": [0, 0, 1, 0, 1, 0, 0, 1, 1, 0] * 2,
+        }
+    )
     df.to_csv(dataset_file, index=False)
 
     # 2. Instantiate graph running E2E with mock LLM key
-    graph = WorkflowGraph(config=WorkflowConfig(checkpoint_mode="none", persist_execution=True))
+    graph = WorkflowGraph(
+        config=WorkflowConfig(checkpoint_mode="none", persist_execution=True)
+    )
     graph.db = clean_db
     graph.nodes.callbacks = graph._default_callbacks()
 

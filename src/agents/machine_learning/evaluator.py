@@ -33,7 +33,7 @@ class Evaluator:
         X_test: pd.DataFrame,
         y_test: pd.Series,
         task_type: str,
-        is_binary: bool | None = None
+        is_binary: bool | None = None,
     ) -> EvaluationReport:
         """Calculate performance metrics on validation data.
 
@@ -63,10 +63,18 @@ class Evaluator:
         if task_type == "classification":
             # 1. Classification Metrics
             metrics["accuracy"] = float(accuracy_score(y_clean, y_pred))
-            metrics["precision"] = float(precision_score(y_clean, y_pred, average="macro", zero_division=0))
-            metrics["recall"] = float(recall_score(y_clean, y_pred, average="macro", zero_division=0))
-            metrics["f1"] = float(f1_score(y_clean, y_pred, average="macro", zero_division=0))
-            metrics["balanced_accuracy"] = float(balanced_accuracy_score(y_clean, y_pred))
+            metrics["precision"] = float(
+                precision_score(y_clean, y_pred, average="macro", zero_division=0)
+            )
+            metrics["recall"] = float(
+                recall_score(y_clean, y_pred, average="macro", zero_division=0)
+            )
+            metrics["f1"] = float(
+                f1_score(y_clean, y_pred, average="macro", zero_division=0)
+            )
+            metrics["balanced_accuracy"] = float(
+                balanced_accuracy_score(y_clean, y_pred)
+            )
 
             # Compute confusion matrix
             matrix = confusion_matrix(y_clean, y_pred)
@@ -79,7 +87,11 @@ class Evaluator:
                     if is_binary or y_prob.shape[1] == 2:
                         metrics["roc_auc"] = float(roc_auc_score(y_clean, y_prob[:, 1]))
                     else:
-                        metrics["roc_auc"] = float(roc_auc_score(y_clean, y_prob, multi_class="ovr", average="macro"))
+                        metrics["roc_auc"] = float(
+                            roc_auc_score(
+                                y_clean, y_prob, multi_class="ovr", average="macro"
+                            )
+                        )
                 except Exception as e:
                     logger.warning(f"Failed to calculate ROC AUC: {e}")
                     metrics["roc_auc"] = 0.0
@@ -104,7 +116,7 @@ class Evaluator:
                 "mean": float(np.mean(residuals)),
                 "std": float(np.std(residuals)),
                 "min": float(np.min(residuals)),
-                "max": float(np.max(residuals))
+                "max": float(np.max(residuals)),
             }
 
         # Round metrics for readability
@@ -114,5 +126,5 @@ class Evaluator:
         return EvaluationReport(
             metrics=metrics,
             confusion_matrix=conf_matrix,
-            residuals_summary=residuals_summary
+            residuals_summary=residuals_summary,
         )

@@ -1,6 +1,5 @@
 """End-to-end orchestration tests using mock agent callbacks."""
 
-from pathlib import Path
 from types import SimpleNamespace
 
 from src.orchestration.config import WorkflowConfig
@@ -15,7 +14,9 @@ def test_workflow_skips_modeling_and_returns_report(tmp_path):
 
     def data_agent(path, target):
         calls.append("data")
-        return SimpleNamespace(is_valid=True, profile={"rows": 1}, cleaned_filepath=str(path))
+        return SimpleNamespace(
+            is_valid=True, profile={"rows": 1}, cleaned_filepath=str(path)
+        )
 
     def visualization(profile, feature, model, target=None):
         calls.append("visualization")
@@ -31,13 +32,20 @@ def test_workflow_skips_modeling_and_returns_report(tmp_path):
 
     callbacks = {
         "data_intelligence": data_agent,
-        "feature_engineering": lambda *_: (_ for _ in ()).throw(AssertionError("should skip")),
-        "machine_learning": lambda *_: (_ for _ in ()).throw(AssertionError("should skip")),
+        "feature_engineering": lambda *_: (_ for _ in ()).throw(
+            AssertionError("should skip")
+        ),
+        "machine_learning": lambda *_: (_ for _ in ()).throw(
+            AssertionError("should skip")
+        ),
         "visualization": visualization,
         "business_insights": insights,
         "report_generation": report,
     }
-    graph = WorkflowGraph(config=WorkflowConfig(checkpoint_mode="none", persist_execution=False), callbacks=callbacks)
+    graph = WorkflowGraph(
+        config=WorkflowConfig(checkpoint_mode="none", persist_execution=False),
+        callbacks=callbacks,
+    )
     result = graph.run(str(dataset))
     assert result.is_success
     assert result.output_paths["markdown"] == "report.md"

@@ -8,6 +8,7 @@ import streamlit as st
 def render_table(data: Any, empty_message: str = "No data available yet.") -> None:
     """Render tabular data or a consistent empty state."""
     import pandas as pd
+
     if data is None:
         st.info(empty_message)
         return
@@ -26,7 +27,11 @@ def render_table(data: Any, empty_message: str = "No data available yet.") -> No
         st.write(data)
 
 
-def render_html_table(headers: list[str], rows: list[list[Any]], empty_message: str = "No data available yet.") -> None:
+def render_html_table(
+    headers: list[str],
+    rows: list[list[Any]],
+    empty_message: str = "No data available yet.",
+) -> None:
     """Render a premium styled HTML table for clean data presentation."""
     if not headers or not rows:
         st.info(empty_message)
@@ -50,4 +55,3 @@ def render_html_table(headers: list[str], rows: list[list[Any]], empty_message: 
     </div>
     """
     st.markdown(html, unsafe_allow_html=True)
-

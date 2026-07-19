@@ -15,16 +15,25 @@ def main() -> None:
     """Run the workflow over a sample dataset and print orchestration telemetry."""
     dataset = PROJECT_ROOT / "workspace" / "uploads" / "mock_churn.csv"
     callbacks = {
-        "data_intelligence": lambda path, target: SimpleNamespace(is_valid=True, profile={"dataset": path.name}, cleaned_filepath=str(path)),
+        "data_intelligence": lambda path, target: SimpleNamespace(
+            is_valid=True, profile={"dataset": path.name}, cleaned_filepath=str(path)
+        ),
         "feature_engineering": lambda *_: None,
         "machine_learning": lambda *_: None,
         "visualization": lambda *_: SimpleNamespace(is_success=True),
         "business_insights": lambda *_: SimpleNamespace(),
-        "report_generation": lambda *_: SimpleNamespace(output_paths={"markdown": "mock-report.md"}),
+        "report_generation": lambda *_: SimpleNamespace(
+            output_paths={"markdown": "mock-report.md"}
+        ),
     }
-    workflow = WorkflowGraph(config=WorkflowConfig(checkpoint_mode="file", persist_execution=False), callbacks=callbacks)
+    workflow = WorkflowGraph(
+        config=WorkflowConfig(checkpoint_mode="file", persist_execution=False),
+        callbacks=callbacks,
+    )
     result = workflow.run(str(dataset))
-    print("Execution order:", [item.node_name for item in result.state.execution_history])
+    print(
+        "Execution order:", [item.node_name for item in result.state.execution_history]
+    )
     print("Timing:", result.state.timing)
     print("Skipped nodes:", ["feature_engineering", "machine_learning"])
     print("Final outputs:", result.output_paths)

@@ -1,6 +1,5 @@
 """Financial cost and token counters tracker tracking prompt and completion metrics."""
 
-
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -20,7 +19,7 @@ class CostTracker:
         input_tokens: int,
         output_tokens: int,
         cost_per_million_input: float = 5.0,
-        cost_per_million_output: float = 15.0
+        cost_per_million_output: float = 15.0,
     ) -> dict[str, float]:
         """Record usage metrics for a single request. Accumulates to session stats.
 
@@ -52,7 +51,7 @@ class CostTracker:
         return {
             "input_tokens": float(input_tokens),
             "output_tokens": float(output_tokens),
-            "cost": round(total_cost, 6)
+            "cost": round(total_cost, 6),
         }
 
     @classmethod
@@ -65,7 +64,7 @@ class CostTracker:
         return {
             "session_input_tokens": float(cls.session_input_tokens),
             "session_output_tokens": float(cls.session_output_tokens),
-            "session_cost": round(cls.session_estimated_cost, 6)
+            "session_cost": round(cls.session_estimated_cost, 6),
         }
 
     @classmethod

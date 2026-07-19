@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -54,7 +54,6 @@ def serialize_state(state: WorkflowState) -> dict[str, Any]:
 class WorkflowGraph:
     """Coordinates the agent pipeline while retaining business logic in agents."""
 
-
     def __init__(
         self,
         config: WorkflowConfig | None = None,
@@ -68,18 +67,34 @@ class WorkflowGraph:
         self.db = SessionLocal()
         self.callbacks = callbacks or self._default_callbacks()
         self.file_checkpoints = FileCheckpointStore(self.config.checkpoint_dir)
-        self.nodes = WorkflowNodes(NodeExecutor(self.config.max_retries, self.events), self.callbacks)
+        self.nodes = WorkflowNodes(
+            NodeExecutor(self.config.max_retries, self.events), self.callbacks
+        )
         self.graph = self._compile()
 
     def _default_callbacks(self) -> dict[str, Callable[..., Any]]:
         """Adapt existing agent methods to the graph callback interface."""
         return {
-            "data_intelligence": lambda path, target: DataIntelligenceAgent(self.db).run(path, target),
-            "feature_engineering": lambda dataframe, target: FeatureEngineeringAgent(self.db).run(dataframe, target),
-            "machine_learning": lambda train, target, valid, valid_target: MachineLearningAgent(self.db).run(train, target, valid, valid_target),
-            "visualization": lambda profile, feature, ml, target: VisualizationAgent(self.db).run(profile, feature, ml, target_column=target),
-            "business_insights": lambda profile, feature, ml, viz: BusinessInsightAgent(self.db).run(profile, feature, ml, viz),
-            "report_generation": lambda profile, feature, ml, viz, business, template: ReportGenerationAgent(self.db).run(profile, feature, ml, viz, business, template),
+            "data_intelligence": lambda path, target: DataIntelligenceAgent(
+                self.db
+            ).run(path, target),
+            "feature_engineering": lambda dataframe, target: FeatureEngineeringAgent(
+                self.db
+            ).run(dataframe, target),
+            "machine_learning": lambda train, target, valid, valid_target: (
+                MachineLearningAgent(self.db).run(train, target, valid, valid_target)
+            ),
+            "visualization": lambda profile, feature, ml, target: VisualizationAgent(
+                self.db
+            ).run(profile, feature, ml, target_column=target),
+            "business_insights": lambda profile, feature, ml, viz: BusinessInsightAgent(
+                self.db
+            ).run(profile, feature, ml, viz),
+            "report_generation": lambda profile, feature, ml, viz, business, template: (
+                ReportGenerationAgent(self.db).run(
+                    profile, feature, ml, viz, business, template
+                )
+            ),
         }
 
     @staticmethod
@@ -87,14 +102,18 @@ class WorkflowGraph:
         """Convert LangGraph's dictionary state to the canonical Pydantic model."""
         return WorkflowState.model_validate(raw)
 
-    def _wrap(self, callback: Callable[[WorkflowState], dict[str, Any]]) -> Callable[[dict[str, Any]], dict[str, Any]]:
+    def _wrap(
+        self, callback: Callable[[WorkflowState], dict[str, Any]]
+    ) -> Callable[[dict[str, Any]], dict[str, Any]]:
         """Adapt typed node callbacks to the dictionary protocol used by StateGraph."""
+
         def node(raw: dict[str, Any]) -> dict[str, Any]:
             state = self._state(raw)
             updates = callback(state)
             for key, value in updates.items():
                 setattr(state, key, value)
             return serialize_state(state)
+
         return node
 
     def _route_data(self, raw: dict[str, Any]) -> str:
@@ -110,7 +129,9 @@ class WorkflowGraph:
         builder = StateGraph(dict)
         builder.add_node("load_dataset", self._wrap(self.nodes.load_dataset))
         builder.add_node("data_intelligence", self._wrap(self.nodes.data_intelligence))
-        builder.add_node("feature_engineering", self._wrap(self.nodes.feature_engineering))
+        builder.add_node(
+            "feature_engineering", self._wrap(self.nodes.feature_engineering)
+        )
         builder.add_node("machine_learning", self._wrap(self.nodes.machine_learning))
         builder.add_node("visualization", self._wrap(self.nodes.visualization))
         builder.add_node("business_insights", self._wrap(self.nodes.business_insights))
@@ -125,36 +146,68 @@ class WorkflowGraph:
         builder.add_edge("business_insights", "report_generation")
         builder.add_edge("report_generation", "finalize")
         builder.add_edge("finalize", END)
-        return builder.compile(checkpointer=memory_checkpointer() if self.config.checkpoint_mode == "memory" else None)
+        return builder.compile(
+            checkpointer=(
+                memory_checkpointer()
+                if self.config.checkpoint_mode == "memory"
+                else None
+            )
+        )
 
-    def run(self, dataset_path: str, target_column: str | None = None, workflow_id: str | None = None) -> WorkflowResult:
+    def run(
+        self,
+        dataset_path: str,
+        target_column: str | None = None,
+        workflow_id: str | None = None,
+    ) -> WorkflowResult:
         """Execute the graph and return a typed result, including graceful skips/errors."""
         identifier = workflow_id or str(uuid.uuid4())
         if self.config.checkpoint_mode == "file" and workflow_id:
             restored = self.file_checkpoints.load(workflow_id)
             if restored:
-                return WorkflowResult(is_success=not restored.errors, state=restored, output_paths=self._paths(restored))
-        
+                return WorkflowResult(
+                    is_success=not restored.errors,
+                    state=restored,
+                    output_paths=self._paths(restored),
+                )
+
         norm_target = None
         if target_column:
             import re
+
             norm_target = str(target_column).strip().lower().replace(" ", "_")
             norm_target = re.sub(r"[^\w\-]", "", norm_target)
-            
+
         state = WorkflowState(
             dataset_path=str(Path(dataset_path)),
-            metadata=WorkflowMetadata(workflow_id=identifier, target_column=norm_target, template_type=self.config.template_type),
+            metadata=WorkflowMetadata(
+                workflow_id=identifier,
+                target_column=norm_target,
+                template_type=self.config.template_type,
+            ),
         )
         self.events.publish(WorkflowEvent("workflow_started", identifier))
-        invoke_config = {"configurable": {"thread_id": identifier}} if self.config.checkpoint_mode == "memory" else {}
+        invoke_config = (
+            {"configurable": {"thread_id": identifier}}
+            if self.config.checkpoint_mode == "memory"
+            else {}
+        )
         final_raw = self.graph.invoke(serialize_state(state), config=invoke_config)
         final_state = self._state(final_raw)
-        final_state.metadata.completed_at = datetime.now(timezone.utc)
+        final_state.metadata.completed_at = datetime.now(UTC)
         if self.config.checkpoint_mode == "file":
             self.file_checkpoints.save(final_state)
-        result = WorkflowResult(is_success=not final_state.errors, state=final_state, output_paths=self._paths(final_state))
+        result = WorkflowResult(
+            is_success=not final_state.errors,
+            state=final_state,
+            output_paths=self._paths(final_state),
+        )
         self._persist(result)
-        self.events.publish(WorkflowEvent("workflow_completed", identifier, payload={"success": result.is_success}))
+        self.events.publish(
+            WorkflowEvent(
+                "workflow_completed", identifier, payload={"success": result.is_success}
+            )
+        )
         return result
 
     @staticmethod
@@ -171,18 +224,32 @@ class WorkflowGraph:
         """Persist workflow history, durations, errors, and output summary."""
         if not self.config.persist_execution:
             return
-        
-        existing = self.db.query(WorkflowExecution).filter_by(workflow_id=result.state.metadata.workflow_id).first()
+
+        existing = (
+            self.db.query(WorkflowExecution)
+            .filter_by(workflow_id=result.state.metadata.workflow_id)
+            .first()
+        )
         if existing:
             existing.status = "completed" if result.is_success else "degraded"
-            existing.history_json = json.dumps([item.model_dump(mode="json") for item in result.state.execution_history])
+            existing.history_json = json.dumps(
+                [
+                    item.model_dump(mode="json")
+                    for item in result.state.execution_history
+                ]
+            )
             existing.errors_json = json.dumps(result.state.errors)
             existing.timing_json = json.dumps(result.state.timing)
         else:
             record = WorkflowExecution(
                 workflow_id=result.state.metadata.workflow_id,
                 status="completed" if result.is_success else "degraded",
-                history_json=json.dumps([item.model_dump(mode="json") for item in result.state.execution_history]),
+                history_json=json.dumps(
+                    [
+                        item.model_dump(mode="json")
+                        for item in result.state.execution_history
+                    ]
+                ),
                 errors_json=json.dumps(result.state.errors),
                 timing_json=json.dumps(result.state.timing),
             )

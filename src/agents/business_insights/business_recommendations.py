@@ -18,6 +18,5 @@ class BusinessRecommendationsBuilder:
             str: Compiled prompt.
         """
         return PromptTemplates.RECOMMENDATIONS.format(
-            best_metrics=best_metrics,
-            importances=importances
+            best_metrics=best_metrics, importances=importances
         )

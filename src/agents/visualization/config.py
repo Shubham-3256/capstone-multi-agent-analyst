@@ -13,17 +13,31 @@ logger = get_logger(__name__)
 class PlotSizeConfig(BaseModel):
     """Configuration for output image sizing parameters."""
 
-    width_inches: float = Field(default=10.0, description="Matplotlib figure width in inches")
-    height_inches: float = Field(default=6.0, description="Matplotlib figure height in inches")
-    plotly_width_pixels: int = Field(default=1000, description="Plotly figure width in pixels")
-    plotly_height_pixels: int = Field(default=600, description="Plotly figure height in pixels")
+    width_inches: float = Field(
+        default=10.0, description="Matplotlib figure width in inches"
+    )
+    height_inches: float = Field(
+        default=6.0, description="Matplotlib figure height in inches"
+    )
+    plotly_width_pixels: int = Field(
+        default=1000, description="Plotly figure width in pixels"
+    )
+    plotly_height_pixels: int = Field(
+        default=600, description="Plotly figure height in pixels"
+    )
 
 
 class VisualizationConfig(BaseModel):
     """Unified configuration mapping for Visualization Agent runs."""
 
-    default_theme: str = Field(default="corporate", description="Theme key to apply ('light', 'dark', 'corporate')")
-    export_formats: list[str] = Field(default=["png", "html"], description="File formats to save ('png', 'svg', 'html', 'pdf')")
+    default_theme: str = Field(
+        default="corporate",
+        description="Theme key to apply ('light', 'dark', 'corporate')",
+    )
+    export_formats: list[str] = Field(
+        default=["png", "html"],
+        description="File formats to save ('png', 'svg', 'html', 'pdf')",
+    )
     size: PlotSizeConfig = Field(default_factory=PlotSizeConfig)
 
     @classmethod
@@ -43,5 +57,7 @@ class VisualizationConfig(BaseModel):
                 logger.info(f"Loaded visualization config from: {yaml_path}")
                 return cls(**content)
             except Exception as e:
-                logger.warning(f"Failed to load yaml config from {yaml_path}: {e}. Using defaults.")
+                logger.warning(
+                    f"Failed to load yaml config from {yaml_path}: {e}. Using defaults."
+                )
         return cls()

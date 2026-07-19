@@ -44,7 +44,14 @@ class LLMProvider:
 
         # 2. Parse candidate models
         best_model = "Decision Tree"
-        for m in ["gradient_boosting", "random_forest", "decision_tree", "logistic_regression", "k_neighbors", "gaussian_nb"]:
+        for m in [
+            "gradient_boosting",
+            "random_forest",
+            "decision_tree",
+            "logistic_regression",
+            "k_neighbors",
+            "gaussian_nb",
+        ]:
             if m in prompt_lower:
                 best_model = m.replace("_", " ").title()
                 break
@@ -53,12 +60,74 @@ class LLMProvider:
         feature_weights = {}
         matches = re.findall(r"(\w+)\s*[:=]\s*(0\.\d+|\d+)", prompt)
         for k, v in matches:
-            if k not in ["confidence_score", "completeness_score", "f1", "accuracy", "roc_auc", "recall", "precision", "score", "total_issues", "warnings", "errors", "total"]:
+            if k not in [
+                "confidence_score",
+                "completeness_score",
+                "f1",
+                "accuracy",
+                "roc_auc",
+                "recall",
+                "precision",
+                "score",
+                "total_issues",
+                "warnings",
+                "errors",
+                "total",
+            ]:
                 feature_weights[k] = float(v)
 
         features = list(feature_weights.keys())
         if not features:
-            exclude_words = {"model", "estimator", "rank", "score", "metrics", "target", "accuracy", "f1", "precision", "recall", "balanced_accuracy", "roc_auc", "cv", "validation", "dataset", "features", "columns", "summary", "profile", "headline", "takeaways", "impact", "severity", "probability", "reliability", "justification", "none", "true", "false", "null", "completeness", "anomalies", "recommendation", "insight", "conclusion", "algorithm", "weights", "logistic", "regression", "decision", "tree", "random", "forest", "gradient", "boosting", "neighbors", "gaussian", "nb"}
+            exclude_words = {
+                "model",
+                "estimator",
+                "rank",
+                "score",
+                "metrics",
+                "target",
+                "accuracy",
+                "f1",
+                "precision",
+                "recall",
+                "balanced_accuracy",
+                "roc_auc",
+                "cv",
+                "validation",
+                "dataset",
+                "features",
+                "columns",
+                "summary",
+                "profile",
+                "headline",
+                "takeaways",
+                "impact",
+                "severity",
+                "probability",
+                "reliability",
+                "justification",
+                "none",
+                "true",
+                "false",
+                "null",
+                "completeness",
+                "anomalies",
+                "recommendation",
+                "insight",
+                "conclusion",
+                "algorithm",
+                "weights",
+                "logistic",
+                "regression",
+                "decision",
+                "tree",
+                "random",
+                "forest",
+                "gradient",
+                "boosting",
+                "neighbors",
+                "gaussian",
+                "nb",
+            }
             words = re.findall(r"\b[a-zA-Z_]\w*\b", prompt)
             for w in words:
                 w_lower = w.lower()
@@ -70,7 +139,9 @@ class LLMProvider:
             features = ["feature_1", "feature_2", "feature_3"]
 
         if not feature_weights:
-            feature_weights = {f: round(0.5 / (i + 1), 2) for i, f in enumerate(features[:3])}
+            feature_weights = {
+                f: round(0.5 / (i + 1), 2) for i, f in enumerate(features[:3])
+            }
 
         feat_display = features[:3]
 
@@ -78,58 +149,72 @@ class LLMProvider:
             takeaways = [
                 f"Feature relevance analysis shows significant model reliance on key variables: {', '.join(feat_display)}.",
                 f"AutoML model search identified {best_model} as the optimal candidate based on cross-validation.",
-                "Dataset validation and quality audits completed successfully prior to training."
+                "Dataset validation and quality audits completed successfully prior to training.",
             ]
-            return json.dumps({
-                "headline": f"Data-driven predictive insights targeting {target} variables.",
-                "key_takeaways": takeaways,
-                "impact_statement": f"Optimization of target variable '{target}' can be achieved by prioritizing feature adjustments on {feat_display[0]}."
-            })
+            return json.dumps(
+                {
+                    "headline": f"Data-driven predictive insights targeting {target} variables.",
+                    "key_takeaways": takeaways,
+                    "impact_statement": f"Optimization of target variable '{target}' can be achieved by prioritizing feature adjustments on {feat_display[0]}.",
+                }
+            )
 
         elif "completeness_score" in prompt_lower:
-            return json.dumps({
-                "completeness_score": 1.0,
-                "anomalies_detected": [
-                    "No missing values or critical data quality blockages detected in numeric features."
-                ],
-                "recommendation": f"Monitor variance thresholds for feature inputs: {', '.join(feat_display)}."
-            })
+            return json.dumps(
+                {
+                    "completeness_score": 1.0,
+                    "anomalies_detected": [
+                        "No missing values or critical data quality blockages detected in numeric features."
+                    ],
+                    "recommendation": f"Monitor variance thresholds for feature inputs: {', '.join(feat_display)}.",
+                }
+            )
 
         elif "algorithm_name" in prompt_lower:
-            return json.dumps({
-                "algorithm_name": best_model,
-                "accuracy": 0.90,
-                "f1": 0.88,
-                "feature_weights": feature_weights,
-                "conclusion": f"The {best_model} model successfully resolved target boundaries with high stability."
-            })
+            return json.dumps(
+                {
+                    "algorithm_name": best_model,
+                    "accuracy": 0.90,
+                    "f1": 0.88,
+                    "feature_weights": feature_weights,
+                    "conclusion": f"The {best_model} model successfully resolved target boundaries with high stability.",
+                }
+            )
 
         elif "actionability" in prompt_lower:
-            return json.dumps({
-                "title": f"Optimize feature engineering for {feat_display[0]}",
-                "description": f"Refine scaling, imputation, or binning parameters for {feat_display[0]} to improve predictions of target '{target}'.",
-                "actionability": "High"
-            })
+            return json.dumps(
+                {
+                    "title": f"Optimize feature engineering for {feat_display[0]}",
+                    "description": f"Refine scaling, imputation, or binning parameters for {feat_display[0]} to improve predictions of target '{target}'.",
+                    "actionability": "High",
+                }
+            )
 
         elif "probability" in prompt_lower:
-            return json.dumps({
-                "severity": "Medium",
-                "probability": "Low",
-                "description": f"Potential risk of overfitting or data drift on feature '{feat_display[0]}' under smaller test splits."
-            })
+            return json.dumps(
+                {
+                    "severity": "Medium",
+                    "probability": "Low",
+                    "description": f"Potential risk of overfitting or data drift on feature '{feat_display[0]}' under smaller test splits.",
+                }
+            )
 
         elif "confidence_score" in prompt_lower:
-            return json.dumps({
-                "confidence_score": 0.90,
-                "reliability_rating": "High",
-                "justification": f"Validations checks and K-fold metrics indicate stable performance profiles for the {best_model} pipeline."
-            })
+            return json.dumps(
+                {
+                    "confidence_score": 0.90,
+                    "reliability_rating": "High",
+                    "justification": f"Validations checks and K-fold metrics indicate stable performance profiles for the {best_model} pipeline.",
+                }
+            )
 
         # Generic fallback
-        return json.dumps({
-            "insight": f"Pipeline analysis complete for target '{target}'.",
-            "metrics": {"score": 0.90}
-        })
+        return json.dumps(
+            {
+                "insight": f"Pipeline analysis complete for target '{target}'.",
+                "metrics": {"score": 0.90},
+            }
+        )
 
     @staticmethod
     def call_openai(prompt: str, config: LLMConfig) -> str:
@@ -148,7 +233,7 @@ class LLMProvider:
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}"
+            "Authorization": f"Bearer {api_key}",
         }
 
         payload = {
@@ -156,11 +241,13 @@ class LLMProvider:
             "messages": [{"role": "user", "content": prompt}],
             "temperature": config.temperature,
             "max_tokens": config.max_tokens,
-            "response_format": {"type": "json_object"}
+            "response_format": {"type": "json_object"},
         }
 
         logger.info(f"LLMProvider: Directing call to OpenAI endpoint: {url}")
-        response = requests.post(url, headers=headers, json=payload, timeout=config.timeout_seconds)
+        response = requests.post(
+            url, headers=headers, json=payload, timeout=config.timeout_seconds
+        )
         response.raise_for_status()
 
         data = response.json()
@@ -184,5 +271,7 @@ class LLMProvider:
             return LLMProvider.call_openai(prompt, config)
         else:
             # Fallback warning and routing to mock
-            logger.warning(f"LLMProvider: Unsupported provider '{config.provider}'. Falling back to Mock.")
+            logger.warning(
+                f"LLMProvider: Unsupported provider '{config.provider}'. Falling back to Mock."
+            )
             return LLMProvider.call_mock_provider(prompt)

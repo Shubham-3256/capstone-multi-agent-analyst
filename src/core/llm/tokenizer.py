@@ -24,6 +24,7 @@ class Tokenizer:
 
         try:
             import tiktoken
+
             try:
                 encoding = tiktoken.encoding_for_model(model_name)
                 return len(encoding.encode(text))

@@ -23,7 +23,7 @@ class Exporter:
         chart_type: str,
         figures: dict[str, Any],
         caption: ChartCaption,
-        base_dir: Path = Paths.WORKSPACE_DIR / "artifacts"
+        base_dir: Path = Paths.WORKSPACE_DIR / "artifacts",
     ) -> ChartMetadata:
         """Export Matplotlib figure to PNG/SVG and Plotly figure to HTML.
 
@@ -61,18 +61,24 @@ class Exporter:
             except Exception as e:
                 logger.error(f"  Failed to save matplotlib PNG: {e}")
         else:
-            logger.warning(f"  No matplotlib figure handle found for '{chart_id}' static export.")
+            logger.warning(
+                f"  No matplotlib figure handle found for '{chart_id}' static export."
+            )
 
         # 2. Export Plotly counterpart to interactive HTML
         fig_plotly = figures.get("plotly")
         if fig_plotly is not None:
             try:
-                fig_plotly.write_html(str(html_filepath), include_plotlyjs="cdn", full_html=False)
+                fig_plotly.write_html(
+                    str(html_filepath), include_plotlyjs="cdn", full_html=False
+                )
                 logger.info(f"  Saved interactive HTML to: {html_filepath}")
             except Exception as e:
                 logger.error(f"  Failed to save plotly HTML: {e}")
         else:
-            logger.warning(f"  No plotly figure handle found for '{chart_id}' interactive export.")
+            logger.warning(
+                f"  No plotly figure handle found for '{chart_id}' interactive export."
+            )
 
         return ChartMetadata(
             chart_id=chart_id,
@@ -80,7 +86,7 @@ class Exporter:
             chart_type=chart_type,
             file_path=str(png_filepath),
             html_path=str(html_filepath) if fig_plotly is not None else None,
-            caption=caption
+            caption=caption,
         )
 
     @staticmethod

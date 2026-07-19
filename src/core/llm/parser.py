@@ -26,7 +26,9 @@ class StructuredParser:
         Returns:
             T: Parsed Pydantic model instance.
         """
-        logger.info(f"StructuredParser: Parsing response to model: {model_class.__name__}")
+        logger.info(
+            f"StructuredParser: Parsing response to model: {model_class.__name__}"
+        )
         clean_text = response_text.strip()
 
         # 1. Clean Markdown code blocks wrap (e.g. ```json ... ```)
@@ -44,12 +46,16 @@ class StructuredParser:
         try:
             parsed_json = json.loads(clean_text)
         except json.JSONDecodeError as e:
-            logger.error(f"StructuredParser: Failed to decode JSON content: {e}. Raw: {clean_text}")
+            logger.error(
+                f"StructuredParser: Failed to decode JSON content: {e}. Raw: {clean_text}"
+            )
             raise ValueError(f"Malformed JSON content returned: {str(e)}") from e
 
         # 3. Validate Pydantic model schema
         try:
             return model_class.model_validate(parsed_json)
         except Exception as e:
-            logger.error(f"StructuredParser: Schema validation failed for model '{model_class.__name__}': {e}")
+            logger.error(
+                f"StructuredParser: Schema validation failed for model '{model_class.__name__}': {e}"
+            )
             raise ValueError(f"Pydantic schema validation mismatch: {str(e)}") from e

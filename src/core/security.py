@@ -1,6 +1,6 @@
 """Security utility module for the Multi-Agent AI Data Analyst.
 
-Provides services for filename validation, extension checks, path traversal 
+Provides services for filename validation, extension checks, path traversal
 prevention, cryptographic hashing, and secure identifier generation.
 """
 
@@ -46,7 +46,11 @@ def secure_filename(filename: str) -> str:
         return "unnamed_file"
 
     # Normalize unicode representations
-    filename = unicodedata.normalize("NFKD", filename).encode("ascii", "ignore").decode("ascii")
+    filename = (
+        unicodedata.normalize("NFKD", filename)
+        .encode("ascii", "ignore")
+        .decode("ascii")
+    )
 
     # Get pure filename, discarding any directory component
     filename = Path(filename).name
@@ -91,10 +95,13 @@ def verify_path_bounds(base_dir: Path, target_path: Path) -> Path:
         resolved_target = Path(target_path.parent).resolve() / target_path.name
 
     # Check that target resides inside the base directory bounds
-    if resolved_base not in resolved_target.parents and resolved_base != resolved_target:
+    if (
+        resolved_base not in resolved_target.parents
+        and resolved_base != resolved_target
+    ):
         raise ValidationException(
             message=f"Path traversal detected: Target path '{resolved_target}' resides outside base '{resolved_base}'",
-            details={"base": str(resolved_base), "target": str(resolved_target)}
+            details={"base": str(resolved_base), "target": str(resolved_target)},
         )
 
     return resolved_target

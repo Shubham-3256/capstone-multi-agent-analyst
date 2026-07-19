@@ -1,6 +1,5 @@
 """Validation engine implementing target, identifier, and temporal leakage checks."""
 
-
 import numpy as np
 import pandas as pd
 
@@ -14,7 +13,9 @@ class LeakageDetector:
     """Audits feature sets for data leakage issues, target flags, and duplicate columns."""
 
     @staticmethod
-    def detect_leakage(df: pd.DataFrame, target_column: str, identifier_cols: list[str] | None = None) -> LeakageReport:
+    def detect_leakage(
+        df: pd.DataFrame, target_column: str, identifier_cols: list[str] | None = None
+    ) -> LeakageReport:
         """Run leakage check sequences on the DataFrame.
 
         Args:
@@ -25,12 +26,16 @@ class LeakageDetector:
         Returns:
             LeakageReport: Compiled leakage audit report.
         """
-        logger.info(f"LeakageDetector: Checking for data leaks targeting column '{target_column}'")
+        logger.info(
+            f"LeakageDetector: Checking for data leaks targeting column '{target_column}'"
+        )
         issues: list[dict[str, str]] = []
         has_leakage = False
 
         if target_column not in df.columns:
-            logger.warning(f"Target column '{target_column}' not found in DataFrame for leakage checks.")
+            logger.warning(
+                f"Target column '{target_column}' not found in DataFrame for leakage checks."
+            )
             return LeakageReport(has_leakage=False, leakage_issues=[])
 
         # 1. Target Leakage (features showing extremely high correlation with target)
@@ -46,10 +51,12 @@ class LeakageDetector:
                     corr_val = float(np.corrcoef(series, target_series)[0, 1])
                     if abs(corr_val) > 0.95:
                         has_leakage = True
-                        issues.append({
-                            "column": col,
-                            "issue": f"Target Leakage: Extremely high Pearson correlation (R={round(corr_val, 4)}) with target '{target_column}'"
-                        })
+                        issues.append(
+                            {
+                                "column": col,
+                                "issue": f"Target Leakage: Extremely high Pearson correlation (R={round(corr_val, 4)}) with target '{target_column}'",
+                            }
+                        )
                 except Exception:
                     pass
 
@@ -60,12 +67,24 @@ class LeakageDetector:
                 continue
 
             col_name = str(col).lower()
-            if col in ids or any(keyword in col_name for keyword in ["customer_id", "userid", "user_id", "session_id", "transaction_id", "index"]):
+            if col in ids or any(
+                keyword in col_name
+                for keyword in [
+                    "customer_id",
+                    "userid",
+                    "user_id",
+                    "session_id",
+                    "transaction_id",
+                    "index",
+                ]
+            ):
                 has_leakage = True
-                issues.append({
-                    "column": col,
-                    "issue": "Identifier Leakage: Column appears to be a unique ID or key. Including keys can lead to overfitting."
-                })
+                issues.append(
+                    {
+                        "column": col,
+                        "issue": "Identifier Leakage: Column appears to be a unique ID or key. Including keys can lead to overfitting.",
+                    }
+                )
 
         # 3. Duplicate columns leakage
         checked = set()
@@ -76,16 +95,17 @@ class LeakageDetector:
                 if col1 != col2 and col2 != target_column and col2 not in checked:
                     try:
                         if df[col1].equals(df[col2]):
-                            issues.append({
-                                "column": col1,
-                                "issue": f"Duplicate column: Column is identical to '{col2}'. Prune to avoid feature redundancy."
-                            })
+                            issues.append(
+                                {
+                                    "column": col1,
+                                    "issue": f"Duplicate column: Column is identical to '{col2}'. Prune to avoid feature redundancy.",
+                                }
+                            )
                     except Exception:
                         pass
             checked.add(col1)
 
-        logger.info(f"LeakageDetector: Check complete. Has Leakage: {has_leakage}. Found {len(issues)} issues.")
-        return LeakageReport(
-            has_leakage=has_leakage,
-            leakage_issues=issues
+        logger.info(
+            f"LeakageDetector: Check complete. Has Leakage: {has_leakage}. Found {len(issues)} issues."
         )
+        return LeakageReport(has_leakage=has_leakage, leakage_issues=issues)

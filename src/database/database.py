@@ -25,15 +25,11 @@ connect_args = {"check_same_thread": False} if is_sqlite else {}
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args=connect_args,
-    echo=False  # SQL statements logging
+    echo=False,  # SQL statements logging
 )
 
 # Config session factory
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class DatabaseManager:
@@ -42,7 +38,7 @@ class DatabaseManager:
     @staticmethod
     def initialize_db() -> None:
         """Create all configured tables in the database schema.
-        
+
         Should be called at application startup.
         """
         logger.info("Initializing database schemas...")

@@ -19,9 +19,7 @@ class ModelVisualizer:
 
     @staticmethod
     def generate_confusion_matrix(
-        matrix_data: list[list[int]],
-        classes: list[str],
-        theme_name: str = "corporate"
+        matrix_data: list[list[int]], classes: list[str], theme_name: str = "corporate"
     ) -> dict[str, Any]:
         """Generate confusion matrix visualizations.
 
@@ -42,7 +40,7 @@ class ModelVisualizer:
             subtitle="Rows represent true target labels, columns represent predictions",
             xlabel="Predicted Class",
             ylabel="True Class",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
         sns.heatmap(df_matrix, annot=True, fmt="d", cmap="Greens", cbar=False, ax=ax)
         fig_mpl.tight_layout()
@@ -53,26 +51,25 @@ class ModelVisualizer:
             subtitle="Hover cells to read true vs predicted count matches",
             xlabel="Predicted Class",
             ylabel="True Class",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
-        fig_plotly.add_trace(go.Heatmap(
-            z=matrix_data,
-            x=classes,
-            y=classes,
-            colorscale="Greens",
-            text=[[str(val) for val in row] for row in matrix_data],
-            texttemplate="%{text}",
-            showscale=False
-        ))
+        fig_plotly.add_trace(
+            go.Heatmap(
+                z=matrix_data,
+                x=classes,
+                y=classes,
+                colorscale="Greens",
+                text=[[str(val) for val in row] for row in matrix_data],
+                texttemplate="%{text}",
+                showscale=False,
+            )
+        )
 
         return {"matplotlib": fig_mpl, "plotly": fig_plotly}
 
     @staticmethod
     def generate_roc_curve(
-        model: Any,
-        X_val: pd.DataFrame,
-        y_val: pd.Series,
-        theme_name: str = "corporate"
+        model: Any, X_val: pd.DataFrame, y_val: pd.Series, theme_name: str = "corporate"
     ) -> dict[str, Any]:
         """Generate ROC validation curve plots.
 
@@ -98,7 +95,9 @@ class ModelVisualizer:
                 fpr, tpr, _ = roc_curve(y_clean, y_prob)
                 roc_auc = auc(fpr, tpr)
             except Exception as e:
-                logger.warning(f"Failed to extract ROC curves: {e}. Fallback to dummy curve.")
+                logger.warning(
+                    f"Failed to extract ROC curves: {e}. Fallback to dummy curve."
+                )
                 fpr, tpr, roc_auc = [0.0, 1.0], [0.0, 1.0], 0.5
         else:
             fpr, tpr, roc_auc = [0.0, 1.0], [0.0, 1.0], 0.5
@@ -109,7 +108,7 @@ class ModelVisualizer:
             subtitle=f"Validation area under curve (AUC = {round(roc_auc, 4)})",
             xlabel="False Positive Rate",
             ylabel="True Positive Rate",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
         ax.plot(fpr, tpr, label=f"ROC curve (AUC = {round(roc_auc, 3)})", linewidth=2.0)
         ax.plot([0, 1], [0, 1], color="grey", linestyle="--")
@@ -124,31 +123,32 @@ class ModelVisualizer:
             subtitle=f"Validation area under curve (AUC = {round(roc_auc, 4)})",
             xlabel="False Positive Rate",
             ylabel="True Positive Rate",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
-        fig_plotly.add_trace(go.Scatter(
-            x=fpr,
-            y=tpr,
-            mode="lines",
-            name=f"ROC (AUC={round(roc_auc, 3)})",
-            fill="tozeroy"
-        ))
-        fig_plotly.add_trace(go.Scatter(
-            x=[0, 1],
-            y=[0, 1],
-            mode="lines",
-            line={"dash": "dash", "color": "grey"},
-            name="Baseline Chance"
-        ))
+        fig_plotly.add_trace(
+            go.Scatter(
+                x=fpr,
+                y=tpr,
+                mode="lines",
+                name=f"ROC (AUC={round(roc_auc, 3)})",
+                fill="tozeroy",
+            )
+        )
+        fig_plotly.add_trace(
+            go.Scatter(
+                x=[0, 1],
+                y=[0, 1],
+                mode="lines",
+                line={"dash": "dash", "color": "grey"},
+                name="Baseline Chance",
+            )
+        )
 
         return {"matplotlib": fig_mpl, "plotly": fig_plotly}
 
     @staticmethod
     def generate_residual_plot(
-        model: Any,
-        X_val: pd.DataFrame,
-        y_val: pd.Series,
-        theme_name: str = "corporate"
+        model: Any, X_val: pd.DataFrame, y_val: pd.Series, theme_name: str = "corporate"
     ) -> dict[str, Any]:
         """Generate residuals vs predictions scatter plots for regression validation diagnostics.
 
@@ -175,7 +175,7 @@ class ModelVisualizer:
             subtitle="Values scattered randomly around zero line indicate high fit validation",
             xlabel="Predicted Value",
             ylabel="Residual Error (Actual - Pred)",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
         ax.scatter(preds, residuals, alpha=0.6)
         ax.axhline(y=0.0, color="red", linestyle="--")
@@ -187,29 +187,32 @@ class ModelVisualizer:
             subtitle="Scatter showing errors distributions per prediction point",
             xlabel="Predicted Value",
             ylabel="Residual (Actual - Pred)",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
-        fig_plotly.add_trace(go.Scatter(
-            x=preds,
-            y=residuals,
-            mode="markers",
-            name="Residuals",
-            marker={"opacity": 0.7}
-        ))
-        fig_plotly.add_trace(go.Scatter(
-            x=[min(preds), max(preds)],
-            y=[0, 0],
-            mode="lines",
-            line={"dash": "dash", "color": "red"},
-            name="Zero Reference"
-        ))
+        fig_plotly.add_trace(
+            go.Scatter(
+                x=preds,
+                y=residuals,
+                mode="markers",
+                name="Residuals",
+                marker={"opacity": 0.7},
+            )
+        )
+        fig_plotly.add_trace(
+            go.Scatter(
+                x=[min(preds), max(preds)],
+                y=[0, 0],
+                mode="lines",
+                line={"dash": "dash", "color": "red"},
+                name="Zero Reference",
+            )
+        )
 
         return {"matplotlib": fig_mpl, "plotly": fig_plotly}
 
     @staticmethod
     def generate_feature_importance_plot(
-        importances: list[FeatureImportance],
-        theme_name: str = "corporate"
+        importances: list[FeatureImportance], theme_name: str = "corporate"
     ) -> dict[str, Any]:
         """Generate ranked feature importance horizontal bar plots.
 
@@ -223,10 +226,12 @@ class ModelVisualizer:
         logger.info("ModelVisualizer: Creating feature importances chart...")
 
         # Sort and map to DataFrame
-        df_imp = pd.DataFrame([
-            {"feature": item.column, "importance": item.importance}
-            for item in importances
-        ]).sort_values(by="importance", ascending=True)
+        df_imp = pd.DataFrame(
+            [
+                {"feature": item.column, "importance": item.importance}
+                for item in importances
+            ]
+        ).sort_values(by="importance", ascending=True)
 
         if df_imp.empty:
             df_imp = pd.DataFrame({"feature": ["dummy_f"], "importance": [1.0]})
@@ -237,7 +242,7 @@ class ModelVisualizer:
             subtitle="Scores indicating relative predictive importance",
             xlabel="Relative Importance",
             ylabel="Feature Column",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
         ax.barh(df_imp["feature"], df_imp["importance"])
         fig_mpl.tight_layout()
@@ -248,13 +253,15 @@ class ModelVisualizer:
             subtitle="Interactive scores indicating relative predictive importance",
             xlabel="Relative Importance",
             ylabel="Feature Column",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
-        fig_plotly.add_trace(go.Bar(
-            x=df_imp["importance"],
-            y=df_imp["feature"],
-            orientation="h",
-            name="Importance"
-        ))
+        fig_plotly.add_trace(
+            go.Bar(
+                x=df_imp["importance"],
+                y=df_imp["feature"],
+                orientation="h",
+                name="Importance",
+            )
+        )
 
         return {"matplotlib": fig_mpl, "plotly": fig_plotly}

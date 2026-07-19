@@ -8,4 +8,3 @@ UPLOAD_DIR = PROJECT_ROOT / "workspace" / "uploads"
 SUPPORTED_EXTENSIONS = {"csv", "xlsx", "xls", "parquet"}
 REPORTS_DIR = PROJECT_ROOT / "workspace" / "reports"
 PLOTS_DIR = PROJECT_ROOT / "workspace" / "plots"
-

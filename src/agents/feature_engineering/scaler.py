@@ -30,7 +30,7 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
         self,
         columns: list[str] | None = None,
         outlier_threshold: float = 0.05,
-        default_scaler: str = "auto"
+        default_scaler: str = "auto",
     ) -> None:
         """Initialize NumericalScaler.
 
@@ -58,8 +58,14 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
         Returns:
             NumericalScaler: Fitted transformer instance.
         """
-        cols_to_fit = self.columns if self.columns is not None else list(X.select_dtypes(include=[np.number]).columns)
-        logger.info(f"NumericalScaler: Fitting scaling coefficients for columns: {cols_to_fit}")
+        cols_to_fit = (
+            self.columns
+            if self.columns is not None
+            else list(X.select_dtypes(include=[np.number]).columns)
+        )
+        logger.info(
+            f"NumericalScaler: Fitting scaling coefficients for columns: {cols_to_fit}"
+        )
 
         for col in cols_to_fit:
             if col not in X.columns:
@@ -100,7 +106,9 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
                     scaler_type = "standard"
 
             self.scalers_[col] = scaler_type
-            logger.info(f"  Column '{col}' (outlier_ratio={round(outlier_ratio, 4) if 'outlier_ratio' in locals() else 'N/A'}) -> scaler chosen: {scaler_type.upper()}")
+            logger.info(
+                f"  Column '{col}' (outlier_ratio={round(outlier_ratio, 4) if 'outlier_ratio' in locals() else 'N/A'}) -> scaler chosen: {scaler_type.upper()}"
+            )
 
             # 2. Instantiate and fit scaler
             arr = X[[col]].fillna(0.0)  # Safe fill for scikit-learn
@@ -110,7 +118,7 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
                 self.scaler_instances_[col] = scaler
                 self.scaling_params_[col] = {
                     "mean": float(scaler.mean_[0]),
-                    "scale": float(scaler.scale_[0])
+                    "scale": float(scaler.scale_[0]),
                 }
             elif scaler_type == "robust":
                 scaler = SKRobustScaler()
@@ -118,7 +126,7 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
                 self.scaler_instances_[col] = scaler
                 self.scaling_params_[col] = {
                     "center": float(scaler.center_[0]),
-                    "scale": float(scaler.scale_[0])
+                    "scale": float(scaler.scale_[0]),
                 }
             elif scaler_type == "minmax":
                 scaler = SKMinMaxScaler()
@@ -126,15 +134,13 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
                 self.scaler_instances_[col] = scaler
                 self.scaling_params_[col] = {
                     "min": float(scaler.min_[0]),
-                    "scale": float(scaler.scale_[0])
+                    "scale": float(scaler.scale_[0]),
                 }
             elif scaler_type == "maxabs":
                 scaler = SKMaxAbsScaler()
                 scaler.fit(arr)
                 self.scaler_instances_[col] = scaler
-                self.scaling_params_[col] = {
-                    "max_abs": float(scaler.max_abs_[0])
-                }
+                self.scaling_params_[col] = {"max_abs": float(scaler.max_abs_[0])}
             else:
                 self.scaling_params_[col] = {}
 

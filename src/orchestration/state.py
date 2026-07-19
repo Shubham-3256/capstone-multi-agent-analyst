@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -14,7 +14,7 @@ class NodeExecution(BaseModel):
     node_name: str
     status: str
     duration_seconds: float = 0.0
-    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
     retries: int = 0
 
@@ -23,7 +23,7 @@ class WorkflowMetadata(BaseModel):
     """Workflow-level provenance and execution metadata."""
 
     workflow_id: str
-    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     completed_at: datetime | None = None
     target_column: str | None = None
     template_type: str = "executive"
@@ -66,7 +66,9 @@ class WorkflowState(BaseModel):
             val = data.get("data_intelligence_result")
             if isinstance(val, dict):
                 try:
-                    data["data_intelligence_result"] = DataIntelligenceResult.model_validate(val)
+                    data["data_intelligence_result"] = (
+                        DataIntelligenceResult.model_validate(val)
+                    )
                 except Exception:
                     pass
             # 2. dataset_profile
@@ -80,7 +82,9 @@ class WorkflowState(BaseModel):
             val = data.get("feature_result")
             if isinstance(val, dict):
                 try:
-                    data["feature_result"] = FeatureEngineeringResult.model_validate(val)
+                    data["feature_result"] = FeatureEngineeringResult.model_validate(
+                        val
+                    )
                 except Exception:
                     pass
             # 4. ml_result
@@ -94,7 +98,9 @@ class WorkflowState(BaseModel):
             val = data.get("visualization_result")
             if isinstance(val, dict):
                 try:
-                    data["visualization_result"] = VisualizationResult.model_validate(val)
+                    data["visualization_result"] = VisualizationResult.model_validate(
+                        val
+                    )
                 except Exception:
                     pass
             # 6. business_result

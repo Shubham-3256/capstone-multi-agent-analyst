@@ -32,7 +32,7 @@ class FileManager:
             "models": Paths.MODELS_DIR,
             "logs": Paths.LOGS_DIR,
             "data": Paths.DATA_DIR,
-            "artifacts": Paths.ARTIFACTS_DIR
+            "artifacts": Paths.ARTIFACTS_DIR,
         }
 
         summary: dict[str, Any] = {}
@@ -44,21 +44,19 @@ class FileManager:
                 summary[key] = {"bytes_size": 0, "file_count": 0}
                 continue
 
-            files = [f for f in path.glob("**/*") if f.is_file() and f.name != ".gitkeep"]
+            files = [
+                f for f in path.glob("**/*") if f.is_file() and f.name != ".gitkeep"
+            ]
             size = sum(f.stat().st_size for f in files)
-            summary[key] = {
-                "bytes_size": size,
-                "file_count": len(files)
-            }
+            summary[key] = {"bytes_size": size, "file_count": len(files)}
             total_size += size
             total_files += len(files)
 
-        summary["total"] = {
-            "bytes_size": total_size,
-            "file_count": total_files
-        }
+        summary["total"] = {"bytes_size": total_size, "file_count": total_files}
 
-        logger.info(f"Storage audit complete: {total_files} active files, {total_size} total bytes.")
+        logger.info(
+            f"Storage audit complete: {total_files} active files, {total_size} total bytes."
+        )
         return summary
 
     @staticmethod
@@ -113,7 +111,12 @@ class FileManager:
 
             # Match files in uploads and cleaned
             files_to_archive = []
-            for directory in [Paths.UPLOAD_DIR, Paths.CLEANED_DIR, Paths.PLOTS_DIR, Paths.REPORTS_DIR]:
+            for directory in [
+                Paths.UPLOAD_DIR,
+                Paths.CLEANED_DIR,
+                Paths.PLOTS_DIR,
+                Paths.REPORTS_DIR,
+            ]:
                 if directory.exists():
                     files_to_archive.extend(list(directory.glob(f"*{dataset_name}*")))
 
@@ -125,14 +128,16 @@ class FileManager:
             zip_output = shutil.make_archive(
                 base_name=str(archive_file),
                 format="zip",
-                root_dir=str(temp_archive_src)
+                root_dir=str(temp_archive_src),
             )
 
             # Clean temp
             shutil.rmtree(temp_archive_src)
 
             final_zip_path = Path(zip_output)
-            logger.info(f"FileManager: Archive successfully created at {final_zip_path}")
+            logger.info(
+                f"FileManager: Archive successfully created at {final_zip_path}"
+            )
             return final_zip_path
 
         except Exception as e:

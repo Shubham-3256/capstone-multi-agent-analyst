@@ -18,6 +18,5 @@ class RiskAnalysisBuilder:
             str: Compiled prompt.
         """
         return PromptTemplates.RISKS.format(
-            best_metrics=best_metrics,
-            importances=importances
+            best_metrics=best_metrics, importances=importances
         )

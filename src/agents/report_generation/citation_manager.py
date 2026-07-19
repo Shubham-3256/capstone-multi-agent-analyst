@@ -1,6 +1,5 @@
 """Citation manager tracking and indexing tables, figures, and footnotes."""
 
-
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -73,5 +72,7 @@ class CitationManager:
         self.reference_count += 1
         label = f"[{self.reference_count}]"
         self.references_registry[ref_key] = label
-        logger.info(f"CitationManager: Registered citation footnote {label} for: '{ref_key}'")
+        logger.info(
+            f"CitationManager: Registered citation footnote {label} for: '{ref_key}'"
+        )
         return label

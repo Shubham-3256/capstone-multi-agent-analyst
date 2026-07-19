@@ -20,7 +20,7 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
         interaction_only: bool = True,
         date_features: bool = True,
         log_transform: bool = True,
-        skew_threshold: float = 1.5
+        skew_threshold: float = 1.5,
     ) -> None:
         """Initialize FeatureGenerator.
 
@@ -58,10 +58,22 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
             FeatureGenerator: Fitted instance.
         """
         # Determine numeric columns
-        self.fitted_numeric_cols_ = self.numeric_columns if self.numeric_columns is not None else list(X.select_dtypes(include=[np.number]).columns)
-        self.fitted_datetime_cols_ = self.datetime_columns if self.datetime_columns is not None else list(X.select_dtypes(include=[np.datetime64, "datetime64[ns]"]).columns)
+        self.fitted_numeric_cols_ = (
+            self.numeric_columns
+            if self.numeric_columns is not None
+            else list(X.select_dtypes(include=[np.number]).columns)
+        )
+        self.fitted_datetime_cols_ = (
+            self.datetime_columns
+            if self.datetime_columns is not None
+            else list(
+                X.select_dtypes(include=[np.datetime64, "datetime64[ns]"]).columns
+            )
+        )
 
-        logger.info(f"FeatureGenerator: Fitting generation rules. Numerics={len(self.fitted_numeric_cols_)}, Datetimes={len(self.fitted_datetime_cols_)}")
+        logger.info(
+            f"FeatureGenerator: Fitting generation rules. Numerics={len(self.fitted_numeric_cols_)}, Datetimes={len(self.fitted_datetime_cols_)}"
+        )
 
         # 1. Identify highly skewed columns for log transformation
         if self.log_transform:
@@ -74,14 +86,18 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
                             # Verify all values are non-negative for log1p
                             if (series >= 0.0).all():
                                 self.skewed_cols_.append(col)
-                                logger.info(f"  Column '{col}' skewness ({round(skew_val, 2)}) > threshold. Log transform enabled.")
+                                logger.info(
+                                    f"  Column '{col}' skewness ({round(skew_val, 2)}) > threshold. Log transform enabled."
+                                )
                     except Exception:
                         pass
 
         # 2. Select columns to pair for interaction features
         # Limit interaction pairs to prevent feature explosion (max 15 pairs)
         if self.polynomial_degree >= 2 and len(self.fitted_numeric_cols_) > 1:
-            num_cols = self.fitted_numeric_cols_[:6]  # Limit to top 6 columns for interactions
+            num_cols = self.fitted_numeric_cols_[
+                :6
+            ]  # Limit to top 6 columns for interactions
             for i in range(len(num_cols)):
                 for j in range(i + 1, len(num_cols)):
                     self.interaction_pairs_.append((num_cols[i], num_cols[j]))
@@ -109,7 +125,9 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
         for col1, col2 in self.interaction_pairs_:
             if col1 in X_trans.columns and col2 in X_trans.columns:
                 inter_col_name = f"{col1}_x_{col2}"
-                X_trans[inter_col_name] = X_trans[col1].astype(float) * X_trans[col2].astype(float)
+                X_trans[inter_col_name] = X_trans[col1].astype(float) * X_trans[
+                    col2
+                ].astype(float)
 
         # 3. Generate polynomial features (e.g. squared terms if interaction_only is False)
         if self.polynomial_degree >= 2 and not self.interaction_only:
@@ -124,12 +142,22 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
                 if col in X_trans.columns:
                     try:
                         date_series = pd.to_datetime(X_trans[col])
-                        X_trans[f"{col}_year"] = date_series.dt.year.fillna(0).astype(int)
-                        X_trans[f"{col}_month"] = date_series.dt.month.fillna(0).astype(int)
+                        X_trans[f"{col}_year"] = date_series.dt.year.fillna(0).astype(
+                            int
+                        )
+                        X_trans[f"{col}_month"] = date_series.dt.month.fillna(0).astype(
+                            int
+                        )
                         X_trans[f"{col}_day"] = date_series.dt.day.fillna(0).astype(int)
-                        X_trans[f"{col}_weekday"] = date_series.dt.weekday.fillna(0).astype(int)
-                        X_trans[f"{col}_quarter"] = date_series.dt.quarter.fillna(0).astype(int)
+                        X_trans[f"{col}_weekday"] = date_series.dt.weekday.fillna(
+                            0
+                        ).astype(int)
+                        X_trans[f"{col}_quarter"] = date_series.dt.quarter.fillna(
+                            0
+                        ).astype(int)
                     except Exception as e:
-                        logger.warning(f"Failed to generate date features for column '{col}': {e}")
+                        logger.warning(
+                            f"Failed to generate date features for column '{col}': {e}"
+                        )
 
         return X_trans

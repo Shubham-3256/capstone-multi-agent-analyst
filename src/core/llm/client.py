@@ -35,7 +35,9 @@ class LLMClient:
         Returns:
             str: Response string.
         """
-        logger.info(f"LLMClient: Generating response (provider={self.config.provider.upper()})")
+        logger.info(
+            f"LLMClient: Generating response (provider={self.config.provider.upper()})"
+        )
         start_time = time.time()
 
         # 1. Check cache first
@@ -49,7 +51,9 @@ class LLMClient:
         input_tokens = Tokenizer.count_tokens(prompt, self.config.model)
 
         # 3. Call provider via exponential backoff decorator
-        @retry_with_backoff(max_retries=3, initial_delay=1.0, exceptions_to_retry=[Exception])
+        @retry_with_backoff(
+            max_retries=3, initial_delay=1.0, exceptions_to_retry=[Exception]
+        )
         def _execute_call():
             return LLMProvider.call_provider(prompt, self.config)
 
@@ -68,7 +72,7 @@ class LLMClient:
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             cost_per_million_input=self.config.cost_per_million_input,
-            cost_per_million_output=self.config.cost_per_million_output
+            cost_per_million_output=self.config.cost_per_million_output,
         )
 
         duration = time.time() - start_time

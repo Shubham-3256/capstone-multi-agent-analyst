@@ -21,5 +21,5 @@ class ModelAnalysisBuilder:
         return PromptTemplates.MODEL_ANALYSIS.format(
             leaderboard=leaderboard,
             best_model_name=best_model_name,
-            best_metrics=best_metrics
+            best_metrics=best_metrics,
         )

@@ -20,7 +20,7 @@ class Trainer:
         model: Any,
         X_train: pd.DataFrame,
         y_train: pd.Series,
-        cv_score: float = 0.0
+        cv_score: float = 0.0,
     ) -> TrainingResult:
         """Fit a single candidate model.
 
@@ -46,7 +46,9 @@ class Trainer:
             model.fit(X_clean, y_clean)
 
             duration = time.time() - start_time
-            logger.info(f"Trainer: Successfully trained '{model_name}' in {round(duration, 4)}s")
+            logger.info(
+                f"Trainer: Successfully trained '{model_name}' in {round(duration, 4)}s"
+            )
 
             # Fetch hyperparameter details from fitted model
             params = {}
@@ -58,7 +60,7 @@ class Trainer:
                 best_params=params,
                 cv_score=cv_score,
                 duration_seconds=duration,
-                error_message=None
+                error_message=None,
             )
         except Exception as e:
             duration = time.time() - start_time
@@ -70,8 +72,11 @@ class Trainer:
                 best_params={},
                 cv_score=0.0,
                 duration_seconds=duration,
-                error_message=err_msg
+                error_message=err_msg,
             )
+
+
 class ModelTimeoutException(Exception):
     """Custom exception raised when model training exceeds allowed timeout limits."""
+
     pass

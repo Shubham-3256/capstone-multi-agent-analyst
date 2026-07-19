@@ -1,6 +1,6 @@
 """Environment validation module for the Multi-Agent AI Data Analyst.
 
-This module provides routines to verify python versions, required directories, 
+This module provides routines to verify python versions, required directories,
 environment variable loads, third-party libraries, and formats a startup diagnostic panel.
 """
 
@@ -51,7 +51,7 @@ def check_required_directories() -> tuple[bool, list[str]]:
         "Models": Paths.MODELS_DIR,
         "Logs": Paths.LOGS_DIR,
         "Data": Paths.DATA_DIR,
-        "Artifacts": Paths.ARTIFACTS_DIR
+        "Artifacts": Paths.ARTIFACTS_DIR,
     }
 
     for name, path in dirs_to_check.items():
@@ -61,7 +61,9 @@ def check_required_directories() -> tuple[bool, list[str]]:
                 logs.append(f"[OK] Directory created: {name} ({path})")
             except Exception as e:
                 success = False
-                logs.append(f"[FAIL] Directory missing and uncreatable: {name} ({path}). Error: {e}")
+                logs.append(
+                    f"[FAIL] Directory missing and uncreatable: {name} ({path}). Error: {e}"
+                )
                 continue
 
         # Check write permissions
@@ -72,7 +74,9 @@ def check_required_directories() -> tuple[bool, list[str]]:
             logs.append(f"[OK] Directory is writable: {name} ({path})")
         except Exception as e:
             success = False
-            logs.append(f"[FAIL] Directory is not writable: {name} ({path}). Error: {e}")
+            logs.append(
+                f"[FAIL] Directory is not writable: {name} ({path}). Error: {e}"
+            )
 
     return success, logs
 
@@ -87,15 +91,22 @@ def check_env_variables() -> tuple[bool, list[str]]:
     success = True
 
     # Check OpenAI Key presence
-    if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "your_openai_api_key_here":
+    if (
+        not settings.OPENAI_API_KEY
+        or settings.OPENAI_API_KEY == "your_openai_api_key_here"
+    ):
         # Keep success True for setup but warn developer
-        logs.append("[WARN] OPENAI_API_KEY is not configured or uses placeholder value.")
+        logs.append(
+            "[WARN] OPENAI_API_KEY is not configured or uses placeholder value."
+        )
     else:
         logs.append("[OK] OPENAI_API_KEY is configured.")
 
     # Check Secret Key sanity (Warn if it's default in production)
     if settings.ENV == "production" and "super_secret" in settings.SECRET_KEY:
-        logs.append("[WARN] SECRET_KEY uses a default value in production mode! Change this immediately.")
+        logs.append(
+            "[WARN] SECRET_KEY uses a default value in production mode! Change this immediately."
+        )
     else:
         logs.append("[OK] SECRET_KEY is set.")
 
@@ -118,7 +129,7 @@ def check_dependencies() -> tuple[bool, list[str]]:
         "openai",
         "langchain",
         "langgraph",
-        "crewai"
+        "crewai",
     ]
 
     logs = []
@@ -137,7 +148,7 @@ def check_dependencies() -> tuple[bool, list[str]]:
 
 def system_summary() -> None:
     """Print a professional, structured startup diagnostic report to the terminal.
-    
+
     Consolidates Python version, system details, directory availability, and package states.
     """
     console = Console()
@@ -153,25 +164,36 @@ def system_summary() -> None:
     # 2. Build Title Panel
     title = "[bold green]Multi-Agent AI Data Analyst - Core System Startup Diagnostic[/bold green]"
     if not all_passed:
-        title = "[bold red]Multi-Agent AI Data Analyst - System Startup Warnings[/bold red]"
+        title = (
+            "[bold red]Multi-Agent AI Data Analyst - System Startup Warnings[/bold red]"
+        )
 
     # 3. Create Diagnostic Tables
     table_sys = Table(title="System Information", show_header=False, expand=True)
     table_sys.add_column("Property", style="cyan")
     table_sys.add_column("Value", style="magenta")
-    table_sys.add_row("Platform OS", f"{platform.system()} {platform.release()} ({platform.machine()})")
+    table_sys.add_row(
+        "Platform OS",
+        f"{platform.system()} {platform.release()} ({platform.machine()})",
+    )
     table_sys.add_row("Python Executable", sys.executable)
     table_sys.add_row("Python Version Status", py_msg)
     table_sys.add_row("Environment Mode", settings.ENV.upper())
 
     # Build directory checklist
-    dir_summary = "All directories verified and writable." if dirs_ok else "\n".join(dir_logs)
+    dir_summary = (
+        "All directories verified and writable." if dirs_ok else "\n".join(dir_logs)
+    )
 
     # Build package checklist
     dep_summary = "All core dependencies verified." if deps_ok else "\n".join(dep_logs)
 
     # Build env checklist
-    env_summary = "Required environment configurations validated." if env_ok else "\n".join(env_logs)
+    env_summary = (
+        "Required environment configurations validated."
+        if env_ok
+        else "\n".join(env_logs)
+    )
 
     # Compile Group for rendering nested objects in Rich Panel
     from rich.console import Group
@@ -186,12 +208,14 @@ def system_summary() -> None:
         env_summary,
         "",
         "[bold yellow]Dependency Checks:[/bold yellow]",
-        dep_summary
+        dep_summary,
     )
 
-    console.print(Panel(
-        diagnostic_group,
-        title=title,
-        expand=False,
-        border_style="green" if all_passed else "yellow"
-    ))
+    console.print(
+        Panel(
+            diagnostic_group,
+            title=title,
+            expand=False,
+            border_style="green" if all_passed else "yellow",
+        )
+    )

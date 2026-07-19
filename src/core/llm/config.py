@@ -13,22 +13,42 @@ logger = get_logger(__name__)
 class LLMConfig(BaseModel):
     """Configuration representing API endpoints, model tags, and cache intervals."""
 
-    provider: str = Field(default="mock", description="LLM provider key ('openai', 'azure', 'gemini', 'anthropic', 'local', 'mock')")
+    provider: str = Field(
+        default="mock",
+        description="LLM provider key ('openai', 'azure', 'gemini', 'anthropic', 'local', 'mock')",
+    )
     model: str = Field(default="gpt-4o", description="Model version tag identifier")
-    temperature: float = Field(default=0.0, description="Sampling temperature settings parameter")
+    temperature: float = Field(
+        default=0.0, description="Sampling temperature settings parameter"
+    )
     max_tokens: int = Field(default=2000, description="Max response completion limit")
-    cache_ttl_seconds: int = Field(default=86400, description="Prompt cache duration lifetime in seconds (default 24h)")
-    timeout_seconds: int = Field(default=60, description="Connection timeout limits in seconds")
+    cache_ttl_seconds: int = Field(
+        default=86400,
+        description="Prompt cache duration lifetime in seconds (default 24h)",
+    )
+    timeout_seconds: int = Field(
+        default=60, description="Connection timeout limits in seconds"
+    )
 
     # Provider-specific configurations
-    api_key: str | None = Field(default=None, description="API authorization secret key")
+    api_key: str | None = Field(
+        default=None, description="API authorization secret key"
+    )
     api_base: str | None = Field(default=None, description="Base endpoint target URI")
-    azure_endpoint: str | None = Field(default=None, description="Azure API target URI endpoint")
-    azure_api_version: str | None = Field(default=None, description="Azure API version tag")
+    azure_endpoint: str | None = Field(
+        default=None, description="Azure API target URI endpoint"
+    )
+    azure_api_version: str | None = Field(
+        default=None, description="Azure API version tag"
+    )
 
     # Financial cost tracking estimations per million tokens
-    cost_per_million_input: float = Field(default=5.00, description="Pricing in USD per million prompt tokens")
-    cost_per_million_output: float = Field(default=15.00, description="Pricing in USD per million completion tokens")
+    cost_per_million_input: float = Field(
+        default=5.00, description="Pricing in USD per million prompt tokens"
+    )
+    cost_per_million_output: float = Field(
+        default=15.00, description="Pricing in USD per million completion tokens"
+    )
 
     @classmethod
     def load_from_yaml(cls, yaml_path: Path | None = None) -> "LLMConfig":
@@ -49,5 +69,7 @@ class LLMConfig(BaseModel):
                 logger.info(f"Loaded LLM configurations from: {yaml_path}")
                 return cls(**llm_content)
             except Exception as e:
-                logger.warning(f"Failed to load yaml config from {yaml_path}: {e}. Using defaults.")
+                logger.warning(
+                    f"Failed to load yaml config from {yaml_path}: {e}. Using defaults."
+                )
         return cls()

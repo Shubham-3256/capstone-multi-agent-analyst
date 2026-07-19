@@ -1,24 +1,28 @@
 """Integration tests verifying ReportGenerationAgent compilation capabilities and document validation."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.database.base import Base
-from src.database.models import ExecutionLog, ReportRecord
+from src.agents.machine_learning.models import (
+    Leaderboard,
+    MachineLearningResult,
+    TaskReport,
+)
 from src.agents.report_generation.agent import ReportGenerationAgent
-from src.agents.report_generation.context_builder import ContextBuilder
-from src.agents.report_generation.validator import ReportValidator
-from src.agents.visualization.models import VisualizationResult, VisualizationReport
-from src.agents.machine_learning.models import MachineLearningResult, TaskReport, Leaderboard
-from src.core.paths import Paths
+from src.agents.visualization.models import VisualizationReport, VisualizationResult
+from src.database.base import Base
+from src.database.models import ReportRecord
 
 
 @pytest.fixture
 def clean_db():
     """Fixture providing clean in-memory SQLite database session."""
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False}
+    )
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
@@ -32,32 +36,34 @@ def test_report_generation_lifecycle(clean_db):
     """Test full document pipeline: context compilation, template renders, multiformat export, and validation check."""
     # 1. Setup mock reports context inputs
     dataset_profile = "Completeness: 100%, Shape: (100, 5), Name: Mock Dataset"
-    
+
     ml_result = MachineLearningResult(
-        task_report=TaskReport(task_type="classification", classes=[0, 1], is_binary=True),
+        task_report=TaskReport(
+            task_type="classification", classes=[0, 1], is_binary=True
+        ),
         best_model_name="RandomForest",
         best_model_path="workspace/artifacts/models/best_model.joblib",
         leaderboard=Leaderboard(entries=[]),
         best_metrics={"accuracy": 0.95, "f1_macro": 0.94},
         feature_importances=[],
-        duration_seconds=1.5
+        duration_seconds=1.5,
     )
-    
+
     viz_result = VisualizationResult(
         report=VisualizationReport(charts=[]),
         is_success=True,
         output_directory="workspace/artifacts/plots",
-        duration_seconds=0.5
+        duration_seconds=0.5,
     )
 
     agent = ReportGenerationAgent(clean_db)
-    
+
     # 2. Run document generation pipeline
     result = agent.run(
         dataset_profile=dataset_profile,
         ml_result=ml_result,
         visualization_result=viz_result,
-        template_type="executive"
+        template_type="executive",
     )
 
     # 3. Assert outputs were written and cataloged

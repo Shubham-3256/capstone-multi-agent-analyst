@@ -25,7 +25,7 @@ class PipelineBuilder:
         df_train: pd.DataFrame,
         y_train: pd.Series | None = None,
         config: FeatureEngineeringConfig | None = None,
-        target_column: str | None = None
+        target_column: str | None = None,
     ) -> Pipeline:
         """Instantiate and fit the unified preprocessing pipeline on training data.
 
@@ -39,10 +39,16 @@ class PipelineBuilder:
             Pipeline: Fitted scikit-learn Pipeline.
         """
         cfg = config or FeatureEngineeringConfig()
-        logger.info("PipelineBuilder: Constructing scikit-learn preprocessor pipeline...")
+        logger.info(
+            "PipelineBuilder: Constructing scikit-learn preprocessor pipeline..."
+        )
 
         # Exclude target column from pipeline features
-        features_df = df_train.drop(columns=[target_column]) if target_column and target_column in df_train.columns else df_train
+        features_df = (
+            df_train.drop(columns=[target_column])
+            if target_column and target_column in df_train.columns
+            else df_train
+        )
 
         # 1. Step 1: Feature Generation
         generator = FeatureGenerator(
@@ -50,20 +56,20 @@ class PipelineBuilder:
             interaction_only=cfg.generation.interaction_only,
             date_features=cfg.generation.date_features,
             log_transform=cfg.generation.log_transform,
-            skew_threshold=cfg.generation.skew_threshold
+            skew_threshold=cfg.generation.skew_threshold,
         )
 
         # 2. Step 2: Categorical Encoding
         encoder = CategoricalEncoder(
             low_cardinality_threshold=cfg.encoding.low_cardinality_threshold,
             medium_cardinality_threshold=cfg.encoding.medium_cardinality_threshold,
-            default_strategy=cfg.encoding.default
+            default_strategy=cfg.encoding.default,
         )
 
         # 3. Step 3: Numeric Scaling
         scaler = NumericalScaler(
             outlier_threshold=cfg.scaling.outlier_threshold,
-            default_scaler=cfg.scaling.default
+            default_scaler=cfg.scaling.default,
         )
 
         # 4. Step 4: Feature Selection
@@ -72,16 +78,22 @@ class PipelineBuilder:
             variance_threshold=cfg.selection.variance_threshold,
             correlation_threshold=cfg.selection.correlation_threshold,
             k_best=cfg.selection.k_best,
-            task_type="classification" if y_train is not None and y_train.nunique() <= 10 else "regression"
+            task_type=(
+                "classification"
+                if y_train is not None and y_train.nunique() <= 10
+                else "regression"
+            ),
         )
 
         # 5. Assemble scikit-learn Pipeline
-        pipeline = Pipeline([
-            ("generator", generator),
-            ("encoder", encoder),
-            ("scaler", scaler),
-            ("selector", selector)
-        ])
+        pipeline = Pipeline(
+            [
+                ("generator", generator),
+                ("encoder", encoder),
+                ("scaler", scaler),
+                ("selector", selector),
+            ]
+        )
 
         logger.info("PipelineBuilder: Fitting assembled pipeline on training data...")
         pipeline.fit(features_df, y_train)
@@ -106,10 +118,7 @@ class PipelineBuilder:
         # Fetch names of pipeline step keys
         components = list(pipeline.named_steps.keys())
 
-        return PipelineReport(
-            pipeline_filepath=str(filepath),
-            components=components
-        )
+        return PipelineReport(pipeline_filepath=str(filepath), components=components)
 
     @staticmethod
     def load_pipeline(filepath: Path) -> Pipeline:
@@ -125,5 +134,7 @@ class PipelineBuilder:
             raise FileNotFoundError(f"Pipeline file not found: {filepath}")
 
         pipeline = joblib.load(str(filepath))
-        logger.info(f"PipelineBuilder: Successfully loaded preprocessing pipeline from: {filepath}")
+        logger.info(
+            f"PipelineBuilder: Successfully loaded preprocessing pipeline from: {filepath}"
+        )
         return pipeline

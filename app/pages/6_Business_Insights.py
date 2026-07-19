@@ -23,7 +23,9 @@ def main() -> None:
 
     result = get_workflow_result()
     if not result:
-        st.info("No active workflow result. Please upload a dataset and run the pipeline on the Upload page.")
+        st.info(
+            "No active workflow result. Please upload a dataset and run the pipeline on the Upload page."
+        )
         return
 
     biz_result = getattr(result.state, "business_result", None)
@@ -54,11 +56,7 @@ def main() -> None:
         act = item.actionability.upper()
         color = "green" if act == "HIGH" else "orange" if act == "MEDIUM" else "blue"
         tag = f":{color}[**{act}**]"
-        rows.append([
-            f"**{item.title}**",
-            item.description,
-            tag
-        ])
+        rows.append([f"**{item.title}**", item.description, tag])
     render_html_table(headers, rows)
 
     st.divider()
@@ -74,11 +72,9 @@ def main() -> None:
         s_color = "red" if sev == "HIGH" else "orange" if sev == "MEDIUM" else "blue"
         p_color = "red" if prob == "HIGH" else "orange" if prob == "MEDIUM" else "blue"
 
-        r_rows.append([
-            item.description,
-            f":{s_color}[**{sev}**]",
-            f":{p_color}[**{prob}**]"
-        ])
+        r_rows.append(
+            [item.description, f":{s_color}[**{sev}**]", f":{p_color}[**{prob}**]"]
+        )
     render_html_table(r_headers, r_rows)
 
     st.divider()
@@ -90,14 +86,16 @@ def main() -> None:
     with col_c1:
         conf = biz_result.confidence_report
         rating = conf.reliability_rating.upper()
-        r_color = "green" if rating == "HIGH" else "orange" if rating == "MEDIUM" else "red"
+        r_color = (
+            "green" if rating == "HIGH" else "orange" if rating == "MEDIUM" else "red"
+        )
 
         info_card(
             title="Reliability Rating",
             value=rating,
             subtitle=f"Confidence Score: {conf.confidence_score * 100:.1f}%",
             icon="🛡️",
-            bg_gradient="linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)"
+            bg_gradient="linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
         )
     with col_c2:
         st.markdown("**Verification Justification:**")
@@ -105,13 +103,11 @@ def main() -> None:
 
     # 5. Technical insights & token logs
     with st.expander("🛠️ LLM Session Telemetry Details", expanded=False):
-        st.markdown(
-            f"""
-            * **Input Prompt Tokens:** `{biz_result.token_usage.get('input_tokens', 0):,}`
-            * **Output Response Tokens:** `{biz_result.token_usage.get('output_tokens', 0):,}`
+        st.markdown(f"""
+            * **Input Prompt Tokens:** `{biz_result.token_usage.get("input_tokens", 0):,}`
+            * **Output Response Tokens:** `{biz_result.token_usage.get("output_tokens", 0):,}`
             * **Estimated Cost (USD):** `${biz_result.estimated_cost_usd:.5f}`
-            """
-        )
+            """)
 
 
 if __name__ == "__main__":

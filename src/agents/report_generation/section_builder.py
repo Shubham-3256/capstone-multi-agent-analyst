@@ -39,7 +39,7 @@ class SectionBuilder:
                 f"**Security Classification**: CONFIDENTIAL  \n\n"
                 f"This document consolidates results from our Data Intelligence, "
                 f"Feature Engineering, AutoML Model Search, and Business Insight pipelines."
-            )
+            ),
         )
 
         # 2. Executive Summary
@@ -49,7 +49,7 @@ class SectionBuilder:
             content_markdown=(
                 f"## Executive Summary\n\n"
                 f"{context.insights_str.split('Business Insights:')[1].strip() if 'Business Insights:' in context.insights_str else context.insights_str}"
-            )
+            ),
         )
 
         # 3. Dataset Overview
@@ -60,14 +60,14 @@ class SectionBuilder:
                 f"## Dataset Overview\n\n"
                 f"### Base Profile Summary\n"
                 f"{context.dataset_profile_str}\n"
-            )
+            ),
         )
 
         figures = [
             FigureReference(
                 label="",
                 file_path=chart_path,
-                caption=f"Generated visualization: {Path(chart_path).stem.replace('_', ' ')}."
+                caption=f"Generated visualization: {Path(chart_path).stem.replace('_', ' ')}.",
             )
             for chart_path in context.charts_paths
         ]
@@ -80,7 +80,7 @@ class SectionBuilder:
                 f"## Data Quality Assessment\n\n"
                 f"We audited column completeness, missingness distribution, and collinearity parameters:\n\n"
                 f"{context.viz_summary_str}\n"
-            )
+            ),
         )
 
         # 5. Feature Engineering
@@ -91,7 +91,7 @@ class SectionBuilder:
                 f"## Feature Engineering & Preprocessing Summary\n\n"
                 f"Features were dynamically transformed for optimization prior to model fitting:\n\n"
                 f"{context.feature_summary_str}"
-            )
+            ),
         )
 
         # 6. Machine Learning
@@ -102,7 +102,7 @@ class SectionBuilder:
                 f"## AutoML Modeling Performance\n\n"
                 f"Candidate models were trained and ranked based on validation splits performance:\n\n"
                 f"{context.ml_summary_str}"
-            )
+            ),
         )
 
         # 7. Visualizations
@@ -114,7 +114,7 @@ class SectionBuilder:
                 f"Below are key performance and distribution charts generated during execution:\n\n"
                 f"{context.viz_summary_str}\n"
             ),
-            figures=figures
+            figures=figures,
         )
 
         # 8. Business Insights
@@ -125,7 +125,7 @@ class SectionBuilder:
                 f"## Strategic Business Insights\n\n"
                 f"Based on feature coefficient weights and data profiling findings:\n\n"
                 f"{context.insights_str}"
-            )
+            ),
         )
 
         # Extract Recommendations from insights_str
@@ -150,20 +150,14 @@ class SectionBuilder:
         sections["recommendations"] = ReportSection(
             title="Actionable Recommendations",
             section_id="recommendations",
-            content_markdown=(
-                f"## Actionable Recommendations\n\n"
-                f"{recs_content}"
-            )
+            content_markdown=(f"## Actionable Recommendations\n\n{recs_content}"),
         )
 
         # 10. Risks
         sections["risks"] = ReportSection(
             title="Operational Risks Assessment",
             section_id="risks",
-            content_markdown=(
-                f"## Operational Risks Assessment\n\n"
-                f"{risks_content}"
-            )
+            content_markdown=(f"## Operational Risks Assessment\n\n{risks_content}"),
         )
 
         # 11. Technical Appendix
@@ -176,7 +170,7 @@ class SectionBuilder:
                 "- Python Version: 3.12+  \n"
                 "- Database: SQLite (relational logs schema)  \n"
                 "- Execution: Scalable multi-agent framework  \n"
-            )
+            ),
         )
 
         # 12. References
@@ -187,7 +181,7 @@ class SectionBuilder:
                 "## References\n\n"
                 "- [1] Capstone Handbooks, Section 8-9 (System Reporting Requirements).\n"
                 "- [2] Scikit-Learn Model Selection Documentation (Cross-Validation Standards)."
-            )
+            ),
         )
 
         return sections

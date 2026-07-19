@@ -9,11 +9,14 @@ def test_llm_client_mock():
     """Test generating text utilizing the mock connection handler."""
     config = LLMConfig(provider="mock", model="gpt-4o")
     client = LLMClient(config=config)
-    
+
     # Generate summary
-    resp = client.generate("Provide an executive summary of findings with headline and key_takeaways.", bypass_cache=True)
+    resp = client.generate(
+        "Provide an executive summary of findings with headline and key_takeaways.",
+        bypass_cache=True,
+    )
     assert "headline" in resp
-    
+
     # Assert cost tracked successfully
     summary = CostTracker.get_session_summary()
     assert summary["session_input_tokens"] > 0

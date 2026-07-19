@@ -15,7 +15,7 @@ def retry_with_backoff(
     max_retries: int = 3,
     initial_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions_to_retry: list[type[Exception]] = None
+    exceptions_to_retry: list[type[Exception]] = None,
 ) -> Callable:
     """Decorator retrying execution with exponential backoff and random jitter.
 
@@ -44,7 +44,9 @@ def retry_with_backoff(
                         raise e
 
                     if attempt == max_retries:
-                        logger.error(f"Retry: Function {func.__name__} failed after {max_retries} attempts. Raising error: {e}")
+                        logger.error(
+                            f"Retry: Function {func.__name__} failed after {max_retries} attempts. Raising error: {e}"
+                        )
                         raise e
 
                     # Compute next delay with jitter (adds between 0-50% variation)
@@ -61,4 +63,5 @@ def retry_with_backoff(
                     delay *= backoff_factor
 
         return wrapper
+
     return decorator

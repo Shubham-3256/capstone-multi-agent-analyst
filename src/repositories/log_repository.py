@@ -1,6 +1,5 @@
 """Repository for managing ExecutionLog persistence."""
 
-
 from sqlalchemy.orm import Session
 
 from src.database.models import ExecutionLog
@@ -39,7 +38,9 @@ class ExecutionLogRepository:
         Returns:
             Optional[ExecutionLog]: Found log or None.
         """
-        return self.session.query(ExecutionLog).filter(ExecutionLog.id == log_id).first()
+        return (
+            self.session.query(ExecutionLog).filter(ExecutionLog.id == log_id).first()
+        )
 
     def get_by_task(self, task_name: str) -> list[ExecutionLog]:
         """Fetch all execution logs associated with a task name.
@@ -50,7 +51,11 @@ class ExecutionLogRepository:
         Returns:
             List[ExecutionLog]: List of matching logs.
         """
-        return self.session.query(ExecutionLog).filter(ExecutionLog.task_name == task_name).all()
+        return (
+            self.session.query(ExecutionLog)
+            .filter(ExecutionLog.task_name == task_name)
+            .all()
+        )
 
     def get_all(self) -> list[ExecutionLog]:
         """Fetch all system execution logs.
@@ -65,7 +70,7 @@ class ExecutionLogRepository:
         log_id: str,
         status: str,
         duration_seconds: float | None = None,
-        error_message: str | None = None
+        error_message: str | None = None,
     ) -> ExecutionLog | None:
         """Update active parameters and status markers on execution logs.
 

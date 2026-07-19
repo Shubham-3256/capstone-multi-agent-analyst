@@ -18,7 +18,7 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
         columns: list[str] | None = None,
         low_cardinality_threshold: int = 10,
         medium_cardinality_threshold: int = 25,
-        default_strategy: str = "auto"
+        default_strategy: str = "auto",
     ) -> None:
         """Initialize CategoricalEncoder.
 
@@ -49,8 +49,14 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
         Returns:
             CategoricalEncoder: Fitted transformer instance.
         """
-        cols_to_fit = self.columns if self.columns is not None else list(X.select_dtypes(include=["object", "category"]).columns)
-        logger.info(f"CategoricalEncoder: Fitting encoding mappings for columns: {cols_to_fit}")
+        cols_to_fit = (
+            self.columns
+            if self.columns is not None
+            else list(X.select_dtypes(include=["object", "category"]).columns)
+        )
+        logger.info(
+            f"CategoricalEncoder: Fitting encoding mappings for columns: {cols_to_fit}"
+        )
 
         for col in cols_to_fit:
             if col not in X.columns:
@@ -71,7 +77,9 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
                     strategy = "frequency"
 
             self.strategies_[col] = strategy
-            logger.info(f"  Column '{col}' (uniques={unique_count}) -> encoded using strategy: {strategy.upper()}")
+            logger.info(
+                f"  Column '{col}' (uniques={unique_count}) -> encoded using strategy: {strategy.upper()}"
+            )
 
             # 2. Fit selected strategy
             if strategy == "onehot":
@@ -82,7 +90,9 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
                 self.onehot_transformers_[col] = encoder
             elif strategy == "ordinal":
                 arr = series.to_numpy().reshape(-1, 1)
-                encoder = SKOrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
+                encoder = SKOrdinalEncoder(
+                    handle_unknown="use_encoded_value", unknown_value=-1
+                )
                 encoder.fit(arr)
                 self.ordinal_transformers_[col] = encoder
             elif strategy == "frequency":
@@ -116,10 +126,15 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
 
                 # Create column headers
                 categories = encoder.categories_[0]
-                new_cols = [f"{col}_{str(cat).strip().lower().replace(' ', '_')}" for cat in categories]
+                new_cols = [
+                    f"{col}_{str(cat).strip().lower().replace(' ', '_')}"
+                    for cat in categories
+                ]
 
                 # Build temporary DataFrame
-                encoded_df = pd.DataFrame(encoded_arr, columns=new_cols, index=X_trans.index)
+                encoded_df = pd.DataFrame(
+                    encoded_arr, columns=new_cols, index=X_trans.index
+                )
                 X_trans = pd.concat([X_trans.drop(columns=[col]), encoded_df], axis=1)
             elif strategy == "ordinal":
                 encoder = self.ordinal_transformers_[col]

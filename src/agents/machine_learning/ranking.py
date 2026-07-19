@@ -1,6 +1,5 @@
 """Ranking engine to compile performance leaderboards and identify the best candidate."""
 
-
 from src.agents.machine_learning.models import Leaderboard, LeaderboardEntry
 from src.core.logger import get_logger
 
@@ -12,8 +11,7 @@ class ModelRanker:
 
     @staticmethod
     def rank_models(
-        candidate_metrics: dict[str, dict[str, float]],
-        task_type: str
+        candidate_metrics: dict[str, dict[str, float]], task_type: str
     ) -> tuple[Leaderboard, str]:
         """Rank model candidate runs based on task-specific primary keys.
 
@@ -24,19 +22,23 @@ class ModelRanker:
         Returns:
             Tuple[Leaderboard, str]: Ranked leaderboard and the name key of the best model.
         """
-        logger.info(f"ModelRanker: Sorting trained candidates leaderboard (task={task_type.upper()})")
+        logger.info(
+            f"ModelRanker: Sorting trained candidates leaderboard (task={task_type.upper()})"
+        )
 
         # Resolve sorting parameters
         # Classification: sort descending on 'f1'
         # Regression: sort ascending on 'rmse'
-        is_classification = (task_type == "classification")
+        is_classification = task_type == "classification"
         primary_metric = "f1" if is_classification else "rmse"
         reverse_sort = is_classification  # True for desc, False for asc
 
         # Filter candidates and compile list
         entries_to_sort = []
         for model_name, metrics in candidate_metrics.items():
-            score = metrics.get(primary_metric, 0.0 if is_classification else float("inf"))
+            score = metrics.get(
+                primary_metric, 0.0 if is_classification else float("inf")
+            )
             entries_to_sort.append((model_name, score, metrics))
 
         # Sort entries
@@ -51,13 +53,14 @@ class ModelRanker:
             if rank == 1:
                 best_model_name = model_name
 
-            leaderboard_entries.append(LeaderboardEntry(
-                model_name=model_name,
-                rank=rank,
-                score=score,
-                metrics=metrics
-            ))
+            leaderboard_entries.append(
+                LeaderboardEntry(
+                    model_name=model_name, rank=rank, score=score, metrics=metrics
+                )
+            )
 
         leaderboard = Leaderboard(entries=leaderboard_entries)
-        logger.info(f"ModelRanker: Leaderboard created. Ranked best model candidate: '{best_model_name}' (score: {round(entries_to_sort[0][1], 4) if entries_to_sort else 'N/A'})")
+        logger.info(
+            f"ModelRanker: Leaderboard created. Ranked best model candidate: '{best_model_name}' (score: {round(entries_to_sort[0][1], 4) if entries_to_sort else 'N/A'})"
+        )
         return leaderboard, best_model_name

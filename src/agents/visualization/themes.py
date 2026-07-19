@@ -18,7 +18,7 @@ class Theme:
         background_color: str,
         text_color: str,
         grid_color: str,
-        color_palette: list[str]
+        color_palette: list[str],
     ) -> None:
         """Initialize Theme structure.
 
@@ -46,22 +46,43 @@ class ThemeManager:
             background_color="#FFFFFF",
             text_color="#2D3748",
             grid_color="#E2E8F0",
-            color_palette=["#3182CE", "#E53E3E", "#38A169", "#D69E2E", "#805AD5", "#319795"]
+            color_palette=[
+                "#3182CE",
+                "#E53E3E",
+                "#38A169",
+                "#D69E2E",
+                "#805AD5",
+                "#319795",
+            ],
         ),
         "dark": Theme(
             name="dark",
             background_color="#1A202C",
             text_color="#EDF2F7",
             grid_color="#4A5568",
-            color_palette=["#63B3ED", "#FC8181", "#68D391", "#F6AD55", "#B794F4", "#4FD1C5"]
+            color_palette=[
+                "#63B3ED",
+                "#FC8181",
+                "#68D391",
+                "#F6AD55",
+                "#B794F4",
+                "#4FD1C5",
+            ],
         ),
         "corporate": Theme(
             name="corporate",
             background_color="#F7FAFC",
             text_color="#1A202C",
             grid_color="#E2E8F0",
-            color_palette=["#1A365D", "#742A2A", "#22543D", "#744210", "#44337A", "#234E52"]
-        )
+            color_palette=[
+                "#1A365D",
+                "#742A2A",
+                "#22543D",
+                "#744210",
+                "#44337A",
+                "#234E52",
+            ],
+        ),
     }
 
     @classmethod
@@ -115,5 +136,5 @@ class ThemeManager:
             "font": {"color": theme.text_color},
             "colorway": theme.color_palette,
             "xaxis": {"gridcolor": theme.grid_color, "linecolor": theme.grid_color},
-            "yaxis": {"gridcolor": theme.grid_color, "linecolor": theme.grid_color}
+            "yaxis": {"gridcolor": theme.grid_color, "linecolor": theme.grid_color},
         }

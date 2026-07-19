@@ -42,6 +42,7 @@ def calculate_file_sha256(filepath: Path) -> str:
 
     sha = hashlib_sha256 = hashlib_helper = None
     import hashlib
+
     h = hashlib.sha256()
 
     # Read in 64kb chunks for high performance on large files

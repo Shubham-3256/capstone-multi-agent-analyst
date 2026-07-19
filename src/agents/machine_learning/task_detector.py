@@ -29,7 +29,9 @@ class TaskDetector:
         unique_count = len(unique_vals)
 
         if unique_count <= 1:
-            logger.warning("Target variable has 1 or fewer unique values. Inferences may be unstable.")
+            logger.warning(
+                "Target variable has 1 or fewer unique values. Inferences may be unstable."
+            )
 
         # Heuristic detection
         is_numeric = pd.api.types.is_numeric_dtype(y_clean)
@@ -42,11 +44,9 @@ class TaskDetector:
         else:
             task_type = "classification"
             classes = [val for val in unique_vals]
-            is_binary = (unique_count == 2)
+            is_binary = unique_count == 2
 
-        logger.info(f"TaskDetector: Inferred Task type = {task_type.upper()}. Unique classes count: {unique_count}")
-        return TaskReport(
-            task_type=task_type,
-            classes=classes,
-            is_binary=is_binary
+        logger.info(
+            f"TaskDetector: Inferred Task type = {task_type.upper()}. Unique classes count: {unique_count}"
         )
+        return TaskReport(task_type=task_type, classes=classes, is_binary=is_binary)

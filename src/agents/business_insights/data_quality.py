@@ -18,6 +18,5 @@ class DataQualityBuilder:
             str: Compiled prompt.
         """
         return PromptTemplates.DATA_QUALITY.format(
-            missing_meta=missing_meta,
-            corr_meta=corr_meta
+            missing_meta=missing_meta, corr_meta=corr_meta
         )

@@ -43,7 +43,9 @@ class FeatureDetector:
         highly_correlated_features: list[dict[str, Any]] = []
 
         # Identifier search pattern
-        id_pattern = re.compile(r"(_id|id_|key|code|uuid|index|hash|^id$)", re.IGNORECASE)
+        id_pattern = re.compile(
+            r"(_id|id_|key|code|uuid|index|hash|^id$)", re.IGNORECASE
+        )
 
         # 1. Column classification loop
         for col in df.columns:
@@ -68,9 +70,13 @@ class FeatureDetector:
             # C. Inferred datatype categories
             if pd.api.types.is_bool_dtype(series):
                 boolean_cols.append(col_name)
-            elif id_pattern.search(col_name) or (unique_count == rows and series.dtype == "object"):
+            elif id_pattern.search(col_name) or (
+                unique_count == rows and series.dtype == "object"
+            ):
                 identifier_cols.append(col_name)
-            elif pd.api.types.is_datetime64_any_dtype(series) or str(series.dtype).startswith("datetime"):
+            elif pd.api.types.is_datetime64_any_dtype(series) or str(
+                series.dtype
+            ).startswith("datetime"):
                 datetime_cols.append(col_name)
             elif pd.api.types.is_numeric_dtype(series):
                 # Check low variance
@@ -79,7 +85,21 @@ class FeatureDetector:
                     low_variance_cols.append(col_name)
 
                 # Check if it could be ordinal rating (integers and unique count between 2 and 10)
-                if pd.api.types.is_integer_dtype(series) and 2 < unique_count <= 10 and any(keyword in col_name.lower() for keyword in ["rating", "grade", "level", "scale", "rank", "score"]):
+                if (
+                    pd.api.types.is_integer_dtype(series)
+                    and 2 < unique_count <= 10
+                    and any(
+                        keyword in col_name.lower()
+                        for keyword in [
+                            "rating",
+                            "grade",
+                            "level",
+                            "scale",
+                            "rank",
+                            "score",
+                        ]
+                    )
+                ):
                     ordinal_cols.append(col_name)
                 else:
                     numeric_cols.append(col_name)
@@ -96,8 +116,22 @@ class FeatureDetector:
                         high_cardinality_cols.append(col_name)
 
                     # Heuristics for Ordinal text (e.g. low/med/high)
-                    sample_set = {str(val).lower().strip() for val in sample_strings.unique()}
-                    if sample_set.intersection({"low", "medium", "high", "poor", "fair", "good", "excellent", "small", "large"}):
+                    sample_set = {
+                        str(val).lower().strip() for val in sample_strings.unique()
+                    }
+                    if sample_set.intersection(
+                        {
+                            "low",
+                            "medium",
+                            "high",
+                            "poor",
+                            "fair",
+                            "good",
+                            "excellent",
+                            "small",
+                            "large",
+                        }
+                    ):
                         ordinal_cols.append(col_name)
                     else:
                         categorical_cols.append(col_name)
@@ -117,7 +151,11 @@ class FeatureDetector:
             checked_cols.append(col_name)
 
         # 3. Correlation checks (Numeric variables correlation > 0.85)
-        all_numeric = [col for col in numeric_cols + ordinal_cols if pd.api.types.is_numeric_dtype(df[col])]
+        all_numeric = [
+            col
+            for col in numeric_cols + ordinal_cols
+            if pd.api.types.is_numeric_dtype(df[col])
+        ]
         if len(all_numeric) > 1:
             corr = df[all_numeric].corr().fillna(0.0)
             seen_pairs = set()
@@ -126,11 +164,9 @@ class FeatureDetector:
                     if c1 != c2 and (c2, c1) not in seen_pairs:
                         val = float(corr.at[c1, c2])
                         if abs(val) > 0.85:
-                            highly_correlated_features.append({
-                                "feature1": c1,
-                                "feature2": c2,
-                                "correlation": val
-                            })
+                            highly_correlated_features.append(
+                                {"feature1": c1, "feature2": c2, "correlation": val}
+                            )
                             seen_pairs.add((c1, c2))
 
         # Build feature types mapping dictionary
@@ -157,8 +193,10 @@ class FeatureDetector:
             "high_cardinality_columns": high_cardinality_cols,
             "low_variance_columns": low_variance_cols,
             "duplicate_features": duplicate_features,
-            "highly_correlated_features": highly_correlated_features
+            "highly_correlated_features": highly_correlated_features,
         }
 
-        logger.info(f"FeatureDetector: Detection complete. Found: Numeric={len(numeric_cols)}, Categorical={len(categorical_cols)}, Ordinal={len(ordinal_cols)}, Identifiers={len(identifier_cols)}")
+        logger.info(
+            f"FeatureDetector: Detection complete. Found: Numeric={len(numeric_cols)}, Categorical={len(categorical_cols)}, Ordinal={len(ordinal_cols)}, Identifiers={len(identifier_cols)}"
+        )
         return report

@@ -15,7 +15,9 @@ class AssetManager:
     """Copies, resizes, and organizes graph files and logos for clean document imports."""
 
     @staticmethod
-    def organize_assets(charts_paths: list[str], target_dir: Path, resize_width: int = 600) -> list[str] | None:
+    def organize_assets(
+        charts_paths: list[str], target_dir: Path, resize_width: int = 600
+    ) -> list[str] | None:
         """Copy visual charts from workspace to target reports asset directory.
 
         Args:
@@ -26,7 +28,9 @@ class AssetManager:
         Returns:
             List[str]: Copied asset relative paths.
         """
-        logger.info(f"AssetManager: Organizing {len(charts_paths)} charts to: {target_dir}")
+        logger.info(
+            f"AssetManager: Organizing {len(charts_paths)} charts to: {target_dir}"
+        )
         copied_paths = []
 
         assets_dir = target_dir / "assets"
@@ -39,10 +43,18 @@ class AssetManager:
 
             # Fallback path resolve check
             if not src_path.exists():
-                src_path = Paths.WORKSPACE_DIR / "workspace" / "artifacts" / "plots" / src_path.name
+                src_path = (
+                    Paths.WORKSPACE_DIR
+                    / "workspace"
+                    / "artifacts"
+                    / "plots"
+                    / src_path.name
+                )
 
             if not src_path.exists():
-                logger.warning(f"AssetManager: Reference file {src_path} does not exist. Skipping.")
+                logger.warning(
+                    f"AssetManager: Reference file {src_path} does not exist. Skipping."
+                )
                 continue
 
             dest_path = assets_dir / src_path.name
@@ -57,16 +69,24 @@ class AssetManager:
                         if img.width > resize_width:
                             # Calculate proportional height
                             height = int(img.height * (resize_width / img.width))
-                            resized_img = img.resize((resize_width, height), Image.Resampling.LANCZOS)
+                            resized_img = img.resize(
+                                (resize_width, height), Image.Resampling.LANCZOS
+                            )
                             resized_img.save(dest_path)
-                            logger.info(f"AssetManager: Scaled image {src_path.name} to {resize_width}x{height}")
+                            logger.info(
+                                f"AssetManager: Scaled image {src_path.name} to {resize_width}x{height}"
+                            )
                 except Exception as e:
-                    logger.warning(f"AssetManager: Pillow image scaling failed for {src_path.name}: {e}. Keeping copy.")
+                    logger.warning(
+                        f"AssetManager: Pillow image scaling failed for {src_path.name}: {e}. Keeping copy."
+                    )
 
                 # Keep relative path for document generation references
                 copied_paths.append(f"assets/{src_path.name}")
 
             except Exception as e:
-                logger.error(f"AssetManager: Failed to copy reference asset {src_path.name}: {e}")
+                logger.error(
+                    f"AssetManager: Failed to copy reference asset {src_path.name}: {e}"
+                )
 
         return copied_paths

@@ -1,6 +1,5 @@
 """Profiling engine for evaluating dataset statistics, correlations, tasks and recommendations."""
 
-
 import numpy as np
 import pandas as pd
 
@@ -62,14 +61,16 @@ class Profiler:
             col_stats = stats_dict.get(col_name, {})
 
             # Distribute statistics to type-specific fields
-            if pd.api.types.is_numeric_dtype(series) and not pd.api.types.is_bool_dtype(series):
+            if pd.api.types.is_numeric_dtype(series) and not pd.api.types.is_bool_dtype(
+                series
+            ):
                 num_summary = {k: float(v) for k, v in col_stats.items()}
             elif pd.api.types.is_datetime64_any_dtype(series):
                 date_summary = {k: str(v) for k, v in col_stats.items()}
             else:
                 cat_summary = {
                     "top": str(col_stats.get("top", "")),
-                    "freq": int(col_stats.get("freq", 0))
+                    "freq": int(col_stats.get("freq", 0)),
                 }
 
             columns_profile[col_name] = ColumnProfile(
@@ -80,24 +81,28 @@ class Profiler:
                 null_percentage=round(null_pct, 2),
                 numeric_summary=num_summary,
                 categorical_summary=cat_summary,
-                date_summary=date_summary
+                date_summary=date_summary,
             )
 
             # Generate column-specific recommendations
             if unique_count == 1:
-                recommendations.append(Recommendation(
-                    title="Constant column detected",
-                    description=f"Column '{col_name}' has a single constant value. It provides zero variance and should be dropped.",
-                    severity="warning",
-                    column=col_name
-                ))
+                recommendations.append(
+                    Recommendation(
+                        title="Constant column detected",
+                        description=f"Column '{col_name}' has a single constant value. It provides zero variance and should be dropped.",
+                        severity="warning",
+                        column=col_name,
+                    )
+                )
             if null_pct > 30.0:
-                recommendations.append(Recommendation(
-                    title="High missing values ratio",
-                    description=f"Column '{col_name}' has {round(null_pct, 2)}% missing values. Evaluate imputation stability or drop.",
-                    severity="warning",
-                    column=col_name
-                ))
+                recommendations.append(
+                    Recommendation(
+                        title="High missing values ratio",
+                        description=f"Column '{col_name}' has {round(null_pct, 2)}% missing values. Evaluate imputation stability or drop.",
+                        severity="warning",
+                        column=col_name,
+                    )
+                )
 
         # 3. Pearson Correlation matrix calculation
         corr_matrix: dict[str, dict[str, float]] = {}
@@ -117,12 +122,14 @@ class Profiler:
                         if c1 != c2 and (c2, c1) not in seen_pairs:
                             val = float(corr.at[c1, c2])
                             if abs(val) > 0.85:
-                                recommendations.append(Recommendation(
-                                    title="Strong multicollinearity",
-                                    description=f"Columns '{c1}' and '{c2}' are strongly correlated (Pearson R={round(val, 3)}). Consider regularizations or dropping one.",
-                                    severity="info",
-                                    column=c1
-                                ))
+                                recommendations.append(
+                                    Recommendation(
+                                        title="Strong multicollinearity",
+                                        description=f"Columns '{c1}' and '{c2}' are strongly correlated (Pearson R={round(val, 3)}). Consider regularizations or dropping one.",
+                                        severity="info",
+                                        column=c1,
+                                    )
+                                )
                                 seen_pairs.add((c1, c2))
             except Exception as e:
                 logger.warning(f"Failed to calculate Pearson correlation matrix: {e}")
@@ -134,7 +141,10 @@ class Profiler:
         if target_column:
             if target_column in df.columns:
                 target_series = df[target_column]
-                target_dist = {str(k): int(v) for k, v in target_series.value_counts(dropna=False).items()}
+                target_dist = {
+                    str(k): int(v)
+                    for k, v in target_series.value_counts(dropna=False).items()
+                }
 
                 # Infer ML task type
                 unique_vals = target_series.nunique()
@@ -151,21 +161,27 @@ class Profiler:
                     total = counts.sum()
 
                     if total > 0 and (max_class / min_class) > 4.0:
-                        recommendations.append(Recommendation(
-                            title="Highly imbalanced target",
-                            description=(
-                                f"Target column '{target_column}' is imbalanced. "
-                                f"Skew ratio is {round(max_class / min_class, 2)}:1 (Max class: {max_class}, Min class: {min_class}). "
-                                "Stratify class splits and apply balanced metric evaluation."
-                            ),
-                            severity="warning",
-                            column=target_column
-                        ))
+                        recommendations.append(
+                            Recommendation(
+                                title="Highly imbalanced target",
+                                description=(
+                                    f"Target column '{target_column}' is imbalanced. "
+                                    f"Skew ratio is {round(max_class / min_class, 2)}:1 (Max class: {max_class}, Min class: {min_class}). "
+                                    "Stratify class splits and apply balanced metric evaluation."
+                                ),
+                                severity="warning",
+                                column=target_column,
+                            )
+                        )
             else:
                 recommended_task = "unknown"
-                logger.warning(f"Target column '{target_column}' specified but missing in DataFrame columns.")
+                logger.warning(
+                    f"Target column '{target_column}' specified but missing in DataFrame columns."
+                )
 
-        logger.info(f"Profiler: Profiling complete. Recommended ML Task: {recommended_task.upper()}")
+        logger.info(
+            f"Profiler: Profiling complete. Recommended ML Task: {recommended_task.upper()}"
+        )
         return DatasetProfile(
             row_count=rows,
             column_count=cols,
@@ -174,5 +190,5 @@ class Profiler:
             correlation_matrix=corr_matrix,
             target_distribution=target_dist,
             recommended_ml_task=recommended_task,
-            recommendations=recommendations
+            recommendations=recommendations,
         )

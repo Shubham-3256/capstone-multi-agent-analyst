@@ -34,7 +34,9 @@ def detect_file_encoding(filepath: Path) -> str:
             continue
 
     # Default fallback
-    logger.warning(f"Could not conclusively detect encoding for {filepath.name}. Falling back to utf-8.")
+    logger.warning(
+        f"Could not conclusively detect encoding for {filepath.name}. Falling back to utf-8."
+    )
     return "utf-8"
 
 
@@ -59,7 +61,9 @@ def validate_csv_structure(filepath: Path) -> bool:
             headers = next(reader)
 
             if not headers:
-                raise ValidationException("CSV validation failed: Empty file or headers missing.")
+                raise ValidationException(
+                    "CSV validation failed: Empty file or headers missing."
+                )
 
             # Verify the row column counts are uniform on first 100 rows
             col_count = len(headers)

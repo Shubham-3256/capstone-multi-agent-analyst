@@ -41,7 +41,9 @@ class DataLoader:
             if suffix == ".csv":
                 encoding = detect_file_encoding(filepath)
                 logger.info(f"DataLoader: Ingesting CSV using encoding='{encoding}'")
-                df = pd.read_csv(filepath, encoding=encoding, memory_map=True, low_memory=True)
+                df = pd.read_csv(
+                    filepath, encoding=encoding, memory_map=True, low_memory=True
+                )
 
             elif suffix in {".parquet", ".pq"}:
                 logger.info("DataLoader: Ingesting Parquet dataset")
@@ -56,7 +58,7 @@ class DataLoader:
                 logger.error(f"DataLoader: Unsupported file extension: {suffix}")
                 raise DatasetException(
                     message=f"Unsupported file format suffix: '{suffix}'",
-                    details={"filepath": str(filepath)}
+                    details={"filepath": str(filepath)},
                 )
 
             if OptimizationConfig.ENABLE_DOWNCASTING:

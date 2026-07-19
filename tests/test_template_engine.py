@@ -8,15 +8,15 @@ def test_template_engine_renders():
     metadata = {
         "title": "Corporate Report",
         "author": "Platform Team",
-        "created_at": "2026-07-18"
+        "created_at": "2026-07-18",
     }
     sections = {
         "cover_page": "# Cover Details",
-        "executive_summary": "Executive summaries content."
+        "executive_summary": "Executive summaries content.",
     }
-    
+
     rendered = TemplateEngine.render("executive", metadata, sections)
-    
+
     assert "Corporate Report" in rendered
     assert "Platform Team" in rendered
     assert "Executive summaries content." in rendered

@@ -13,7 +13,9 @@ class OptimizationConfig:
 
     # Memory Optimizations
     ENABLE_DOWNCASTING: bool = True
-    CATEGORY_CARDINALITY_THRESHOLD: float = 0.05  # convert object columns to category if unique values < 5% of rows
+    CATEGORY_CARDINALITY_THRESHOLD: float = (
+        0.05  # convert object columns to category if unique values < 5% of rows
+    )
     CHUNK_SIZE: int = 50_000  # default rows per chunk when streaming large datasets
 
     # Concurrency / Parallelism

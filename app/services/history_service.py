@@ -16,7 +16,7 @@ def _map_workflow(w: Any) -> SimpleNamespace | None:
         history_json=w.history_json,
         errors_json=w.errors_json,
         timing_json=w.timing_json,
-        created_at=w.created_at
+        created_at=w.created_at,
     )
 
 
@@ -31,7 +31,7 @@ def _map_report(r: Any) -> SimpleNamespace | None:
         manifest_json=r.manifest_json,
         output_paths_json=r.output_paths_json,
         duration_seconds=r.duration_seconds,
-        created_at=r.created_at
+        created_at=r.created_at,
     )
 
 
@@ -47,7 +47,7 @@ def _map_dataset(d: Any) -> SimpleNamespace | None:
         row_count=d.row_count,
         column_count=d.column_count,
         status=d.status,
-        created_at=d.created_at
+        created_at=d.created_at,
     )
 
 
@@ -55,7 +55,9 @@ class HistoryService:
     """Provides workflow and report history without workflow-side mutations."""
 
     @staticmethod
-    def workflows(status_filter: str | None = None, search_query: str | None = None) -> list[Any]:
+    def workflows(
+        status_filter: str | None = None, search_query: str | None = None
+    ) -> list[Any]:
         """Return latest persisted workflow executions with optional filtering."""
         with DatabaseManager.get_session() as session:
             query = session.query(WorkflowExecution)
@@ -63,8 +65,8 @@ class HistoryService:
                 query = query.filter(WorkflowExecution.status == status_filter.lower())
             if search_query:
                 query = query.filter(
-                    (WorkflowExecution.workflow_id.contains(search_query)) |
-                    (WorkflowExecution.errors_json.contains(search_query))
+                    (WorkflowExecution.workflow_id.contains(search_query))
+                    | (WorkflowExecution.errors_json.contains(search_query))
                 )
             results = query.order_by(WorkflowExecution.created_at.desc()).all()
             return [_map_workflow(w) for w in results if w is not None]
@@ -73,28 +75,42 @@ class HistoryService:
     def reports() -> list[Any]:
         """Return latest persisted report records."""
         with DatabaseManager.get_session() as session:
-            results = session.query(ReportRecord).order_by(ReportRecord.created_at.desc()).all()
+            results = (
+                session.query(ReportRecord)
+                .order_by(ReportRecord.created_at.desc())
+                .all()
+            )
             return [_map_report(r) for r in results if r is not None]
 
     @staticmethod
     def datasets() -> list[Any]:
         """Return latest persisted dataset records."""
         with DatabaseManager.get_session() as session:
-            results = session.query(DatasetRecord).order_by(DatasetRecord.created_at.desc()).all()
+            results = (
+                session.query(DatasetRecord)
+                .order_by(DatasetRecord.created_at.desc())
+                .all()
+            )
             return [_map_dataset(d) for d in results if d is not None]
 
     @staticmethod
     def workflow_by_id(workflow_id: str) -> Any | None:
         """Fetch a specific workflow execution by ID."""
         with DatabaseManager.get_session() as session:
-            w = session.query(WorkflowExecution).filter(WorkflowExecution.workflow_id == workflow_id).first()
+            w = (
+                session.query(WorkflowExecution)
+                .filter(WorkflowExecution.workflow_id == workflow_id)
+                .first()
+            )
             return _map_workflow(w)
 
     @staticmethod
     def report_by_id(report_id: str) -> Any | None:
         """Fetch a specific report record by ID."""
         with DatabaseManager.get_session() as session:
-            r = session.query(ReportRecord).filter(ReportRecord.report_id == report_id).first()
+            r = (
+                session.query(ReportRecord)
+                .filter(ReportRecord.report_id == report_id)
+                .first()
+            )
             return _map_report(r)
-
-

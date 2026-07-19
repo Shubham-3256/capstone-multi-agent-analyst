@@ -103,7 +103,8 @@ class MemoryStore:
         with self._lock:
             current_time = time.time()
             valid_keys = [
-                k for k, (_, exp) in self._store.items()
+                k
+                for k, (_, exp) in self._store.items()
                 if exp is None or current_time <= exp
             ]
             return len(valid_keys)

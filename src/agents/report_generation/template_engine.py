@@ -1,6 +1,5 @@
 """Template engine managing layout options and substituting section markdowns."""
 
-
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -12,14 +11,24 @@ class TemplateEngine:
     _HEADER = """# {report_heading}\n**Title**: {title}\n**Author**: {author}\n**Created**: {created_at}\n\n---\n\n"""
     _ALL_SECTIONS = """{cover_page}\n\n---\n\n{executive_summary}\n\n---\n\n{dataset_overview}\n\n---\n\n{data_quality}\n\n---\n\n{feature_engineering}\n\n---\n\n{machine_learning}\n\n---\n\n{visualizations}\n\n---\n\n{business_insights}\n\n---\n\n{recommendations}\n\n---\n\n{risks}\n\n---\n\n{technical_appendix}\n\n---\n\n{references}\n"""
     TEMPLATES: dict[str, str] = {
-        "executive": _HEADER.replace("{report_heading}", "Executive Business Analytics Report") + _ALL_SECTIONS,
-        "technical": _HEADER.replace("{report_heading}", "Technical AutoML Engineering Report") + _ALL_SECTIONS,
-        "research": _HEADER.replace("{report_heading}", "Research Analytics Report") + _ALL_SECTIONS,
-        "audit": _HEADER.replace("{report_heading}", "Analytics Audit Report") + _ALL_SECTIONS,
+        "executive": _HEADER.replace(
+            "{report_heading}", "Executive Business Analytics Report"
+        )
+        + _ALL_SECTIONS,
+        "technical": _HEADER.replace(
+            "{report_heading}", "Technical AutoML Engineering Report"
+        )
+        + _ALL_SECTIONS,
+        "research": _HEADER.replace("{report_heading}", "Research Analytics Report")
+        + _ALL_SECTIONS,
+        "audit": _HEADER.replace("{report_heading}", "Analytics Audit Report")
+        + _ALL_SECTIONS,
     }
 
     @classmethod
-    def render(cls, template_type: str, metadata: dict[str, str], sections: dict[str, str]) -> str:
+    def render(
+        cls, template_type: str, metadata: dict[str, str], sections: dict[str, str]
+    ) -> str:
         """Replace template variables and sections placeholders.
 
         Args:
@@ -40,9 +49,20 @@ class TemplateEngine:
         payload = {**metadata, **sections}
 
         # Replace any missing section keys with a blank string to prevent formatting errors
-        for key in ["cover_page", "executive_summary", "dataset_overview", "data_quality",
-                    "feature_engineering", "machine_learning", "visualizations", "business_insights",
-                    "recommendations", "risks", "technical_appendix", "references"]:
+        for key in [
+            "cover_page",
+            "executive_summary",
+            "dataset_overview",
+            "data_quality",
+            "feature_engineering",
+            "machine_learning",
+            "visualizations",
+            "business_insights",
+            "recommendations",
+            "risks",
+            "technical_appendix",
+            "references",
+        ]:
             if key not in payload:
                 payload[key] = f"*Section '{key}' omitted by design.*"
 

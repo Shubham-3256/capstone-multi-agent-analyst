@@ -59,7 +59,9 @@ class Exporter:
             elif line_strip.startswith("- "):
                 html_lines.append(f"<li>{line_strip[2:]}</li>")
             elif line_strip.startswith("**"):
-                html_lines.append(f"<p><strong>{line_strip.replace('**', '')}</strong></p>")
+                html_lines.append(
+                    f"<p><strong>{line_strip.replace('**', '')}</strong></p>"
+                )
             else:
                 html_lines.append(f"<p>{line_strip}</p>")
 
@@ -145,32 +147,32 @@ class Exporter:
 
             # Custom corporate style sheets
             title_style = ParagraphStyle(
-                'ReportTitle',
-                parent=styles['Heading1'],
-                fontName='Helvetica-Bold',
+                "ReportTitle",
+                parent=styles["Heading1"],
+                fontName="Helvetica-Bold",
                 fontSize=22,
                 leading=26,
-                textColor=colors.HexColor('#0f172a'),
-                spaceAfter=15
+                textColor=colors.HexColor("#0f172a"),
+                spaceAfter=15,
             )
             h2_style = ParagraphStyle(
-                'ReportH2',
-                parent=styles['Heading2'],
-                fontName='Helvetica-Bold',
+                "ReportH2",
+                parent=styles["Heading2"],
+                fontName="Helvetica-Bold",
                 fontSize=14,
                 leading=18,
-                textColor=colors.HexColor('#1e3a8a'),
+                textColor=colors.HexColor("#1e3a8a"),
                 spaceBefore=12,
-                spaceAfter=6
+                spaceAfter=6,
             )
             body_style = ParagraphStyle(
-                'ReportBody',
-                parent=styles['BodyText'],
-                fontName='Helvetica',
+                "ReportBody",
+                parent=styles["BodyText"],
+                fontName="Helvetica",
                 fontSize=10,
                 leading=14,
-                textColor=colors.HexColor('#334155'),
-                spaceAfter=8
+                textColor=colors.HexColor("#334155"),
+                spaceAfter=8,
             )
 
             story = []
@@ -194,7 +196,9 @@ class Exporter:
             logger.info("Exporter: PDF generated successfully via reportlab.")
 
         except Exception as e:
-            logger.error(f"Exporter: reportlab compilation failed: {e}. Graceful fallback to text layout.")
+            logger.error(
+                f"Exporter: reportlab compilation failed: {e}. Graceful fallback to text layout."
+            )
             # Graceful fallback: write as clean txt content
             with open(target_file, "w", encoding="utf-8") as f:
                 f.write(markdown_content)
@@ -217,6 +221,7 @@ class Exporter:
 
         try:
             import docx
+
             doc = docx.Document()
 
             for line in markdown_content.splitlines():
@@ -230,7 +235,7 @@ class Exporter:
                 elif line_strip.startswith("### "):
                     doc.add_heading(line_strip[4:], level=3)
                 elif line_strip.startswith("* ") or line_strip.startswith("- "):
-                    doc.add_paragraph(line_strip[2:], style='List Bullet')
+                    doc.add_paragraph(line_strip[2:], style="List Bullet")
                 else:
                     doc.add_paragraph(line_strip)
 
@@ -238,7 +243,9 @@ class Exporter:
             logger.info("Exporter: DOCX generated successfully via python-docx.")
 
         except Exception as e:
-            logger.error(f"Exporter: python-docx compilation failed: {e}. Graceful fallback to text layout.")
+            logger.error(
+                f"Exporter: python-docx compilation failed: {e}. Graceful fallback to text layout."
+            )
             with open(target_file, "w", encoding="utf-8") as f:
                 f.write(markdown_content)
 

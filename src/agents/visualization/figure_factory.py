@@ -19,7 +19,7 @@ class FigureFactory:
         xlabel: str | None = None,
         ylabel: str | None = None,
         theme_name: str = "corporate",
-        figsize: tuple[float, float] = (10.0, 6.0)
+        figsize: tuple[float, float] = (10.0, 6.0),
     ) -> tuple[plt.Figure, plt.Axes]:
         """Instantiate and style a Matplotlib canvas.
 
@@ -50,7 +50,16 @@ class FigureFactory:
             # Shift main title up, add subtitle
             ax.set_title(f"{title}\n", fontsize=14, fontweight="bold", pad=15)
             # Annotate subtitle text
-            ax.text(0.5, 1.02, subtitle, transform=ax.transAxes, ha="center", va="bottom", fontsize=10, style="italic")
+            ax.text(
+                0.5,
+                1.02,
+                subtitle,
+                transform=ax.transAxes,
+                ha="center",
+                va="bottom",
+                fontsize=10,
+                style="italic",
+            )
         else:
             ax.set_title(title, fontsize=14, fontweight="bold", pad=15)
 
@@ -64,7 +73,7 @@ class FigureFactory:
         subtitle: str | None = None,
         xlabel: str | None = None,
         ylabel: str | None = None,
-        theme_name: str = "corporate"
+        theme_name: str = "corporate",
     ) -> go.Figure:
         """Instantiate and style an interactive Plotly graph figure.
 
@@ -93,7 +102,7 @@ class FigureFactory:
             xaxis_title=xlabel,
             yaxis_title=ylabel,
             margin={"t": 80, "b": 50, "l": 50, "r": 50},
-            **layout_params
+            **layout_params,
         )
 
         return fig

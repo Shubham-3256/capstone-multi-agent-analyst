@@ -1,7 +1,7 @@
 """Unit tests for prompt builder templates formatting."""
 
-from src.agents.business_insights.executive_summary import ExecutiveSummaryBuilder
 from src.agents.business_insights.data_quality import DataQualityBuilder
+from src.agents.business_insights.executive_summary import ExecutiveSummaryBuilder
 
 
 def test_prompt_builder_executive():
@@ -13,6 +13,8 @@ def test_prompt_builder_executive():
 
 def test_prompt_builder_quality():
     """Test compiling data quality prompts."""
-    prompt = DataQualityBuilder.build_prompt("missingness heatmap info", "correlations matrix info")
+    prompt = DataQualityBuilder.build_prompt(
+        "missingness heatmap info", "correlations matrix info"
+    )
     assert "missingness heatmap" in prompt
     assert "correlations matrix" in prompt

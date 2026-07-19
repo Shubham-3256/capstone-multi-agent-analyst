@@ -11,10 +11,12 @@ def upload_dataset() -> Any | None:
     uploaded = st.file_uploader(
         "Upload Dataset File",
         type=["csv", "xlsx", "xls", "parquet"],
-        help="Supported formats: CSV, Excel (XLSX, XLS), Parquet"
+        help="Supported formats: CSV, Excel (XLSX, XLS), Parquet",
     )
     if uploaded:
-        st.markdown(f"📊 **File Uploaded:** `{uploaded.name}` ({uploaded.size / 1024:.2f} KB)")
+        st.markdown(
+            f"📊 **File Uploaded:** `{uploaded.name}` ({uploaded.size / 1024:.2f} KB)"
+        )
         try:
             name = uploaded.name.lower()
             if name.endswith(".csv"):
@@ -37,4 +39,3 @@ def upload_dataset() -> Any | None:
             st.error(f"Error parsing uploaded file: {str(e)}")
             return None
     return None
-

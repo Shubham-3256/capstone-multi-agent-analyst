@@ -1,9 +1,10 @@
 """Cross-validation split validator executing KFold and StratifiedKFold runs."""
 
-from typing import Any, List, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import KFold, StratifiedKFold, LeaveOneOut, cross_val_score
+from sklearn.model_selection import KFold, LeaveOneOut, StratifiedKFold, cross_val_score
 
 from src.agents.machine_learning.models import CrossValidationResult
 from src.core.logger import get_logger
@@ -21,7 +22,7 @@ class CrossValidator:
         y: pd.Series,
         task_type: str,
         cv_folds: int = 5,
-        random_seed: int = 42
+        random_seed: int = 42,
     ) -> CrossValidationResult:
         """Run cross-validation on X and y for a given model.
 
@@ -46,11 +47,11 @@ class CrossValidator:
 
         # 1. Resolve fold strategy and scorer
         if n_samples <= 1:
-            logger.warning("CrossValidator: Dataset contains 1 or 0 rows. Cross-validation is not possible.")
+            logger.warning(
+                "CrossValidator: Dataset contains 1 or 0 rows. Cross-validation is not possible."
+            )
             return CrossValidationResult(
-                fold_scores=[0.0],
-                mean_score=0.0,
-                std_score=0.0
+                fold_scores=[0.0], mean_score=0.0, std_score=0.0
             )
 
         if n_samples < cv_folds:
@@ -60,7 +61,11 @@ class CrossValidator:
             )
             cv = LeaveOneOut()
             # F1-macro on single-sample test fold returns NaN/0.0; use accuracy for classification under LOOCV
-            scoring = "accuracy" if task_type == "classification" else "neg_root_mean_squared_error"
+            scoring = (
+                "accuracy"
+                if task_type == "classification"
+                else "neg_root_mean_squared_error"
+            )
             actual_folds = n_samples
         else:
             actual_folds = cv_folds
@@ -74,20 +79,32 @@ class CrossValidator:
                         f"Reducing classification cv splits to {min_class_count}."
                     )
                     if min_class_count <= 1:
-                        logger.warning("CrossValidator: Minimum class count is 1. Switching to standard KFold.")
-                        cv = KFold(n_splits=cv_folds, shuffle=True, random_state=random_seed)
+                        logger.warning(
+                            "CrossValidator: Minimum class count is 1. Switching to standard KFold."
+                        )
+                        cv = KFold(
+                            n_splits=cv_folds, shuffle=True, random_state=random_seed
+                        )
                     else:
-                        cv = StratifiedKFold(n_splits=min_class_count, shuffle=True, random_state=random_seed)
+                        cv = StratifiedKFold(
+                            n_splits=min_class_count,
+                            shuffle=True,
+                            random_state=random_seed,
+                        )
                         actual_folds = min_class_count
                 else:
-                    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_seed)
+                    cv = StratifiedKFold(
+                        n_splits=cv_folds, shuffle=True, random_state=random_seed
+                    )
                 scoring = "f1_macro"
             else:
                 cv = KFold(n_splits=cv_folds, shuffle=True, random_state=random_seed)
                 scoring = "neg_root_mean_squared_error"
 
         try:
-            scores = cross_val_score(model, X_clean, y_clean, cv=cv, scoring=scoring, n_jobs=-1)
+            scores = cross_val_score(
+                model, X_clean, y_clean, cv=cv, scoring=scoring, n_jobs=-1
+            )
 
             # If negative RMSE, negate values to show true positive error metrics
             if scoring == "neg_root_mean_squared_error":
@@ -97,16 +114,14 @@ class CrossValidator:
             std_score = float(np.std(scores))
             fold_scores = [float(s) for s in scores]
 
-            logger.info(f"  CV Complete. Mean score: {round(mean_score, 4)} (Std: {round(std_score, 4)})")
+            logger.info(
+                f"  CV Complete. Mean score: {round(mean_score, 4)} (Std: {round(std_score, 4)})"
+            )
             return CrossValidationResult(
-                fold_scores=fold_scores,
-                mean_score=mean_score,
-                std_score=std_score
+                fold_scores=fold_scores, mean_score=mean_score, std_score=std_score
             )
         except Exception as e:
             logger.error(f"  CV Execution failed: {e}")
             return CrossValidationResult(
-                fold_scores=[0.0] * actual_folds,
-                mean_score=0.0,
-                std_score=0.0
+                fold_scores=[0.0] * actual_folds, mean_score=0.0, std_score=0.0
             )

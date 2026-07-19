@@ -1,19 +1,19 @@
 """Demo script for Phase 3 - Backend Foundation components validation.
 
-Demonstrates database setup, dataset registration, metadata compilation, 
+Demonstrates database setup, dataset registration, metadata compilation,
 file workspace transitions, profiling metrics, and diagnostics.
 """
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 # Add project root directory to path to enable local package importing
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from src.core import get_logger, Paths
-from src.database import init_db, DatabaseManager
+from src.core import get_logger
+from src.database import DatabaseManager, init_db
 from src.services.dataset_service import DatasetService
 from src.services.metadata_service import MetadataService
 from src.tools.dataset_profiler import DatasetProfiler
@@ -30,7 +30,7 @@ def create_sample_dataset() -> Path:
     """
     sample_file = project_root / "workspace" / "temp_demo_churn.csv"
     sample_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # 5 rows of customer data
     content = """customer_id,age,tenure,monthly_charges,churn
 CUST001,34,12,65.5,0
@@ -80,9 +80,11 @@ def run_demo() -> None:
             filepath=str(filepath),
             file_hash=record_hash,
             file_size_bytes=record_size,
-            status=record_status
+            status=record_status,
         )
-        logger.info(f"Metadata Profile generated. Columns found: {list(metadata.columns.keys())}")
+        logger.info(
+            f"Metadata Profile generated. Columns found: {list(metadata.columns.keys())}"
+        )
 
     # 5. Generate and print dataset summary via Profiler tool
     logger.info("Running dataset profiling report tool...")
@@ -97,7 +99,9 @@ def run_demo() -> None:
 
     # 6. Audit workspace usage
     disk_summary = FileManager.get_workspace_disk_summary()
-    logger.info(f"Workspace Storage Audit Summary: {json.dumps(disk_summary, indent=2)}")
+    logger.info(
+        f"Workspace Storage Audit Summary: {json.dumps(disk_summary, indent=2)}"
+    )
 
     # Clean up temp directories
     FileManager.clear_temp_workspace()

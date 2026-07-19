@@ -31,7 +31,9 @@ def generate_benchmark_csv(dest_path: Path, size_mb: float) -> None:
     total_bytes = int(size_mb * 1024 * 1024)
     row_count = total_bytes // row_bytes
 
-    logger.info(f"Generating Benchmark CSV: {dest_path.name} (approx {size_mb} MB, {row_count:,} rows)")
+    logger.info(
+        f"Generating Benchmark CSV: {dest_path.name} (approx {size_mb} MB, {row_count:,} rows)"
+    )
 
     # Write in chunks of 50,000 rows for memory efficiency
     chunk_size = 50_000
@@ -101,8 +103,19 @@ class IngestionBenchmark:
                 "raw_mem_mb": round(raw_mem, 2),
                 "opt_load_time": opt_metrics["elapsed_seconds"],
                 "opt_mem_mb": round(opt_mem, 2),
-                "mem_savings_pct": round(((raw_mem - opt_mem) / raw_mem) * 100, 1) if raw_mem > 0 else 0.0,
-                "speedup_factor": round(raw_metrics["elapsed_seconds"] / opt_metrics["elapsed_seconds"], 2) if opt_metrics["elapsed_seconds"] > 0 else 1.0
+                "mem_savings_pct": (
+                    round(((raw_mem - opt_mem) / raw_mem) * 100, 1)
+                    if raw_mem > 0
+                    else 0.0
+                ),
+                "speedup_factor": (
+                    round(
+                        raw_metrics["elapsed_seconds"] / opt_metrics["elapsed_seconds"],
+                        2,
+                    )
+                    if opt_metrics["elapsed_seconds"] > 0
+                    else 1.0
+                ),
             }
 
             logger.info(

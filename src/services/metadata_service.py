@@ -26,7 +26,7 @@ class MetadataService:
         filepath: str,
         file_hash: str,
         file_size_bytes: int,
-        status: str = "uploaded"
+        status: str = "uploaded",
     ) -> DatasetMetadata:
         """Analyze a DataFrame to construct a complete DatasetMetadata profile.
 
@@ -62,7 +62,9 @@ class MetadataService:
             # Extract sample values (convert to JSON-serializable types, drop NaNs)
             samples = series.dropna().head(5).tolist()
 
-            missing_info = missing_dict["column_missing"].get(col_name, {"count": 0, "percentage": 0.0})
+            missing_info = missing_dict["column_missing"].get(
+                col_name, {"count": 0, "percentage": 0.0}
+            )
             non_null_count = int(series.notnull().sum())
             unique_count = int(series.nunique())
 
@@ -74,7 +76,7 @@ class MetadataService:
                 null_percentage=missing_info["percentage"],
                 unique_count=unique_count,
                 sample_values=samples,
-                statistics=stats_dict.get(col_name, {})
+                statistics=stats_dict.get(col_name, {}),
             )
 
         # 4. Construct response schema
@@ -90,7 +92,7 @@ class MetadataService:
             missing_value_count=missing_dict["total_missing"],
             duplicate_rows_count=duplicates,
             memory_usage_bytes=mem_usage,
-            status=status
+            status=status,
         )
 
         logger.info("Metadata extraction completed successfully.")

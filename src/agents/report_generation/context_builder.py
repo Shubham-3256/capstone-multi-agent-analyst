@@ -32,7 +32,7 @@ class ContextBuilder:
         feature_result: FeatureEngineeringResult | None = None,
         ml_result: MachineLearningResult | None = None,
         visualization_result: VisualizationResult | None = None,
-        business_result: BusinessInsightResult | None = None
+        business_result: BusinessInsightResult | None = None,
     ) -> ReportContext:
         """Merge agent run objects into a ReportContext structure.
 
@@ -77,8 +77,14 @@ class ContextBuilder:
                 rank = _get(entry, "rank")
                 model_name = _get(entry, "model_name")
                 score = _get(entry, "score")
-                leaderboard_lines.append(f"    * Rank {rank}: {model_name} (Score={score})")
-            leaderboard_str = "\n".join(leaderboard_lines) if leaderboard_lines else "    * Empty Leaderboard"
+                leaderboard_lines.append(
+                    f"    * Rank {rank}: {model_name} (Score={score})"
+                )
+            leaderboard_str = (
+                "\n".join(leaderboard_lines)
+                if leaderboard_lines
+                else "    * Empty Leaderboard"
+            )
 
             ml_str = (
                 f"Machine Learning Results:\n"
@@ -100,10 +106,14 @@ class ContextBuilder:
                 chart_type = _get(chart, "chart_type")
                 file_path = _get(chart, "file_path")
                 if file_path:
-                    viz_lines.append(f"  - {title} ({str(chart_type).upper()}) at: {file_path}")
+                    viz_lines.append(
+                        f"  - {title} ({str(chart_type).upper()}) at: {file_path}"
+                    )
                     charts_paths.append(file_path)
                 else:
-                    viz_lines.append(f"  - {title} ({str(chart_type).upper()}): Not plotted (No missing values)")
+                    viz_lines.append(
+                        f"  - {title} ({str(chart_type).upper()}): Not plotted (No missing values)"
+                    )
             viz_str = "Visualization charts metadata:\n" + "\n".join(viz_lines)
         else:
             viz_str = "No charts were generated or visualization metadata is missing."
@@ -147,5 +157,5 @@ class ContextBuilder:
             ml_summary_str=ml_str,
             viz_summary_str=viz_str,
             insights_str=insights_str,
-            charts_paths=charts_paths
+            charts_paths=charts_paths,
         )

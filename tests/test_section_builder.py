@@ -11,11 +11,11 @@ def test_section_builder_cover_and_executive():
         feature_summary_str="Scaled and Encoded.",
         ml_summary_str="Trained logistic classifier.",
         viz_summary_str="Missing heatmap saved.",
-        insights_str="High customer churn."
+        insights_str="High customer churn.",
     )
-    
+
     sections = SectionBuilder.build_sections(context)
-    
+
     assert "cover_page" in sections
     assert "executive_summary" in sections
     assert "risks" in sections

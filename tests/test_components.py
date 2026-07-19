@@ -2,17 +2,16 @@
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-import pytest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.cards import metric_card, info_card
-from app.components.notifications import notify_result, show_success, show_error
-from app.components.tables import render_table, render_html_table
+from app.components.cards import info_card, metric_card
 from app.components.metrics import workflow_metrics
+from app.components.notifications import notify_result
+from app.components.tables import render_html_table, render_table
 
 
 @patch("streamlit.metric")
@@ -44,7 +43,9 @@ def test_notifications_success(mock_st_success):
 @patch("streamlit.error")
 def test_notifications_error(mock_st_error):
     """Test notify_result error alerts."""
-    mock_result = SimpleNamespace(is_success=False, state=SimpleNamespace(errors=["Ingestion failed"]))
+    mock_result = SimpleNamespace(
+        is_success=False, state=SimpleNamespace(errors=["Ingestion failed"])
+    )
     notify_result(mock_result)
     mock_st_error.assert_called_once()
     assert "Ingestion failed" in mock_st_error.call_args[0][0]
@@ -54,6 +55,7 @@ def test_notifications_error(mock_st_error):
 def test_render_table_dataframe(mock_st_dataframe):
     """Test render_table with a pandas DataFrame."""
     import pandas as pd
+
     df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
     render_table(df)
     mock_st_dataframe.assert_called_once_with(df, width="stretch", hide_index=True)
@@ -73,8 +75,10 @@ def test_render_html_table(mock_st_markdown):
 def test_workflow_metrics_calculation():
     """Test extraction of node execution count and timing sum."""
     mock_state = SimpleNamespace(
-        execution_history=[SimpleNamespace(node_name="load_dataset", status="completed")],
-        timing={"load_dataset": 1.25}
+        execution_history=[
+            SimpleNamespace(node_name="load_dataset", status="completed")
+        ],
+        timing={"load_dataset": 1.25},
     )
     mock_result = SimpleNamespace(state=mock_state)
     metrics = workflow_metrics(mock_result)

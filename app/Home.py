@@ -48,6 +48,7 @@ def render_mermaid() -> None:
     </div>
     """
     import urllib.parse
+
     data_url = "data:text/html;charset=utf-8," + urllib.parse.quote(mermaid_html)
     st.iframe(data_url, height=1200)
 
@@ -58,12 +59,10 @@ def main() -> None:
     setup_page("Home")
 
     st.title("🤖 Multi-Agent AI Data Analyst")
-    st.markdown(
-        """
+    st.markdown("""
         Welcome to the **Multi-Agent AI Data Analyst** platform. This system orchestrates specialized 
         autonomous AI agents to ingest, clean, explore, model, and compile PDF reports for your datasets automatically.
-        """
-    )
+        """)
 
     st.divider()
 
@@ -81,6 +80,7 @@ def main() -> None:
     durations = []
     for w in workflows:
         import json
+
         try:
             timing = json.loads(w.timing_json)
             durations.append(sum(timing.values()))
@@ -112,7 +112,11 @@ def main() -> None:
         if workflows:
             headers = ["Workflow ID", "Status", "Executed At"]
             rows = [
-                [w.workflow_id[:8] + "...", w.status.upper(), w.created_at.strftime("%Y-%m-%d %H:%M")]
+                [
+                    w.workflow_id[:8] + "...",
+                    w.status.upper(),
+                    w.created_at.strftime("%Y-%m-%d %H:%M"),
+                ]
                 for w in workflows[:5]
             ]
             render_html_table(headers, rows)
@@ -124,7 +128,11 @@ def main() -> None:
         if reports:
             headers = ["Report ID", "Template Type", "Created At"]
             rows = [
-                [r.report_id[:8] + "...", r.template_type.title(), r.created_at.strftime("%Y-%m-%d %H:%M")]
+                [
+                    r.report_id[:8] + "...",
+                    r.template_type.title(),
+                    r.created_at.strftime("%Y-%m-%d %H:%M"),
+                ]
                 for r in reports[:5]
             ]
             render_html_table(headers, rows)

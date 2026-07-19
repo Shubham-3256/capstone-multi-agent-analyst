@@ -57,7 +57,7 @@ class PerformanceProfiler:
             "cpu_seconds": round(cpu_time, 4),
             "cpu_load_percent": round(cpu_load, 2),
             "peak_memory_mb": round(peak_memory / (1024 * 1024), 2),
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         }
 
         logger.info(
@@ -75,7 +75,9 @@ class PerformanceProfiler:
         Returns:
             Path: File path of the written report.
         """
-        filename = output_filename or f"{self.name.lower().replace(' ', '_')}_report.json"
+        filename = (
+            output_filename or f"{self.name.lower().replace(' ', '_')}_report.json"
+        )
         log_dir = Paths.WORKSPACE_DIR / "logs"
         log_dir.mkdir(parents=True, exist_ok=True)
         report_path = log_dir / filename

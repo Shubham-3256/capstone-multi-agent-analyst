@@ -22,7 +22,9 @@ class DatasetProfiler:
     """Tool class to inspect, profiles, and generate tabular summaries from datasets."""
 
     @staticmethod
-    def profile_dataframe(df: pd.DataFrame, filename: str, file_size_bytes: int = 0) -> DatasetSummary:
+    def profile_dataframe(
+        df: pd.DataFrame, filename: str, file_size_bytes: int = 0
+    ) -> DatasetSummary:
         """Analyze a DataFrame structure and build a detailed DatasetSummary schema.
 
         Args:
@@ -52,7 +54,9 @@ class DatasetProfiler:
                 unique_count = int(series.nunique())
                 samples = series.dropna().head(5).tolist()
 
-                missing_info = missing_dict["column_missing"].get(col_name, {"count": 0, "percentage": 0.0})
+                missing_info = missing_dict["column_missing"].get(
+                    col_name, {"count": 0, "percentage": 0.0}
+                )
 
                 col_info = ColumnInfo(
                     name=col_name,
@@ -62,7 +66,7 @@ class DatasetProfiler:
                     null_percentage=missing_info["percentage"],
                     unique_count=unique_count,
                     sample_values=samples,
-                    statistics=stats_dict.get(col_name, {})
+                    statistics=stats_dict.get(col_name, {}),
                 )
                 columns_profile.append(col_info)
 
@@ -73,7 +77,7 @@ class DatasetProfiler:
                 file_size_bytes=file_size_bytes,
                 columns=columns_profile,
                 duplicate_rows_count=duplicates,
-                memory_usage_bytes=mem_usage
+                memory_usage_bytes=mem_usage,
             )
 
             logger.info("DatasetProfiler: Summary profile created successfully.")

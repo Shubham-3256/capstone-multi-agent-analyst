@@ -17,10 +17,7 @@ class Explainer:
 
     @staticmethod
     def explain_model(
-        model: Any,
-        X_val: pd.DataFrame,
-        y_val: pd.Series,
-        task_type: str
+        model: Any, X_val: pd.DataFrame, y_val: pd.Series, task_type: str
     ) -> list[FeatureImportance]:
         """Generate ranked feature importance metrics for the model.
 
@@ -69,15 +66,23 @@ class Explainer:
 
         # 3. Fallback: Permutation Importance
         else:
-            logger.info("  Estimator lacks native importance profiles. Running permutation importance...")
+            logger.info(
+                "  Estimator lacks native importance profiles. Running permutation importance..."
+            )
             try:
-                scoring = "f1_macro" if task_type == "classification" else "neg_root_mean_squared_error"
+                scoring = (
+                    "f1_macro"
+                    if task_type == "classification"
+                    else "neg_root_mean_squared_error"
+                )
                 result = permutation_importance(
-                    model, X_clean, y_clean,
+                    model,
+                    X_clean,
+                    y_clean,
                     scoring=scoring,
                     n_repeats=3,
                     random_state=42,
-                    n_jobs=-1
+                    n_jobs=-1,
                 )
 
                 # Use raw mean values, taking absolute to show scale of importance

@@ -25,7 +25,7 @@ class Persistence:
         metrics: dict[str, float],
         feature_importances: list[FeatureImportance],
         metadata: dict[str, Any],
-        base_dir: Path = Paths.WORKSPACE_DIR / "artifacts"
+        base_dir: Path = Paths.WORKSPACE_DIR / "artifacts",
     ) -> dict[str, str]:
         """Save modeling models, leaderboards, and statistics details.
 
@@ -54,7 +54,10 @@ class Persistence:
         paths: dict[str, str] = {}
 
         # 1. Save Best Model (.joblib)
-        model_path = models_dir / f"best_model_{best_model_name.lower().replace(' ', '_')}.joblib"
+        model_path = (
+            models_dir
+            / f"best_model_{best_model_name.lower().replace(' ', '_')}.joblib"
+        )
         joblib.dump(best_model, str(model_path))
         paths["best_model_path"] = str(model_path)
         logger.info(f"  Best model saved to: {model_path}")
@@ -73,10 +76,12 @@ class Persistence:
 
         # 4. Save Feature Importance (CSV)
         importance_path = metrics_dir / "feature_importance.csv"
-        importance_df = pd.DataFrame([
-            {"column": item.column, "importance": item.importance}
-            for item in feature_importances
-        ])
+        importance_df = pd.DataFrame(
+            [
+                {"column": item.column, "importance": item.importance}
+                for item in feature_importances
+            ]
+        )
         importance_df.to_csv(importance_path, index=False)
         paths["feature_importance_path"] = str(importance_path)
 

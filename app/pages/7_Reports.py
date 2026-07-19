@@ -40,17 +40,17 @@ def main() -> None:
     setup_page("Generated Reports")
 
     st.title("📄 Export & Report Center")
-    st.markdown(
-        """
+    st.markdown("""
         Download the automatically compiled reports in standard enterprise formats. 
         All charts, data tables, and agent summaries are compiled, formatted, and embedded inside.
-        """
-    )
+        """)
     st.divider()
 
     result = get_workflow_result()
     if not result:
-        st.info("No active workflow result. Please upload a dataset and run the pipeline on the Upload page.")
+        st.info(
+            "No active workflow result. Please upload a dataset and run the pipeline on the Upload page."
+        )
         return
 
     rep_result = getattr(result.state, "report_result", None)
@@ -62,11 +62,26 @@ def main() -> None:
     st.subheader("Report Summary details")
     col1, col2, col3 = st.columns(3)
     with col1:
-        info_card("Document Title", rep_result.metadata.title, f"Author: {rep_result.metadata.author}", "📰")
+        info_card(
+            "Document Title",
+            rep_result.metadata.title,
+            f"Author: {rep_result.metadata.author}",
+            "📰",
+        )
     with col2:
-        info_card("Template Type", rep_result.metadata.template_type.title(), "Layout configuration", "🎨")
+        info_card(
+            "Template Type",
+            rep_result.metadata.template_type.title(),
+            "Layout configuration",
+            "🎨",
+        )
     with col3:
-        info_card("Compilation Time", f"{rep_result.duration_seconds:.2f}s", "HTML/PDF rendering duration", "⏱️")
+        info_card(
+            "Compilation Time",
+            f"{rep_result.duration_seconds:.2f}s",
+            "HTML/PDF rendering duration",
+            "⏱️",
+        )
 
     st.divider()
 
@@ -76,7 +91,12 @@ def main() -> None:
     col_dl1, col_dl2, col_dl3, col_dl4 = st.columns(4)
     formats = [
         ("pdf", "📕 Export PDF Document", "application/pdf", col_dl1),
-        ("docx", "📘 Export Word Docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", col_dl2),
+        (
+            "docx",
+            "📘 Export Word Docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            col_dl2,
+        ),
         ("html", "🌐 Export HTML Page", "text/html", col_dl3),
         ("markdown", "📝 Export Markdown text", "text/markdown", col_dl4),
     ]
@@ -94,7 +114,7 @@ def main() -> None:
                         data=file_bytes,
                         file_name=resolved.name,
                         mime=mime,
-                        key=f"dl_report_{key}"
+                        key=f"dl_report_{key}",
                     )
                 except Exception as e:
                     st.error(f"Failed to read {key} file: {e}")
@@ -122,8 +142,7 @@ def main() -> None:
     st.subheader("🛡️ Cryptographic Report Manifest & Audit Checks")
     manifest = rep_result.manifest
     with st.expander("Show manifest & verification hashes", expanded=False):
-        st.markdown(
-            f"""
+        st.markdown(f"""
             * **Report UUID Token:** `{manifest.report_id}`
             * **Dataset SHA256 Signature:** `{manifest.dataset_hash}`
             * **Workflow Version:** `{manifest.pipeline_version}`
@@ -131,8 +150,7 @@ def main() -> None:
             * **Included Chapters/Sections:** {manifest.sections}
             * **Report Generation Timestamp (UTC):** `{manifest.generation_timestamp}`
             * **Embedded Plot Assets:** {manifest.charts_included}
-            """
-        )
+            """)
 
 
 if __name__ == "__main__":

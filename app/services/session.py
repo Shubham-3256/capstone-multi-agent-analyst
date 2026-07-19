@@ -24,6 +24,7 @@ def get_workflow_result() -> Any | None:
     if raw is None:
         return None
     from src.orchestration.state import WorkflowResult
+
     try:
         if isinstance(raw, dict):
             return WorkflowResult.model_validate(raw)
@@ -61,4 +62,3 @@ def clear_session() -> None:
     st.session_state.uploaded_dataset_path = None
     st.session_state.workflow_events = []
     st.session_state.target_column = None
-

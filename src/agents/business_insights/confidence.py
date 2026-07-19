@@ -18,6 +18,5 @@ class ConfidenceBuilder:
             str: Compiled prompt.
         """
         return PromptTemplates.CONFIDENCE.format(
-            best_metrics=best_metrics,
-            dataset_summary=dataset_summary
+            best_metrics=best_metrics, dataset_summary=dataset_summary
         )

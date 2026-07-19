@@ -37,12 +37,16 @@ def render_sidebar() -> None:
             state = getattr(result, "state", None)
             if state:
                 st.markdown(f"⏱️ **Duration:** {sum(state.timing.values()):.2f}s")
-                st.markdown(f"🤖 **Model:** {getattr(state.ml_result, 'best_model_name', 'None')}")
+                st.markdown(
+                    f"🤖 **Model:** {getattr(state.ml_result, 'best_model_name', 'None')}"
+                )
         else:
             st.markdown("⚙️ **Status:** :red[Idle]")
 
         st.divider()
-        st.caption("Use the sidebar navigation pages to inspect each phase of the AI analyst pipeline.")
+        st.caption(
+            "Use the sidebar navigation pages to inspect each phase of the AI analyst pipeline."
+        )
 
 
 def setup_page(title: str) -> None:
@@ -60,5 +64,3 @@ def setup_page(title: str) -> None:
 
     # Render Sidebar
     render_sidebar()
-
-

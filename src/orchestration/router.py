@@ -18,7 +18,9 @@ class WorkflowRouter:
     @staticmethod
     def after_feature_engineering(state: WorkflowState) -> str:
         """Skip model training when preprocessing did not produce a result."""
-        return "machine_learning" if state.feature_result is not None else "visualization"
+        return (
+            "machine_learning" if state.feature_result is not None else "visualization"
+        )
 
     @staticmethod
     def after_machine_learning(state: WorkflowState) -> str:

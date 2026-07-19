@@ -18,9 +18,7 @@ class DashboardVisualizer:
 
     @staticmethod
     def generate_leaderboard_chart(
-        leaderboard: Leaderboard,
-        task_type: str,
-        theme_name: str = "corporate"
+        leaderboard: Leaderboard, task_type: str, theme_name: str = "corporate"
     ) -> dict[str, Any]:
         """Generate candidate models metrics comparisons leaderboard bar chart.
 
@@ -47,7 +45,11 @@ class DashboardVisualizer:
         df_leaderboard = pd.DataFrame(records)
 
         # Main metrics mapping
-        metric_name = "Macro F1 Score" if task_type == "classification" else "RMSE (Lower is Better)"
+        metric_name = (
+            "Macro F1 Score"
+            if task_type == "classification"
+            else "RMSE (Lower is Better)"
+        )
 
         # 1. Matplotlib Leaderboard
         fig_mpl, ax = FigureFactory.create_matplotlib_figure(
@@ -55,7 +57,7 @@ class DashboardVisualizer:
             subtitle=f"Comparing candidate algorithms performance by {metric_name}",
             xlabel=metric_name,
             ylabel="Candidate Model",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
         sns.barplot(x="score", y="model_name", data=df_leaderboard, ax=ax)
         fig_mpl.tight_layout()
@@ -66,13 +68,15 @@ class DashboardVisualizer:
             subtitle=f"Comparing candidate algorithms performance by {metric_name}",
             xlabel=metric_name,
             ylabel="Candidate Model",
-            theme_name=theme_name
+            theme_name=theme_name,
         )
-        fig_plotly.add_trace(go.Bar(
-            x=df_leaderboard["score"],
-            y=df_leaderboard["model_name"],
-            orientation="h",
-            name=metric_name
-        ))
+        fig_plotly.add_trace(
+            go.Bar(
+                x=df_leaderboard["score"],
+                y=df_leaderboard["model_name"],
+                orientation="h",
+                name=metric_name,
+            )
+        )
 
         return {"matplotlib": fig_mpl, "plotly": fig_plotly}

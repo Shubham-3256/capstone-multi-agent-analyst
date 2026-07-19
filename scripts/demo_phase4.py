@@ -7,9 +7,9 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from src.core import get_logger
-from src.database import init_db, DatabaseManager
 from src.agents.data_intelligence.agent import DataIntelligenceAgent
+from src.core import get_logger
+from src.database import DatabaseManager, init_db
 
 logger = get_logger("demo_phase4")
 
@@ -22,7 +22,7 @@ def generate_defect_dataset() -> Path:
     """
     defect_file = project_root / "workspace" / "churn_with_defects.csv"
     defect_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Dataset contains:
     # 1. Spaced & capitalized column headers: "Customer ID", " Age", "Monthly Charges "
     # 2. Duplicate rows: Row 2 and Row 6 are duplicates
@@ -57,7 +57,7 @@ def run_agent_demo() -> None:
     # 3. Run Data Intelligence Pipeline via Agent
     with DatabaseManager.get_session() as session:
         agent = DataIntelligenceAgent(session)
-        
+
         # Configure cleaning strategies
         # Impute Age with median, replace Salary outliers with Z-score caps, and cast Age to Int
         result = agent.run(
@@ -65,7 +65,7 @@ def run_agent_demo() -> None:
             target_column="Target",
             imputation_strategies={"age": "median", "target": "mode"},
             outlier_strategies={"salary": "zscore_cap"},
-            datatype_conversions={"age": "int"}
+            datatype_conversions={"age": "int"},
         )
 
     # 4. Output results
@@ -85,7 +85,9 @@ def run_agent_demo() -> None:
     print(f"Errors found:   {result.validation_report.summary.get('errors')}")
     print(f"Warnings found: {result.validation_report.summary.get('warnings')}")
     for issue in result.validation_report.issues:
-        print(f"  * [{issue.severity.upper()}] check='{issue.check_name}' col='{issue.column or 'global'}': {issue.message}")
+        print(
+            f"  * [{issue.severity.upper()}] check='{issue.check_name}' col='{issue.column or 'global'}': {issue.message}"
+        )
 
     # Print Cleaning Report Summary
     if result.cleaning_report:
@@ -95,7 +97,9 @@ def run_agent_demo() -> None:
         print(f"Initial Shape: {result.cleaning_report.initial_shape}")
         print(f"Final Shape:   {result.cleaning_report.final_shape}")
         for idx, action in enumerate(result.cleaning_report.transformations):
-            print(f"  {idx + 1}. [{action.action_type.upper()}] col='{action.column or 'global'}': {action.details}")
+            print(
+                f"  {idx + 1}. [{action.action_type.upper()}] col='{action.column or 'global'}': {action.details}"
+            )
 
     # Print Dataset Profiler Summary
     if result.profile:
@@ -106,8 +110,10 @@ def run_agent_demo() -> None:
         print(f"Target Distribution: {result.profile.target_distribution}")
         print("\nRecommendations:")
         for idx, rec in enumerate(result.profile.recommendations):
-            print(f"  {idx + 1}. [{rec.severity.upper()}] {rec.title}: {rec.description}")
-            
+            print(
+                f"  {idx + 1}. [{rec.severity.upper()}] {rec.title}: {rec.description}"
+            )
+
     print("=" * 60 + "\n")
     logger.info("Phase 4 Agent Demo completed successfully!")
 

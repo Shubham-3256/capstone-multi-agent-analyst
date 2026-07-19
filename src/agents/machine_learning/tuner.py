@@ -30,37 +30,54 @@ class HyperparameterTuner:
         if "logisticregression" in key:
             grids = {
                 "fast": {"C": [0.1, 1.0, 10.0]},
-                "full": {"C": [0.01, 0.1, 1.0, 10.0, 100.0], "penalty": ["l2"]}
+                "full": {"C": [0.01, 0.1, 1.0, 10.0, 100.0], "penalty": ["l2"]},
             }
         elif "randomforest" in key:
             grids = {
                 "fast": {"n_estimators": [50, 100], "max_depth": [5, 10]},
-                "full": {"n_estimators": [50, 100, 200], "max_depth": [None, 5, 10, 15], "min_samples_split": [2, 5]}
+                "full": {
+                    "n_estimators": [50, 100, 200],
+                    "max_depth": [None, 5, 10, 15],
+                    "min_samples_split": [2, 5],
+                },
             }
         elif "decisiontree" in key:
             grids = {
                 "fast": {"max_depth": [3, 5, 10]},
-                "full": {"max_depth": [None, 3, 5, 10, 15], "min_samples_split": [2, 5, 10]}
+                "full": {
+                    "max_depth": [None, 3, 5, 10, 15],
+                    "min_samples_split": [2, 5, 10],
+                },
             }
         elif "gradientboosting" in key:
             grids = {
                 "fast": {"n_estimators": [50, 100], "learning_rate": [0.05, 0.1]},
-                "full": {"n_estimators": [50, 100, 200], "learning_rate": [0.01, 0.05, 0.1, 0.2], "max_depth": [3, 5]}
+                "full": {
+                    "n_estimators": [50, 100, 200],
+                    "learning_rate": [0.01, 0.05, 0.1, 0.2],
+                    "max_depth": [3, 5],
+                },
             }
         elif "ridge" in key or "lasso" in key or "elasticnet" in key:
             grids = {
                 "fast": {"alpha": [0.1, 1.0]},
-                "full": {"alpha": [0.01, 0.1, 1.0, 10.0, 100.0]}
+                "full": {"alpha": [0.01, 0.1, 1.0, 10.0, 100.0]},
             }
         elif "svc" in key or "svr" in key:
             grids = {
                 "fast": {"C": [0.1, 1.0], "kernel": ["linear", "rbf"]},
-                "full": {"C": [0.01, 0.1, 1.0, 10.0], "kernel": ["linear", "rbf", "sigmoid"]}
+                "full": {
+                    "C": [0.01, 0.1, 1.0, 10.0],
+                    "kernel": ["linear", "rbf", "sigmoid"],
+                },
             }
         elif "kneighbors" in key:
             grids = {
                 "fast": {"n_neighbors": [3, 5, 7]},
-                "full": {"n_neighbors": [3, 5, 7, 9, 11], "weights": ["uniform", "distance"]}
+                "full": {
+                    "n_neighbors": [3, 5, 7, 9, 11],
+                    "weights": ["uniform", "distance"],
+                },
             }
 
         # Fallback empty grid if name not mapped
@@ -83,7 +100,7 @@ class HyperparameterTuner:
         n_iter: int = 5,
         cv_folds: int = 3,
         random_seed: int = 42,
-        n_jobs: int = -1
+        n_jobs: int = -1,
     ) -> Any:
         """Perform tuning on a model. If grid is empty, fits and returns the model directly.
 
@@ -103,10 +120,14 @@ class HyperparameterTuner:
         Returns:
             Any: The fitted best model estimator.
         """
-        param_grid = HyperparameterTuner.get_parameter_grid(model.__class__.__name__, mode)
+        param_grid = HyperparameterTuner.get_parameter_grid(
+            model.__class__.__name__, mode
+        )
 
         if not param_grid:
-            logger.info(f"HyperparameterTuner: No parameter grid mapped for '{model_name}'. Fitting directly...")
+            logger.info(
+                f"HyperparameterTuner: No parameter grid mapped for '{model_name}'. Fitting directly..."
+            )
             model.fit(X_train.fillna(0.0), y_train.fillna(0))
             return model
 
@@ -117,24 +138,41 @@ class HyperparameterTuner:
             # KFold CV has size n_samples * (cv - 1) / cv.
             # Let's dynamically calculate max allowable neighbors:
             max_neighbors = max(1, n_samples - 2) if n_samples >= 3 else 1
-            param_grid["n_neighbors"] = [n for n in param_grid["n_neighbors"] if n <= max_neighbors]
+            param_grid["n_neighbors"] = [
+                n for n in param_grid["n_neighbors"] if n <= max_neighbors
+            ]
             if not param_grid["n_neighbors"]:
                 param_grid["n_neighbors"] = [max_neighbors]
 
-        logger.info(f"HyperparameterTuner: Tuning candidate '{model_name}' (method={search_type.upper()}, grid={param_grid})")
-        scoring = "f1_macro" if task_type == "classification" else "neg_root_mean_squared_error"
+        logger.info(
+            f"HyperparameterTuner: Tuning candidate '{model_name}' (method={search_type.upper()}, grid={param_grid})"
+        )
+        scoring = (
+            "f1_macro"
+            if task_type == "classification"
+            else "neg_root_mean_squared_error"
+        )
 
         # Resolve CV folds strategy for search
         if n_samples <= 1:
-            logger.warning(f"HyperparameterTuner: Dataset has only {n_samples} samples. Cannot perform CV tuning. Fitting directly...")
+            logger.warning(
+                f"HyperparameterTuner: Dataset has only {n_samples} samples. Cannot perform CV tuning. Fitting directly..."
+            )
             model.fit(X_train.fillna(0.0), y_train.fillna(0))
             return model
 
         if n_samples < cv_folds:
-            logger.warning(f"HyperparameterTuner: Dataset size {n_samples} is less than cv_folds={cv_folds}. Switching tuning CV to LeaveOneOut.")
+            logger.warning(
+                f"HyperparameterTuner: Dataset size {n_samples} is less than cv_folds={cv_folds}. Switching tuning CV to LeaveOneOut."
+            )
             from sklearn.model_selection import LeaveOneOut
+
             actual_cv = LeaveOneOut()
-            scoring = "accuracy" if task_type == "classification" else "neg_root_mean_squared_error"
+            scoring = (
+                "accuracy"
+                if task_type == "classification"
+                else "neg_root_mean_squared_error"
+            )
         else:
             actual_cv = cv_folds
 
@@ -146,7 +184,7 @@ class HyperparameterTuner:
                     scoring=scoring,
                     cv=actual_cv,
                     n_jobs=n_jobs,
-                    refit=True
+                    refit=True,
                 )
             else:
                 # Limit n_iter to size of grid space to avoid warnings
@@ -163,14 +201,18 @@ class HyperparameterTuner:
                     cv=actual_cv,
                     random_state=random_seed,
                     n_jobs=n_jobs,
-                    refit=True
+                    refit=True,
                 )
 
             # Fit search
             search.fit(X_train.fillna(0.0), y_train.fillna(0))
-            logger.info(f"  Tuning complete. Best params for '{model_name}': {search.best_params_}")
+            logger.info(
+                f"  Tuning complete. Best params for '{model_name}': {search.best_params_}"
+            )
             return search.best_estimator_
         except Exception as e:
-            logger.error(f"  Tuning failed for '{model_name}' due to error: {e}. Falling back to default fit...")
+            logger.error(
+                f"  Tuning failed for '{model_name}' due to error: {e}. Falling back to default fit..."
+            )
             model.fit(X_train.fillna(0.0), y_train.fillna(0))
             return model

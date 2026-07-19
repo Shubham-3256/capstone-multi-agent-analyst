@@ -2,28 +2,27 @@
 
 import sys
 from pathlib import Path
-import pandas as pd
 
 # Add project root directory to path to enable local package importing
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from src.core import get_logger
-from src.database import init_db, DatabaseManager
+from src.agents.business_insights.agent import BusinessInsightAgent
 from src.agents.machine_learning.models import (
-    MachineLearningResult,
-    TaskReport,
+    FeatureImportance,
     Leaderboard,
     LeaderboardEntry,
-    FeatureImportance
+    MachineLearningResult,
+    TaskReport,
 )
 from src.agents.visualization.models import (
-    VisualizationResult,
-    VisualizationReport,
+    ChartCaption,
     ChartMetadata,
-    ChartCaption
+    VisualizationReport,
+    VisualizationResult,
 )
-from src.agents.business_insights.agent import BusinessInsightAgent
+from src.core import get_logger
+from src.database import DatabaseManager, init_db
 
 logger = get_logger("demo_phase8")
 
@@ -37,19 +36,27 @@ def compile_preceding_mock_results() -> tuple:
     dataset_profile_str = "Customer churn table. 100 rows. Columns: age, monthly_charges, city_london, target."
 
     # MachineLearningResult mock
-    task_report = TaskReport(
-        task_type="classification",
-        classes=[0, 1],
-        is_binary=True
+    task_report = TaskReport(task_type="classification", classes=[0, 1], is_binary=True)
+    leaderboard = Leaderboard(
+        entries=[
+            LeaderboardEntry(
+                model_name="Logistic Regression",
+                rank=1,
+                score=1.0,
+                metrics={"accuracy": 1.0, "f1": 1.0},
+            ),
+            LeaderboardEntry(
+                model_name="Random Forest",
+                rank=2,
+                score=0.95,
+                metrics={"accuracy": 0.95, "f1": 0.95},
+            ),
+        ]
     )
-    leaderboard = Leaderboard(entries=[
-        LeaderboardEntry(model_name="Logistic Regression", rank=1, score=1.0, metrics={"accuracy": 1.0, "f1": 1.0}),
-        LeaderboardEntry(model_name="Random Forest", rank=2, score=0.95, metrics={"accuracy": 0.95, "f1": 0.95})
-    ])
     importances = [
         FeatureImportance(column="monthly_charges", importance=0.4534),
         FeatureImportance(column="age", importance=0.4127),
-        FeatureImportance(column="city_london", importance=0.1058)
+        FeatureImportance(column="city_london", importance=0.1058),
     ]
     ml_result = MachineLearningResult(
         task_report=task_report,
@@ -58,7 +65,7 @@ def compile_preceding_mock_results() -> tuple:
         leaderboard=leaderboard,
         best_metrics={"accuracy": 1.0, "f1": 1.0},
         feature_importances=importances,
-        duration_seconds=2.15
+        duration_seconds=2.15,
     )
 
     # VisualizationResult mock
@@ -68,22 +75,27 @@ def compile_preceding_mock_results() -> tuple:
             title="Missing Value Heatmap",
             chart_type="heatmap",
             file_path="plots/missing_heatmap.png",
-            caption=ChartCaption(summary="No missing values.", details="100% data density.")
+            caption=ChartCaption(
+                summary="No missing values.", details="100% data density."
+            ),
         ),
         ChartMetadata(
             chart_id="correlation_heatmap",
             title="Correlation Matrix",
             chart_type="heatmap",
             file_path="plots/correlation_heatmap.png",
-            caption=ChartCaption(summary="Strong correlation.", details="age & monthly_charges correlates highly.")
-        )
+            caption=ChartCaption(
+                summary="Strong correlation.",
+                details="age & monthly_charges correlates highly.",
+            ),
+        ),
     ]
     viz_report = VisualizationReport(charts=charts)
     visualization_result = VisualizationResult(
         is_success=True,
         report=viz_report,
         output_directory="workspace/artifacts/",
-        duration_seconds=1.85
+        duration_seconds=1.85,
     )
 
     return dataset_profile_str, ml_result, visualization_result
@@ -104,11 +116,11 @@ def run_business_insights_demo() -> None:
     # 3. Execute insights sweeps via Agent
     with DatabaseManager.get_session() as session:
         agent = BusinessInsightAgent(session)
-        
+
         result = agent.run(
             dataset_profile=profile_str,
             ml_result=ml_result,
-            visualization_result=viz_result
+            visualization_result=viz_result,
         )
 
     # 4. Print structured executive report
@@ -144,7 +156,9 @@ def run_business_insights_demo() -> None:
     print("\n4. OPERATIONAL RISKS & OVERFIT AUDITS")
     print("-" * 45)
     for risk in result.risks:
-        print(f"  * Risk Level:    {risk.severity} Severity / {risk.probability} Likelihood")
+        print(
+            f"  * Risk Level:    {risk.severity} Severity / {risk.probability} Likelihood"
+        )
         print(f"    Vulnerability: {risk.description}")
 
     print("\n5. AUDIT CONFIDENCE VERIFICATION")

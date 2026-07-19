@@ -51,7 +51,7 @@ class VisualizationAgent:
         feature_result: FeatureEngineeringResult | None = None,
         ml_result: MachineLearningResult | None = None,
         config_path: Path | None = None,
-        target_column: str | None = None
+        target_column: str | None = None,
     ) -> VisualizationResult:
         """Orchestrate and compile Matplotlib and Plotly figures, exporting static and interactive plots.
 
@@ -77,10 +77,7 @@ class VisualizationAgent:
             task_name="visualization_pipeline",
             agent_name="VisualizationAgent",
             status="running",
-            parameters=str({
-                "theme": theme,
-                "formats": config.export_formats
-            })
+            parameters=str({"theme": theme, "formats": config.export_formats}),
         )
         self.log_repo.create(log_record)
         self.db.commit()
@@ -96,16 +93,22 @@ class VisualizationAgent:
                 # Query database for filepath
                 record = self.dataset_repo.get_by_id(str(dataset_profile))
                 if record:
-                    df = deserialize_dataframe(Path(record.filepath), fmt=Path(record.filepath).suffix)
+                    df = deserialize_dataframe(
+                        Path(record.filepath), fmt=Path(record.filepath).suffix
+                    )
                     dataset_hash = record.file_hash
                 else:
                     # Fallback test if ID is not in DB but matches a path string
                     possible_path = Path(str(dataset_profile))
                     if possible_path.exists():
-                        df = deserialize_dataframe(possible_path, fmt=possible_path.suffix)
+                        df = deserialize_dataframe(
+                            possible_path, fmt=possible_path.suffix
+                        )
 
             if df is None or df.empty:
-                raise DatasetException("Could not load input dataset DataFrame for plotting visual heatmaps.")
+                raise DatasetException(
+                    "Could not load input dataset DataFrame for plotting visual heatmaps."
+                )
 
             # Identify target column context
             target_col = target_column or "target"
@@ -128,8 +131,8 @@ class VisualizationAgent:
                     html_path=None,
                     caption=ChartCaption(
                         summary="No missing values detected.",
-                        details="The dataset contains zero null cells; it is 100% complete and verified."
-                    )
+                        details="The dataset contains zero null cells; it is 100% complete and verified.",
+                    ),
                 )
             else:
                 missing_figs = DatasetVisualizer.generate_missing_heatmap(df, theme)
@@ -140,7 +143,7 @@ class VisualizationAgent:
                     chart_type="heatmap",
                     figures=missing_figs,
                     caption=missing_caption,
-                    base_dir=base_dir
+                    base_dir=base_dir,
                 )
             chart_metadata_list.append(missing_meta)
 
@@ -153,7 +156,7 @@ class VisualizationAgent:
                 chart_type="heatmap",
                 figures=corr_figs,
                 caption=corr_caption,
-                base_dir=base_dir
+                base_dir=base_dir,
             )
             chart_metadata_list.append(corr_meta)
 
@@ -161,8 +164,14 @@ class VisualizationAgent:
             valid_cols = DatasetVisualizer.get_valid_columns(df)
             valid_df = df[valid_cols] if valid_cols else df
             numeric_cols = list(valid_df.select_dtypes(include=["number"]).columns)
-            dist_col = numeric_cols[0] if numeric_cols else (valid_cols[0] if valid_cols else df.columns[0])
-            dist_figs = DatasetVisualizer.generate_distribution_plot(df, dist_col, theme)
+            dist_col = (
+                numeric_cols[0]
+                if numeric_cols
+                else (valid_cols[0] if valid_cols else df.columns[0])
+            )
+            dist_figs = DatasetVisualizer.generate_distribution_plot(
+                df, dist_col, theme
+            )
             dist_caption = CaptionGenerator.generate_distribution_caption(df, dist_col)
             dist_meta = Exporter.export_chart(
                 chart_id=f"distribution_{dist_col}",
@@ -170,7 +179,7 @@ class VisualizationAgent:
                 chart_type="histogram",
                 figures=dist_figs,
                 caption=dist_caption,
-                base_dir=base_dir
+                base_dir=base_dir,
             )
             chart_metadata_list.append(dist_meta)
 
@@ -184,6 +193,7 @@ class VisualizationAgent:
                 best_model_path = Path(ml_result.best_model_path)
                 if best_model_path.exists():
                     import joblib
+
                     best_model = joblib.load(str(best_model_path))
 
                     # Resolve validation data splits context
@@ -211,10 +221,12 @@ class VisualizationAgent:
 
                         # A. Residuals Plot (for regression) or ROC Curve (for classification)
                         if task_type == "classification":
-                            roc_figs = ModelVisualizer.generate_roc_curve(best_model, X_val, y_val, theme)
+                            roc_figs = ModelVisualizer.generate_roc_curve(
+                                best_model, X_val, y_val, theme
+                            )
                             roc_caption = ChartCaption(
                                 summary=f"ROC validation curve for model '{best_model_name}'.",
-                                details=f"Calculated Area Under Curve: AUC={round(ml_result.best_metrics.get('roc_auc', 0.5), 4)}."
+                                details=f"Calculated Area Under Curve: AUC={round(ml_result.best_metrics.get('roc_auc', 0.5), 4)}.",
                             )
                             roc_meta = Exporter.export_chart(
                                 chart_id="roc_curve",
@@ -222,14 +234,16 @@ class VisualizationAgent:
                                 chart_type="line",
                                 figures=roc_figs,
                                 caption=roc_caption,
-                                base_dir=base_dir
+                                base_dir=base_dir,
                             )
                             chart_metadata_list.append(roc_meta)
                         else:
-                            res_figs = ModelVisualizer.generate_residual_plot(best_model, X_val, y_val, theme)
+                            res_figs = ModelVisualizer.generate_residual_plot(
+                                best_model, X_val, y_val, theme
+                            )
                             res_caption = ChartCaption(
                                 summary="Residuals errors distribution.",
-                                details="Shows differences between true labels and predictions plotted against center zero."
+                                details="Shows differences between true labels and predictions plotted against center zero.",
                             )
                             res_meta = Exporter.export_chart(
                                 chart_id="residuals_plot",
@@ -237,37 +251,45 @@ class VisualizationAgent:
                                 chart_type="scatter",
                                 figures=res_figs,
                                 caption=res_caption,
-                                base_dir=base_dir
+                                base_dir=base_dir,
                             )
                             chart_metadata_list.append(res_meta)
 
                 # B. Feature Importance Plot
                 importances = ml_result.feature_importances
                 if importances:
-                    imp_figs = ModelVisualizer.generate_feature_importance_plot(importances, theme)
-                    imp_caption = CaptionGenerator.generate_importance_caption(importances)
+                    imp_figs = ModelVisualizer.generate_feature_importance_plot(
+                        importances, theme
+                    )
+                    imp_caption = CaptionGenerator.generate_importance_caption(
+                        importances
+                    )
                     imp_meta = Exporter.export_chart(
                         chart_id="feature_importance",
                         title="Feature Importance Profiles",
                         chart_type="bar",
                         figures=imp_figs,
                         caption=imp_caption,
-                        base_dir=base_dir
+                        base_dir=base_dir,
                     )
                     chart_metadata_list.append(imp_meta)
 
                 # C. Leaderboard Chart comparisons
                 leaderboard = ml_result.leaderboard
                 if leaderboard and leaderboard.entries:
-                    ld_figs = DashboardVisualizer.generate_leaderboard_chart(leaderboard, task_type, theme)
-                    ld_caption = CaptionGenerator.generate_leaderboard_caption(leaderboard, task_type)
+                    ld_figs = DashboardVisualizer.generate_leaderboard_chart(
+                        leaderboard, task_type, theme
+                    )
+                    ld_caption = CaptionGenerator.generate_leaderboard_caption(
+                        leaderboard, task_type
+                    )
                     ld_meta = Exporter.export_chart(
                         chart_id="leaderboard_chart",
                         title="Candidate Model Leaderboard Comparison",
                         chart_type="bar",
                         figures=ld_figs,
                         caption=ld_caption,
-                        base_dir=base_dir
+                        base_dir=base_dir,
                     )
                     chart_metadata_list.append(ld_meta)
 
@@ -275,11 +297,10 @@ class VisualizationAgent:
             report_meta = VisualizationMetadata(
                 dataset_hash=dataset_hash,
                 created_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                theme=theme
+                theme=theme,
             )
             report = VisualizationReport(
-                charts=chart_metadata_list,
-                metadata=report_meta
+                charts=chart_metadata_list, metadata=report_meta
             )
 
             metadata_filepath = base_dir / "metadata" / "visualization_report.json"
@@ -291,16 +312,18 @@ class VisualizationAgent:
                 log_id=log_record.id,
                 status="completed",
                 duration_seconds=duration,
-                error_message=f"Generated and exported {len(chart_metadata_list)} charts."
+                error_message=f"Generated and exported {len(chart_metadata_list)} charts.",
             )
             self.db.commit()
 
-            logger.info(f"VisualizationAgent: Sweep completed successfully. Generated {len(chart_metadata_list)} charts.")
+            logger.info(
+                f"VisualizationAgent: Sweep completed successfully. Generated {len(chart_metadata_list)} charts."
+            )
             return VisualizationResult(
                 is_success=True,
                 report=report,
                 output_directory=str(base_dir),
-                duration_seconds=duration
+                duration_seconds=duration,
             )
 
         except Exception as e:
@@ -310,7 +333,9 @@ class VisualizationAgent:
                 log_id=log_record.id,
                 status="failed",
                 duration_seconds=duration,
-                error_message=f"Visualization error: {str(e)}"
+                error_message=f"Visualization error: {str(e)}",
             )
             self.db.commit()
-            raise DatasetException(f"Pipeline error executing VisualizationAgent: {e}") from e
+            raise DatasetException(
+                f"Pipeline error executing VisualizationAgent: {e}"
+            ) from e

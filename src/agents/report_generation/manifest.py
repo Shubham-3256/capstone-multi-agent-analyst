@@ -1,7 +1,7 @@
 """Manifest generator creating structured report_manifest.json catalog files."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from src.agents.report_generation.models import ReportManifest
@@ -18,7 +18,7 @@ class ManifestGenerator:
         dataset_hash: str,
         charts_included: list[str],
         sections: list[str],
-        target_dir: Path
+        target_dir: Path,
     ) -> ReportManifest:
         """Compile a ReportManifest metadata schema and write it to target_dir.
 
@@ -32,7 +32,7 @@ class ManifestGenerator:
             ReportManifest: Generated manifest schema object.
         """
         report_id = str(uuid.uuid4())
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         manifest = ReportManifest(
             report_id=report_id,
@@ -41,7 +41,7 @@ class ManifestGenerator:
             model_version="gpt-4o",
             charts_included=charts_included,
             sections=sections,
-            generation_timestamp=timestamp
+            generation_timestamp=timestamp,
         )
 
         manifest_file = target_dir / "report_manifest.json"
@@ -49,8 +49,12 @@ class ManifestGenerator:
             with open(manifest_file, "w", encoding="utf-8") as f:
                 # Use model dump JSON directly
                 f.write(manifest.model_dump_json(indent=4))
-            logger.info(f"ManifestGenerator: Manifest file cataloged successfully at: {manifest_file}")
+            logger.info(
+                f"ManifestGenerator: Manifest file cataloged successfully at: {manifest_file}"
+            )
         except Exception as e:
-            logger.error(f"ManifestGenerator: Failed to write report_manifest.json: {e}")
+            logger.error(
+                f"ManifestGenerator: Failed to write report_manifest.json: {e}"
+            )
 
         return manifest

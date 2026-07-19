@@ -9,7 +9,7 @@ from pathlib import Path
 
 class Paths:
     """Centralized manager for system and workspace directory paths.
-    
+
     All paths are absolute and resolved using pathlib.
     """
 

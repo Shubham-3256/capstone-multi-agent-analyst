@@ -12,7 +12,9 @@ from src.orchestration.graph import WorkflowGraph
 class WorkflowService:
     """Uploads datasets and invokes the existing orchestration layer."""
 
-    def __init__(self, graph_factory: Callable[..., WorkflowGraph] = WorkflowGraph) -> None:
+    def __init__(
+        self, graph_factory: Callable[..., WorkflowGraph] = WorkflowGraph
+    ) -> None:
         self.graph_factory = graph_factory
 
     @staticmethod
@@ -26,7 +28,12 @@ class WorkflowService:
         destination.write_bytes(upload.getbuffer())
         return destination
 
-    def run(self, dataset_path: str, target_column: str | None = None, on_event: Callable[[WorkflowEvent], None] | None = None) -> Any:
+    def run(
+        self,
+        dataset_path: str,
+        target_column: str | None = None,
+        on_event: Callable[[WorkflowEvent], None] | None = None,
+    ) -> Any:
         """Run WorkflowGraph and optionally forward lifecycle events to the UI."""
         events = EventBus()
         if on_event:

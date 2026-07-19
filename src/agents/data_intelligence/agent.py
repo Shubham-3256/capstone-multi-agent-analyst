@@ -43,7 +43,9 @@ class DataIntelligenceAgent:
         self.dataset_repo = DatasetRepository(db_session)
         self.dataset_service = DatasetService(db_session)
 
-    def validate(self, df: pd.DataFrame, file_path: Path, target_column: str | None = None) -> ValidationReport:
+    def validate(
+        self, df: pd.DataFrame, file_path: Path, target_column: str | None = None
+    ) -> ValidationReport:
         """Execute structural check sequences on the dataset DataFrame.
 
         Args:
@@ -61,7 +63,7 @@ class DataIntelligenceAgent:
         df: pd.DataFrame,
         imputation_strategies: dict[str, str] | None = None,
         outlier_strategies: dict[str, str] | None = None,
-        datatype_conversions: dict[str, str] | None = None
+        datatype_conversions: dict[str, str] | None = None,
     ) -> tuple[pd.DataFrame, CleaningReport]:
         """Normalize types, impute missing values, and handle outlier caps on the dataset.
 
@@ -78,10 +80,12 @@ class DataIntelligenceAgent:
             df=df,
             imputation_strategies=imputation_strategies,
             outlier_strategies=outlier_strategies,
-            datatype_conversions=datatype_conversions
+            datatype_conversions=datatype_conversions,
         )
 
-    def profile(self, df: pd.DataFrame, target_column: str | None = None) -> DatasetProfile:
+    def profile(
+        self, df: pd.DataFrame, target_column: str | None = None
+    ) -> DatasetProfile:
         """Extract multi-column correlations, distributions, and model suggestions from the DataFrame.
 
         Args:
@@ -99,7 +103,7 @@ class DataIntelligenceAgent:
         target_column: str | None = None,
         imputation_strategies: dict[str, str] | None = None,
         outlier_strategies: dict[str, str] | None = None,
-        datatype_conversions: dict[str, str] | None = None
+        datatype_conversions: dict[str, str] | None = None,
     ) -> DataIntelligenceResult:
         """Execute the complete Data Intelligence Pipeline: Ingest -> Validate -> Clean -> Profile.
 
@@ -123,12 +127,14 @@ class DataIntelligenceAgent:
             task_name="data_intelligence_pipeline",
             agent_name="DataIntelligenceAgent",
             status="running",
-            parameters=str({
-                "file_path": str(file_path),
-                "target_column": target_column,
-                "imputation_strategies": imputation_strategies,
-                "outlier_strategies": outlier_strategies
-            })
+            parameters=str(
+                {
+                    "file_path": str(file_path),
+                    "target_column": target_column,
+                    "imputation_strategies": imputation_strategies,
+                    "outlier_strategies": outlier_strategies,
+                }
+            ),
         )
         self.log_repo.create(log_record)
         self.db.commit()
@@ -146,20 +152,22 @@ class DataIntelligenceAgent:
 
             # If validation has blocker errors, fail the run immediately
             if not v_report.is_valid:
-                logger.error("Dataset validation failed with errors. Aborting pipeline.")
+                logger.error(
+                    "Dataset validation failed with errors. Aborting pipeline."
+                )
                 duration = time.time() - start_time
                 self.log_repo.update_status(
                     log_id=log_record.id,
                     status="failed",
                     duration_seconds=duration,
-                    error_message=f"Validation errors detected: {v_report.summary.get('errors')} errors."
+                    error_message=f"Validation errors detected: {v_report.summary.get('errors')} errors.",
                 )
                 self.db.commit()
                 return DataIntelligenceResult(
                     dataset_id=record.id,
                     is_valid=False,
                     validation_report=v_report,
-                    duration_seconds=duration
+                    duration_seconds=duration,
                 )
 
             # 3. Dataset Cleaning
@@ -168,7 +176,7 @@ class DataIntelligenceAgent:
                 df=df,
                 imputation_strategies=imputation_strategies,
                 outlier_strategies=outlier_strategies,
-                datatype_conversions=datatype_conversions
+                datatype_conversions=datatype_conversions,
             )
 
             # Save clean dataset file inside Paths.CLEANED_DIR
@@ -191,7 +199,7 @@ class DataIntelligenceAgent:
                     file_size_bytes=clean_size,
                     row_count=clean_rows,
                     column_count=clean_cols,
-                    status="cleaned"
+                    status="cleaned",
                 )
                 self.dataset_repo.create(clean_record)
             else:
@@ -206,6 +214,7 @@ class DataIntelligenceAgent:
             clean_target_col = None
             if target_column:
                 import re
+
                 clean_target_col = str(target_column).strip().lower().replace(" ", "_")
                 clean_target_col = re.sub(r"[^\w\-]", "", clean_target_col)
                 if clean_target_col not in cleaned_df.columns:
@@ -221,19 +230,19 @@ class DataIntelligenceAgent:
                 filepath=clean_record.filepath,
                 file_hash=clean_record.file_hash,
                 file_size_bytes=clean_record.file_size_bytes,
-                status="cleaned"
+                status="cleaned",
             )
 
             # Finalize execution log as complete
             duration = time.time() - start_time
             self.log_repo.update_status(
-                log_id=log_record.id,
-                status="completed",
-                duration_seconds=duration
+                log_id=log_record.id, status="completed", duration_seconds=duration
             )
             self.db.commit()
 
-            logger.info(f"DataIntelligenceAgent: Pipeline completed successfully in {round(duration, 4)}s")
+            logger.info(
+                f"DataIntelligenceAgent: Pipeline completed successfully in {round(duration, 4)}s"
+            )
             return DataIntelligenceResult(
                 dataset_id=clean_record.id,
                 is_valid=True,
@@ -241,7 +250,7 @@ class DataIntelligenceAgent:
                 cleaning_report=c_report,
                 profile=profile,
                 cleaned_filepath=str(cleaned_path),
-                duration_seconds=duration
+                duration_seconds=duration,
             )
 
         except Exception as e:
@@ -251,7 +260,9 @@ class DataIntelligenceAgent:
                 log_id=log_record.id,
                 status="failed",
                 duration_seconds=duration,
-                error_message=f"Pipeline error: {str(e)}"
+                error_message=f"Pipeline error: {str(e)}",
             )
             self.db.commit()
-            raise DatasetException(f"Pipeline error executing DataIntelligenceAgent: {e}") from e
+            raise DatasetException(
+                f"Pipeline error executing DataIntelligenceAgent: {e}"
+            ) from e

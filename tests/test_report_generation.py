@@ -4,9 +4,9 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from src.agents.report_generation.agent import ReportGenerationAgent
 from src.database.base import Base
 from src.database.models import ExecutionLog, ReportRecord
-from src.agents.report_generation.agent import ReportGenerationAgent
 
 
 @pytest.fixture
@@ -25,17 +25,17 @@ def db_session():
 def test_report_generation_agent_run(db_session):
     """Test full ReportGenerationAgent run pipeline and SQLite database logging."""
     agent = ReportGenerationAgent(db_session)
-    
+
     # Mock profiles and preceding phase metadata strings
     dataset_profile = "Completeness: 100%, 15 rows."
-    
+
     result = agent.run(
         dataset_profile=dataset_profile,
         feature_result=None,
         ml_result=None,
         visualization_result=None,
         business_result=None,
-        template_type="executive"
+        template_type="executive",
     )
 
     # Assert output formats exist
@@ -43,7 +43,7 @@ def test_report_generation_agent_run(db_session):
     assert "html" in result.output_paths
     assert "pdf" in result.output_paths
     assert "docx" in result.output_paths
-    
+
     # Assert database logging
     logs = db_session.query(ExecutionLog).all()
     assert len(logs) == 1

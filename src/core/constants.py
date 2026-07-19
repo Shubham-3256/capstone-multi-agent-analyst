@@ -42,14 +42,14 @@ PLOT_DPI_RESOLUTION: Final[int] = 300
 
 
 # --- Application Color Palette (Premium HSL/Hex Visual Aesthetics) ---
-COLOR_PRIMARY: Final[str] = "#1A365D"       # Deep Corporate Navy Blue
-COLOR_SECONDARY: Final[str] = "#2B6CB0"     # Vibrant Tech Blue
-COLOR_ACCENT: Final[str] = "#D69E2E"        # Warm Gold/Amber Accent
-COLOR_SUCCESS: Final[str] = "#2F855A"       # Emerald Forest Green
-COLOR_WARNING: Final[str] = "#C53030"       # Premium Muted Red
-COLOR_BG_DARK: Final[str] = "#1A202C"        # Charcoal Dark Mode Slate
-COLOR_BG_LIGHT: Final[str] = "#F7FAFC"       # Off-White background
-COLOR_MUTED: Final[str] = "#718096"          # Cool Gray
+COLOR_PRIMARY: Final[str] = "#1A365D"  # Deep Corporate Navy Blue
+COLOR_SECONDARY: Final[str] = "#2B6CB0"  # Vibrant Tech Blue
+COLOR_ACCENT: Final[str] = "#D69E2E"  # Warm Gold/Amber Accent
+COLOR_SUCCESS: Final[str] = "#2F855A"  # Emerald Forest Green
+COLOR_WARNING: Final[str] = "#C53030"  # Premium Muted Red
+COLOR_BG_DARK: Final[str] = "#1A202C"  # Charcoal Dark Mode Slate
+COLOR_BG_LIGHT: Final[str] = "#F7FAFC"  # Off-White background
+COLOR_MUTED: Final[str] = "#718096"  # Cool Gray
 
 
 # --- Network & Execution Timeouts (Seconds) ---
