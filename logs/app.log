@@ -3051,3 +3051,256 @@
 2026-07-19 20:31:57 - INFO - src.tools.data_loader - DataLoader: Ingesting file from: C:\Users\sankh\AppData\Local\Temp\pytest-of-sankh\pytest-55\test_workflow_skips_modeling_a0\customers.csv
 2026-07-19 20:31:57 - INFO - src.tools.data_loader - DataLoader: Ingesting CSV using encoding='utf-8'
 2026-07-19 20:31:57 - INFO - src.optimization.memory - Memory Optimization: Compressed from 0.00 MB to 0.00 MB (5.0% reduction)
+2026-07-19 23:22:13 - INFO - src.database.database - Initializing database schemas...
+2026-07-19 23:22:13 - INFO - src.database.database - Database schemas initialized successfully.
+2026-07-19 23:22:13 - INFO - src.tools.data_loader - DataLoader: Ingesting file from: D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.tools.data_loader - DataLoader: Ingesting CSV using encoding='utf-8'
+2026-07-19 23:22:13 - INFO - src.optimization.memory - Memory Optimization: Compressed from 0.00 MB to 0.00 MB (43.0% reduction)
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.agent - DataIntelligenceAgent: Running pipeline on sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.agent - Step 1: Ingesting source dataset...
+2026-07-19 23:22:13 - INFO - src.services.dataset_service - Registering dataset from source: D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.services.file_service - Moving file: D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv -> D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.services.file_service - File successfully moved to D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.tools.data_loader - DataLoader: Ingesting file from: D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.tools.data_loader - DataLoader: Ingesting CSV using encoding='utf-8'
+2026-07-19 23:22:13 - INFO - src.optimization.memory - Memory Optimization: Compressed from 0.00 MB to 0.00 MB (43.0% reduction)
+2026-07-19 23:22:13 - INFO - src.services.dataset_service - Dataset registered successfully. Database ID: 90935529-2a78-42b8-9d9a-1eb287c464ee
+2026-07-19 23:22:13 - INFO - src.services.dataset_service - Loading dataset into DataFrame: D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.tools.data_loader - DataLoader: Ingesting file from: D:\FInal Project\capstone-multi-agent-analyst\workspace\uploads\sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.tools.data_loader - DataLoader: Ingesting CSV using encoding='utf-8'
+2026-07-19 23:22:13 - INFO - src.optimization.memory - Memory Optimization: Compressed from 0.00 MB to 0.00 MB (43.0% reduction)
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.agent - Step 2: Performing dataset validations...
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.validator - Validator: Starting dataset validation for sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.validator - Validator: Ingestion checked. Valid: True. Errors: 0, Warnings: 0
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.agent - Step 3: Executing data cleaning filters...
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.cleaner - Cleaner: Starting dataset cleaning process...
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.cleaner - Cleaner: Cleaning complete. Shape: [10, 8] -> [10, 8] in 0.0105s
+2026-07-19 23:22:13 - INFO - src.utils.serialization - Serializing DataFrame to .CSV: D:\FInal Project\capstone-multi-agent-analyst\workspace\cleaned\clean_sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.agent - Step 4: Executing data profiling summaries...
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.profiler - Profiler: Starting dataset profile evaluations...
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.profiler - Profiler: Profiling complete. Recommended ML Task: CLASSIFICATION
+2026-07-19 23:22:13 - INFO - src.services.metadata_service - Extracting detailed metadata schemas for dataset: clean_sample_dataset_small.csv
+2026-07-19 23:22:13 - INFO - src.services.metadata_service - Metadata extraction completed successfully.
+2026-07-19 23:22:13 - INFO - src.agents.data_intelligence.agent - DataIntelligenceAgent: Pipeline completed successfully in 0.154s
+2026-07-19 23:22:14 - INFO - src.tools.data_loader - DataLoader: Ingesting file from: D:\FInal Project\capstone-multi-agent-analyst\workspace\cleaned\clean_sample_dataset_small.csv
+2026-07-19 23:22:14 - INFO - src.tools.data_loader - DataLoader: Ingesting CSV using encoding='utf-8'
+2026-07-19 23:22:14 - INFO - src.optimization.memory - Memory Optimization: Compressed from 0.00 MB to 0.00 MB (43.0% reduction)
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.agent - FeatureEngineeringAgent: Running pre-processing pipeline...
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.detector - FeatureDetector: Running column categorization audits...
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.detector - FeatureDetector: Detection complete. Found: Numeric=3, Categorical=2, Ordinal=1, Identifiers=1
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.validators - LeakageDetector: Checking for data leaks targeting column 'is_premium_customer'
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.validators - LeakageDetector: Check complete. Has Leakage: True. Found 1 issues.
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.splitter - TrainValidationSplitter: Splitting dataset (strategy=RANDOM, ratios=[0.7, 0.15, 0.15])
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.splitter - TrainValidationSplitter: Split shapes - Train: (7, 8), Val: (1, 8), Test: (2, 8)
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.pipeline - PipelineBuilder: Constructing scikit-learn preprocessor pipeline...
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.pipeline - PipelineBuilder: Fitting assembled pipeline on training data...
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.generator - FeatureGenerator: Fitting generation rules. Numerics=5, Datetimes=0
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.encoder - CategoricalEncoder: Fitting encoding mappings for columns: ['gender', 'city']
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.encoder -   Column 'gender' (uniques=2) -> encoded using strategy: ONEHOT
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.encoder -   Column 'city' (uniques=5) -> encoded using strategy: ONEHOT
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler - NumericalScaler: Fitting scaling coefficients for columns: ['customer_id', 'age', 'monthly_income', 'credit_score', 'previous_purchases', 'customer_id_x_age', 'customer_id_x_monthly_income', 'customer_id_x_credit_score', 'customer_id_x_previous_purchases', 'age_x_monthly_income', 'age_x_credit_score', 'age_x_previous_purchases', 'monthly_income_x_credit_score', 'monthly_income_x_previous_purchases', 'credit_score_x_previous_purchases', 'gender_female', 'gender_male', 'city_bengaluru', 'city_chandigarh', 'city_delhi', 'city_jaipur', 'city_pune']
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'customer_id' (outlier_ratio=0.0) -> scaler chosen: MINMAX
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'age' (outlier_ratio=0.0) -> scaler chosen: MINMAX
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'monthly_income' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'credit_score' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'previous_purchases' (outlier_ratio=0.0) -> scaler chosen: MINMAX
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'customer_id_x_age' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'customer_id_x_monthly_income' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'customer_id_x_credit_score' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'customer_id_x_previous_purchases' (outlier_ratio=0.0) -> scaler chosen: MINMAX
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'age_x_monthly_income' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'age_x_credit_score' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'age_x_previous_purchases' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'monthly_income_x_credit_score' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'monthly_income_x_previous_purchases' (outlier_ratio=0.1429) -> scaler chosen: ROBUST
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'credit_score_x_previous_purchases' (outlier_ratio=0.0) -> scaler chosen: STANDARD
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'gender_female' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'gender_male' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'city_bengaluru' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'city_chandigarh' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'city_delhi' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'city_jaipur' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.scaler -   Column 'city_pune' (outlier_ratio=0.0) -> scaler chosen: NONE
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.selector - FeatureSelector: Fitting feature selector (method=CORRELATION) on X shape (7, 22)
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.selector -   Variance Threshold removed 0 features: []
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.selector -   Correlation Filter dropped 13 features: ['credit_score', 'previous_purchases', 'customer_id_x_age', 'customer_id_x_credit_score', 'customer_id_x_previous_purchases', 'age_x_monthly_income', 'age_x_credit_score', 'age_x_previous_purchases', 'monthly_income_x_credit_score', 'monthly_income_x_previous_purchases', 'credit_score_x_previous_purchases', 'gender_male', 'city_bengaluru']
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.selector - FeatureSelector: Selected 9 / 22 features.
+2026-07-19 23:22:14 - INFO - src.utils.serialization - Serializing DataFrame to .CSV: D:\FInal Project\capstone-multi-agent-analyst\workspace\processed\train.csv
+2026-07-19 23:22:14 - INFO - src.utils.serialization - Serializing DataFrame to .CSV: D:\FInal Project\capstone-multi-agent-analyst\workspace\processed\val.csv
+2026-07-19 23:22:14 - INFO - src.utils.serialization - Serializing DataFrame to .CSV: D:\FInal Project\capstone-multi-agent-analyst\workspace\processed\test.csv
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.pipeline - PipelineBuilder: Preprocessing pipeline saved to: D:\FInal Project\capstone-multi-agent-analyst\workspace\processed\pipeline.joblib
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.agent - Registering train/val/test data splits inside SQL database...
+2026-07-19 23:22:14 - INFO - src.agents.feature_engineering.agent - FeatureEngineeringAgent: Pipeline run completed in 0.5203s
+2026-07-19 23:22:14 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Commencing model training pipeline...
+2026-07-19 23:22:14 - INFO - src.agents.machine_learning.task_detector - TaskDetector: Analyzing target variable properties...
+2026-07-19 23:22:14 - INFO - src.agents.machine_learning.task_detector - TaskDetector: Inferred Task type = CLASSIFICATION. Unique classes count: 2
+2026-07-19 23:22:14 - INFO - src.agents.machine_learning.model_factory - ModelFactory: Loading model instances for task=CLASSIFICATION
+2026-07-19 23:22:16 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Processing model candidate 'logistic_regression'...
+2026-07-19 23:22:16 - INFO - src.agents.machine_learning.cross_validator - CrossValidator: Evaluating model using 5-fold CV...
+2026-07-19 23:22:16 - WARNING - src.agents.machine_learning.cross_validator - CrossValidator: The least populated class has only 3 members. Reducing classification cv splits to 3.
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.cross_validator -   CV Complete. Mean score: 0.8 (Std: 0.2828)
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.tuner - HyperparameterTuner: Tuning candidate 'logistic_regression' (method=RANDOM, grid={'C': [0.1, 1.0, 10.0]})
+2026-07-19 23:22:20 - ERROR - src.agents.machine_learning.tuner -   Tuning failed for 'logistic_regression' due to error: n_splits=5 cannot be greater than the number of members in each class.. Falling back to default fit...
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.trainer - Trainer: Starting fit for candidate 'logistic_regression'...
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.trainer - Trainer: Successfully trained 'logistic_regression' in 0.0063s
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.evaluator - Evaluator: Computing validation metrics...
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.evaluator - Evaluator: Performance metrics calculated: {'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'balanced_accuracy': 1.0, 'roc_auc': nan}
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Processing model candidate 'decision_tree'...
+2026-07-19 23:22:20 - INFO - src.agents.machine_learning.cross_validator - CrossValidator: Evaluating model using 5-fold CV...
+2026-07-19 23:22:20 - WARNING - src.agents.machine_learning.cross_validator - CrossValidator: The least populated class has only 3 members. Reducing classification cv splits to 3.
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.cross_validator -   CV Complete. Mean score: 0.8889 (Std: 0.1571)
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.tuner - HyperparameterTuner: Tuning candidate 'decision_tree' (method=RANDOM, grid={'max_depth': [3, 5, 10]})
+2026-07-19 23:22:23 - ERROR - src.agents.machine_learning.tuner -   Tuning failed for 'decision_tree' due to error: n_splits=5 cannot be greater than the number of members in each class.. Falling back to default fit...
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.trainer - Trainer: Starting fit for candidate 'decision_tree'...
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.trainer - Trainer: Successfully trained 'decision_tree' in 0.0058s
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.evaluator - Evaluator: Computing validation metrics...
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.evaluator - Evaluator: Performance metrics calculated: {'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'balanced_accuracy': 1.0, 'roc_auc': nan}
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Processing model candidate 'random_forest'...
+2026-07-19 23:22:23 - INFO - src.agents.machine_learning.cross_validator - CrossValidator: Evaluating model using 5-fold CV...
+2026-07-19 23:22:23 - WARNING - src.agents.machine_learning.cross_validator - CrossValidator: The least populated class has only 3 members. Reducing classification cv splits to 3.
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.cross_validator -   CV Complete. Mean score: 0.8 (Std: 0.2828)
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.tuner - HyperparameterTuner: Tuning candidate 'random_forest' (method=RANDOM, grid={'n_estimators': [50, 100], 'max_depth': [5, 10]})
+2026-07-19 23:22:26 - ERROR - src.agents.machine_learning.tuner -   Tuning failed for 'random_forest' due to error: n_splits=5 cannot be greater than the number of members in each class.. Falling back to default fit...
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.trainer - Trainer: Starting fit for candidate 'random_forest'...
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.trainer - Trainer: Successfully trained 'random_forest' in 0.098s
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.evaluator - Evaluator: Computing validation metrics...
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.evaluator - Evaluator: Performance metrics calculated: {'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'balanced_accuracy': 1.0, 'roc_auc': nan}
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Processing model candidate 'gradient_boosting'...
+2026-07-19 23:22:26 - INFO - src.agents.machine_learning.cross_validator - CrossValidator: Evaluating model using 5-fold CV...
+2026-07-19 23:22:26 - WARNING - src.agents.machine_learning.cross_validator - CrossValidator: The least populated class has only 3 members. Reducing classification cv splits to 3.
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.cross_validator -   CV Complete. Mean score: 1.0 (Std: 0.0)
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.tuner - HyperparameterTuner: Tuning candidate 'gradient_boosting' (method=RANDOM, grid={'n_estimators': [50, 100], 'learning_rate': [0.05, 0.1]})
+2026-07-19 23:22:29 - ERROR - src.agents.machine_learning.tuner -   Tuning failed for 'gradient_boosting' due to error: n_splits=5 cannot be greater than the number of members in each class.. Falling back to default fit...
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.trainer - Trainer: Starting fit for candidate 'gradient_boosting'...
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.trainer - Trainer: Successfully trained 'gradient_boosting' in 0.0556s
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.evaluator - Evaluator: Computing validation metrics...
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.evaluator - Evaluator: Performance metrics calculated: {'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'balanced_accuracy': 1.0, 'roc_auc': nan}
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Processing model candidate 'k_neighbors'...
+2026-07-19 23:22:29 - INFO - src.agents.machine_learning.cross_validator - CrossValidator: Evaluating model using 5-fold CV...
+2026-07-19 23:22:29 - WARNING - src.agents.machine_learning.cross_validator - CrossValidator: The least populated class has only 3 members. Reducing classification cv splits to 3.
+2026-07-19 23:22:32 - INFO - src.agents.machine_learning.cross_validator -   CV Complete. Mean score: nan (Std: nan)
+2026-07-19 23:22:32 - INFO - src.agents.machine_learning.tuner - HyperparameterTuner: Tuning candidate 'k_neighbors' (method=RANDOM, grid={'n_neighbors': [3, 5]})
+2026-07-19 23:22:32 - ERROR - src.agents.machine_learning.tuner -   Tuning failed for 'k_neighbors' due to error: n_splits=5 cannot be greater than the number of members in each class.. Falling back to default fit...
+2026-07-19 23:22:32 - INFO - src.agents.machine_learning.trainer - Trainer: Starting fit for candidate 'k_neighbors'...
+2026-07-19 23:22:32 - INFO - src.agents.machine_learning.trainer - Trainer: Successfully trained 'k_neighbors' in 0.003s
+2026-07-19 23:22:32 - INFO - src.agents.machine_learning.evaluator - Evaluator: Computing validation metrics...
+2026-07-19 23:22:34 - INFO - src.agents.machine_learning.evaluator - Evaluator: Performance metrics calculated: {'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'balanced_accuracy': 1.0, 'roc_auc': nan}
+2026-07-19 23:22:34 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Processing model candidate 'gaussian_nb'...
+2026-07-19 23:22:34 - INFO - src.agents.machine_learning.cross_validator - CrossValidator: Evaluating model using 5-fold CV...
+2026-07-19 23:22:34 - WARNING - src.agents.machine_learning.cross_validator - CrossValidator: The least populated class has only 3 members. Reducing classification cv splits to 3.
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.cross_validator -   CV Complete. Mean score: 0.5278 (Std: 0.3356)
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.tuner - HyperparameterTuner: No parameter grid mapped for 'gaussian_nb'. Fitting directly...
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.trainer - Trainer: Starting fit for candidate 'gaussian_nb'...
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.trainer - Trainer: Successfully trained 'gaussian_nb' in 0.0033s
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.evaluator - Evaluator: Computing validation metrics...
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.evaluator - Evaluator: Performance metrics calculated: {'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'balanced_accuracy': 1.0, 'roc_auc': nan}
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.ranking - ModelRanker: Sorting trained candidates leaderboard (task=CLASSIFICATION)
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.ranking - ModelRanker: Leaderboard created. Ranked best model candidate: 'logistic_regression' (score: 1.0)
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.explainer - Explainer: Generating feature importances...
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.explainer -   Using native model 'coef_' coefficients.
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.explainer - Explainer: Mapped 9 feature importance rankings.
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.persistence - Persistence: Serializing artifacts to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.persistence -   Best model saved to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\models\best_model_logistic_regression.joblib
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.persistence - Persistence: All modeling artifacts saved successfully.
+2026-07-19 23:22:37 - INFO - src.agents.machine_learning.agent - MachineLearningAgent: Modeling sweep finished successfully in 22.1764s
+2026-07-19 23:22:37 - INFO - src.agents.visualization.agent - VisualizationAgent: Starting visualization pipeline run...
+2026-07-19 23:22:37 - INFO - src.utils.serialization - Deserializing DataFrame from .CSV: D:\FInal Project\capstone-multi-agent-analyst\workspace\cleaned\clean_sample_dataset_small.csv
+2026-07-19 23:22:37 - INFO - src.agents.visualization.dataset_visualizer - DatasetVisualizer: Creating correlation matrix heatmap...
+2026-07-19 23:22:37 - INFO - src.agents.visualization.themes - ThemeManager: Applying Matplotlib theme: CORPORATE
+2026-07-19 23:22:37 - INFO - src.agents.visualization.exporter - Exporter: Saving chart 'correlation_heatmap'...
+2026-07-19 23:22:37 - INFO - src.agents.visualization.exporter -   Saved static PNG to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\correlation_heatmap.png
+2026-07-19 23:22:38 - INFO - src.agents.visualization.exporter -   Saved interactive HTML to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\html\correlation_heatmap.html
+2026-07-19 23:22:38 - INFO - src.agents.visualization.dataset_visualizer - DatasetVisualizer: Plotting distribution for 'age'...
+2026-07-19 23:22:38 - INFO - src.agents.visualization.themes - ThemeManager: Applying Matplotlib theme: CORPORATE
+2026-07-19 23:22:38 - INFO - src.agents.visualization.exporter - Exporter: Saving chart 'distribution_age'...
+2026-07-19 23:22:38 - INFO - src.agents.visualization.exporter -   Saved static PNG to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\distribution_age.png
+2026-07-19 23:22:38 - INFO - src.agents.visualization.exporter -   Saved interactive HTML to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\html\distribution_age.html
+2026-07-19 23:22:38 - INFO - src.agents.visualization.model_visualizer - ModelVisualizer: Creating ROC validation curve...
+2026-07-19 23:22:38 - INFO - src.agents.visualization.themes - ThemeManager: Applying Matplotlib theme: CORPORATE
+2026-07-19 23:22:38 - INFO - src.agents.visualization.exporter - Exporter: Saving chart 'roc_curve'...
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter -   Saved static PNG to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\roc_curve.png
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter -   Saved interactive HTML to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\html\roc_curve.html
+2026-07-19 23:22:39 - INFO - src.agents.visualization.model_visualizer - ModelVisualizer: Creating feature importances chart...
+2026-07-19 23:22:39 - INFO - src.agents.visualization.themes - ThemeManager: Applying Matplotlib theme: CORPORATE
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter - Exporter: Saving chart 'feature_importance'...
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter -   Saved static PNG to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\feature_importance.png
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter -   Saved interactive HTML to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\html\feature_importance.html
+2026-07-19 23:22:39 - INFO - src.agents.visualization.dashboard_visualizer - DashboardVisualizer: Creating leaderboard comparison bar chart...
+2026-07-19 23:22:39 - INFO - src.agents.visualization.themes - ThemeManager: Applying Matplotlib theme: CORPORATE
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter - Exporter: Saving chart 'leaderboard_chart'...
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter -   Saved static PNG to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\leaderboard_chart.png
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter -   Saved interactive HTML to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\html\leaderboard_chart.html
+2026-07-19 23:22:39 - INFO - src.agents.visualization.exporter - Exporter: Report metadata saved to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\metadata\visualization_report.json
+2026-07-19 23:22:39 - INFO - src.agents.visualization.agent - VisualizationAgent: Sweep completed successfully. Generated 6 charts.
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Loaded 6 cached entries from D:\FInal Project\capstone-multi-agent-analyst\workspace\cache\llm_cache.json
+2026-07-19 23:22:40 - INFO - src.agents.business_insights.agent - BusinessInsightAgent: Initiating corporate translation analysis...
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generating response (provider=MOCK)
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Calling LLM provider...
+2026-07-19 23:22:40 - INFO - src.core.llm.provider - LLMProvider: Executing Mock LLM generator...
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Cached response for key 1a0234d5
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Request: Input=1787, Output=95, Cost=$0.01036. Session Cumulative: Cost=$0.01036
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generation complete in 0.3685s
+2026-07-19 23:22:40 - INFO - src.core.llm.parser - StructuredParser: Parsing response to model: ExecutiveSummary
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generating response (provider=MOCK)
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Calling LLM provider...
+2026-07-19 23:22:40 - INFO - src.core.llm.provider - LLMProvider: Executing Mock LLM generator...
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Cached response for key ee81719a
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Request: Input=181, Output=49, Cost=$0.00164. Session Cumulative: Cost=$0.012
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generation complete in 0.0065s
+2026-07-19 23:22:40 - INFO - src.core.llm.parser - StructuredParser: Parsing response to model: DatasetInsight
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generating response (provider=MOCK)
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Calling LLM provider...
+2026-07-19 23:22:40 - INFO - src.core.llm.provider - LLMProvider: Executing Mock LLM generator...
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Cached response for key b6832c4b
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Request: Input=265, Output=57, Cost=$0.00218. Session Cumulative: Cost=$0.01418
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generation complete in 0.0065s
+2026-07-19 23:22:40 - INFO - src.core.llm.parser - StructuredParser: Parsing response to model: ModelInsight
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generating response (provider=MOCK)
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Calling LLM provider...
+2026-07-19 23:22:40 - INFO - src.core.llm.provider - LLMProvider: Executing Mock LLM generator...
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Cached response for key 623bf736
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Request: Input=218, Output=45, Cost=$0.001765. Session Cumulative: Cost=$0.015945
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generation complete in 0.0076s
+2026-07-19 23:22:40 - INFO - src.core.llm.parser - StructuredParser: Parsing response to model: Recommendation
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generating response (provider=MOCK)
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Calling LLM provider...
+2026-07-19 23:22:40 - INFO - src.core.llm.provider - LLMProvider: Executing Mock LLM generator...
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Cached response for key 78cb0953
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Request: Input=225, Output=38, Cost=$0.001695. Session Cumulative: Cost=$0.01764
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generation complete in 0.0071s
+2026-07-19 23:22:40 - INFO - src.core.llm.parser - StructuredParser: Parsing response to model: RiskItem
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generating response (provider=MOCK)
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Calling LLM provider...
+2026-07-19 23:22:40 - INFO - src.core.llm.provider - LLMProvider: Executing Mock LLM generator...
+2026-07-19 23:22:40 - INFO - src.core.llm.cache - LLMCache: Cached response for key c28937bd
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Request: Input=1754, Output=41, Cost=$0.009385. Session Cumulative: Cost=$0.027025
+2026-07-19 23:22:40 - INFO - src.core.llm.client - LLMClient: Generation complete in 0.0083s
+2026-07-19 23:22:40 - INFO - src.core.llm.parser - StructuredParser: Parsing response to model: ConfidenceReport
+2026-07-19 23:22:40 - INFO - src.core.llm.cost_tracker - CostTracker: Session counters reset.
+2026-07-19 23:22:40 - INFO - src.agents.business_insights.agent - BusinessInsightAgent: Analysis completed successfully in 0.4324s
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.agent - ReportGenerationAgent: Launching reporting pipeline...
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.context_builder - ContextBuilder: Consolidating phase outputs...
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.section_builder - SectionBuilder: Building markdown report sections...
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.citation_manager - CitationManager: Registered Figure 1 for chart key: 'D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\correlation_heatmap.png'
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.citation_manager - CitationManager: Registered Figure 2 for chart key: 'D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\distribution_age.png'
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.citation_manager - CitationManager: Registered Figure 3 for chart key: 'D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\roc_curve.png'
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.citation_manager - CitationManager: Registered Figure 4 for chart key: 'D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\feature_importance.png'
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.citation_manager - CitationManager: Registered Figure 5 for chart key: 'D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\plots\leaderboard_chart.png'
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.citation_manager - CitationManager: Registered citation footnote [1] for: 'platform'
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.asset_manager - AssetManager: Organizing 5 charts to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\reports
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.asset_manager - AssetManager: Scaled image correlation_heatmap.png to 600x546
+2026-07-19 23:22:40 - INFO - src.agents.report_generation.asset_manager - AssetManager: Scaled image distribution_age.png to 600x357
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.asset_manager - AssetManager: Scaled image roc_curve.png to 600x357
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.asset_manager - AssetManager: Scaled image feature_importance.png to 600x358
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.asset_manager - AssetManager: Scaled image leaderboard_chart.png to 600x358
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.template_engine - TemplateEngine: Rendering layout type: 'executive'
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.manifest - ManifestGenerator: Manifest file cataloged successfully at: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\reports\report_manifest.json
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.exporter - Exporter: Exporting Markdown report to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\reports\markdown\report.md
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.exporter - Exporter: Exporting HTML report to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\reports\html\report.html
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.exporter - Exporter: Exporting PDF report to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\reports\pdf\report.pdf
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.exporter - Exporter: PDF generated successfully via reportlab.
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.exporter - Exporter: Exporting DOCX report to: D:\FInal Project\capstone-multi-agent-analyst\workspace\artifacts\reports\docx\report.docx
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.exporter - Exporter: DOCX generated successfully via python-docx.
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.validator - ReportValidator: Commencing structural document audits...
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.validator - ReportValidator: Document validation checks passed successfully.
+2026-07-19 23:22:41 - INFO - src.agents.report_generation.agent - ReportGenerationAgent: Execution completed in 1.0417s. Files generated.
