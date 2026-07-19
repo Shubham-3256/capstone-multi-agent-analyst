@@ -1,8 +1,8 @@
 """YAML-driven configuration parser for visualization formatting rules."""
 
-from typing import List, Optional
-import yaml
 from pathlib import Path
+
+import yaml
 from pydantic import BaseModel, Field
 
 from src.core.logger import get_logger
@@ -23,11 +23,11 @@ class VisualizationConfig(BaseModel):
     """Unified configuration mapping for Visualization Agent runs."""
 
     default_theme: str = Field(default="corporate", description="Theme key to apply ('light', 'dark', 'corporate')")
-    export_formats: List[str] = Field(default=["png", "html"], description="File formats to save ('png', 'svg', 'html', 'pdf')")
+    export_formats: list[str] = Field(default=["png", "html"], description="File formats to save ('png', 'svg', 'html', 'pdf')")
     size: PlotSizeConfig = Field(default_factory=PlotSizeConfig)
 
     @classmethod
-    def load_from_yaml(cls, yaml_path: Optional[Path] = None) -> "VisualizationConfig":
+    def load_from_yaml(cls, yaml_path: Path | None = None) -> "VisualizationConfig":
         """Load configuration parameters from YAML file or return defaults.
 
         Args:
@@ -38,7 +38,7 @@ class VisualizationConfig(BaseModel):
         """
         if yaml_path and yaml_path.exists():
             try:
-                with open(yaml_path, "r", encoding="utf-8") as f:
+                with open(yaml_path, encoding="utf-8") as f:
                     content = yaml.safe_load(f) or {}
                 logger.info(f"Loaded visualization config from: {yaml_path}")
                 return cls(**content)

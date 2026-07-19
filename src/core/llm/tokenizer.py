@@ -21,7 +21,7 @@ class Tokenizer:
         """
         if not text:
             return 0
-            
+
         try:
             import tiktoken
             try:
@@ -37,7 +37,7 @@ class Tokenizer:
             char_count = len(text)
             words = text.split()
             word_count = len(words)
-            
+
             # Combine heuristics for a robust average estimate
             estimate = int(max(char_count / 4.0, word_count * 1.3))
             return max(1, estimate)

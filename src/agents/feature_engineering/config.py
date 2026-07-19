@@ -1,8 +1,8 @@
 """YAML-driven Configuration parser for feature engineering parameters."""
 
-from typing import Any, Dict, Optional
-import yaml
 from pathlib import Path
+
+import yaml
 from pydantic import BaseModel, Field
 
 from src.core.logger import get_logger
@@ -65,7 +65,7 @@ class FeatureEngineeringConfig(BaseModel):
     split: SplitConfig = Field(default_factory=SplitConfig)
 
     @classmethod
-    def load_from_yaml(cls, yaml_path: Optional[Path] = None) -> "FeatureEngineeringConfig":
+    def load_from_yaml(cls, yaml_path: Path | None = None) -> "FeatureEngineeringConfig":
         """Load configuration parameters from YAML file or return defaults.
 
         Args:
@@ -76,7 +76,7 @@ class FeatureEngineeringConfig(BaseModel):
         """
         if yaml_path and yaml_path.exists():
             try:
-                with open(yaml_path, "r", encoding="utf-8") as f:
+                with open(yaml_path, encoding="utf-8") as f:
                     content = yaml.safe_load(f) or {}
                 logger.info(f"Loaded feature engineering config from: {yaml_path}")
                 return cls(**content)

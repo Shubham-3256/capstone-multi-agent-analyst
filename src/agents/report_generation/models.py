@@ -1,6 +1,7 @@
 """Pydantic schemas representing report layouts, contexts, and manifests."""
 
-from typing import Dict, List, Any, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -17,8 +18,8 @@ class TableReference(BaseModel):
 
     label: str = Field(..., description="Table identifier index (e.g. 'Table 1')")
     description: str = Field(..., description="Table description context caption")
-    headers: List[str] = Field(..., description="Column header labels")
-    rows: List[List[Any]] = Field(..., description="Grid cell values matrix")
+    headers: list[str] = Field(..., description="Column header labels")
+    rows: list[list[Any]] = Field(..., description="Grid cell values matrix")
 
 
 class ReportSection(BaseModel):
@@ -27,8 +28,8 @@ class ReportSection(BaseModel):
     title: str = Field(..., description="Chapter title name")
     section_id: str = Field(..., description="Unique slug key identifier")
     content_markdown: str = Field(..., description="Body section text formatted in markdown")
-    figures: List[FigureReference] = Field(default_factory=list, description="Embedded figure references list")
-    tables: List[TableReference] = Field(default_factory=list, description="Embedded data table references list")
+    figures: list[FigureReference] = Field(default_factory=list, description="Embedded figure references list")
+    tables: list[TableReference] = Field(default_factory=list, description="Embedded data table references list")
 
 
 class ReportContext(BaseModel):
@@ -40,7 +41,7 @@ class ReportContext(BaseModel):
     ml_summary_str: str = Field(..., description="AutoML leaderboard outputs from Machine Learning Agent")
     viz_summary_str: str = Field(..., description="Graph layouts metadata from Visualization Agent")
     insights_str: str = Field(..., description="Corporate summaries and recommendations from Business Insight Agent")
-    charts_paths: List[str] = Field(default_factory=list, description="Paths to generated chart visual assets")
+    charts_paths: list[str] = Field(default_factory=list, description="Paths to generated chart visual assets")
 
 
 class ReportManifest(BaseModel):
@@ -50,8 +51,8 @@ class ReportManifest(BaseModel):
     dataset_hash: str = Field(..., description="SHA256 signature hash of target source data")
     pipeline_version: str = Field(default="1.0.0", description="Code version key")
     model_version: str = Field(default="gpt-4o", description="Underlying core LLM tag")
-    charts_included: List[str] = Field(default_factory=list, description="Chart file basenames exported inside document folders")
-    sections: List[str] = Field(default_factory=list, description="Ordered list of chapter titles generated")
+    charts_included: list[str] = Field(default_factory=list, description="Chart file basenames exported inside document folders")
+    sections: list[str] = Field(default_factory=list, description="Ordered list of chapter titles generated")
     generation_timestamp: str = Field(..., description="UTC ISO format creation timestamp")
 
 
@@ -68,7 +69,7 @@ class ReportResult(BaseModel):
     """Unified payload returned by ReportGenerationAgent containing manifest records and output paths."""
 
     is_success: bool = Field(..., description="Agent run completion validation index")
-    output_paths: Dict[str, str] = Field(..., description="Paths mapping exported format keys (markdown, html, pdf, docx)")
+    output_paths: dict[str, str] = Field(..., description="Paths mapping exported format keys (markdown, html, pdf, docx)")
     manifest: ReportManifest = Field(..., description="Compiled report manifest index metadata")
     metadata: ReportMetadata = Field(..., description="Report catalog parameters")
     duration_seconds: float = Field(..., description="Total pipeline execution time")

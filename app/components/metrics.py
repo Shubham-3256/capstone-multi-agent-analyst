@@ -1,9 +1,9 @@
 """Workflow metric helpers."""
 
-from typing import Any, Dict
+from typing import Any
 
 
-def workflow_metrics(result: Any) -> Dict[str, float]:
+def workflow_metrics(result: Any) -> dict[str, float]:
     """Extract compact metrics from a WorkflowResult for UI rendering."""
     state = getattr(result, "state", None)
     timing = getattr(state, "timing", {}) if state else {}
@@ -17,6 +17,7 @@ def workflow_metrics(result: Any) -> Dict[str, float]:
 def render_ml_metrics(ml_result: Any) -> None:
     """Render AutoML leaderboard and best model metrics."""
     import streamlit as st
+
     from app.components.cards import info_card
     from app.components.tables import render_html_table
 
@@ -25,7 +26,7 @@ def render_ml_metrics(ml_result: Any) -> None:
         return
 
     st.subheader("Model Selection & Leaderboard")
-    
+
     col1, col2 = st.columns(2)
     with col1:
         info_card(
@@ -63,9 +64,9 @@ def render_ml_metrics(ml_result: Any) -> None:
 
 def render_timing_metrics(result: Any) -> None:
     """Render horizontal bar chart for step execution times."""
-    import streamlit as st
-    import plotly.express as px
     import pandas as pd
+    import plotly.express as px
+    import streamlit as st
 
     state = getattr(result, "state", None)
     if not state or not state.timing:

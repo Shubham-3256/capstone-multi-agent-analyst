@@ -1,7 +1,7 @@
 """Lazy loader proxy module to defer importing heavy data science libraries."""
 
 import importlib
-from typing import Any, List
+from typing import Any
 
 
 class LazyLoader:
@@ -30,7 +30,7 @@ class LazyLoader:
         module = self._load()
         return getattr(module, name)
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         """Expose listing of dynamic attributes of the wrapped module."""
         module = self._load()
         return list(dir(module))

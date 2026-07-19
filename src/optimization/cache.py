@@ -1,10 +1,11 @@
 """RAM-and-file-backed cache provider for model pipelines, plots, and prompt query responses."""
 
 import hashlib
-import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
+
 import joblib
+
 from src.core.logger import get_logger
 from src.optimization.config import OptimizationConfig
 
@@ -14,7 +15,7 @@ logger = get_logger(__name__)
 class OptimizationCache:
     """Enterprise-grade multi-level caching system utilizing RAM and persistent local files."""
 
-    _ram_cache: Dict[str, Any] = {}
+    _ram_cache: dict[str, Any] = {}
     _cache_dir: Path = OptimizationConfig.CACHE_DIR
 
     @classmethod
@@ -28,7 +29,7 @@ class OptimizationCache:
         return hashlib.sha256(key.encode("utf-8")).hexdigest()
 
     @classmethod
-    def get(cls, key: str) -> Optional[Any]:
+    def get(cls, key: str) -> Any | None:
         """Retrieve a cached object from memory or disk.
 
         Args:
@@ -38,7 +39,7 @@ class OptimizationCache:
             Optional[Any]: Deserialized cached object or None if cache miss.
         """
         hashed = cls._hash_key(key)
-        
+
         # 1. RAM Lookup (fastest)
         if hashed in cls._ram_cache:
             logger.info(f"Cache Hit (RAM): {key[:50]}...")
@@ -79,7 +80,7 @@ class OptimizationCache:
             logger.warning(f"Failed to write cache file {file_path}: {e}")
 
     @classmethod
-    def get_prompt_response(cls, prompt: str) -> Optional[str]:
+    def get_prompt_response(cls, prompt: str) -> str | None:
         """Fetch cached LLM responses to avoid redundant query runs.
 
         Args:
@@ -90,7 +91,7 @@ class OptimizationCache:
         """
         if not OptimizationConfig.ENABLE_PROMPT_CACHING:
             return None
-            
+
         hashed = cls._hash_key(prompt)
         cls._initialize()
         text_path = cls._cache_dir / f"prompt_{hashed}.txt"
@@ -111,7 +112,7 @@ class OptimizationCache:
         """
         if not OptimizationConfig.ENABLE_PROMPT_CACHING:
             return
-            
+
         hashed = cls._hash_key(prompt)
         cls._initialize()
         text_path = cls._cache_dir / f"prompt_{hashed}.txt"
@@ -130,7 +131,7 @@ class OptimizationCache:
         hashed = cls._hash_key(key)
         if hashed in cls._ram_cache:
             del cls._ram_cache[hashed]
-            
+
         file_path = cls._cache_dir / f"{hashed}.joblib"
         if file_path.exists():
             try:

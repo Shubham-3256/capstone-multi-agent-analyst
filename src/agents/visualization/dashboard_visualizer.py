@@ -1,14 +1,14 @@
 """Visualizer generating leaderboard comparison dashboards charts."""
 
-from typing import Dict, Any
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+from typing import Any
 
-from src.core.logger import get_logger
-from src.agents.visualization.figure_factory import FigureFactory
+import pandas as pd
+import plotly.graph_objects as go
+import seaborn as sns
+
 from src.agents.machine_learning.models import Leaderboard
+from src.agents.visualization.figure_factory import FigureFactory
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -21,7 +21,7 @@ class DashboardVisualizer:
         leaderboard: Leaderboard,
         task_type: str,
         theme_name: str = "corporate"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate candidate models metrics comparisons leaderboard bar chart.
 
         Args:
@@ -33,13 +33,13 @@ class DashboardVisualizer:
             Dict[str, Any]: Mapped figures containing 'matplotlib' and 'plotly' handles.
         """
         logger.info("DashboardVisualizer: Creating leaderboard comparison bar chart...")
-        
+
         # Parse leaderboard to pandas DataFrame
         records = [
             {"model_name": entry.model_name, "score": entry.score}
             for entry in leaderboard.entries
         ]
-        
+
         # Fallback dummy record if leaderboard empty
         if not records:
             records = [{"model_name": "No models trained", "score": 0.0}]

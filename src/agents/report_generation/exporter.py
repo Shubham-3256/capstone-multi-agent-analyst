@@ -1,8 +1,6 @@
 """Exporter compiling Markdown reports into Markdown, HTML, PDF and DOCX documents."""
 
-import os
 from pathlib import Path
-from typing import Dict, Any
 
 from src.core.logger import get_logger
 
@@ -135,12 +133,12 @@ class Exporter:
         """
         logger.info(f"Exporter: Exporting PDF report to: {target_file}")
         target_file.parent.mkdir(parents=True, exist_ok=True)
-        
+
         try:
-            from reportlab.lib.pagesizes import letter
-            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
             from reportlab.lib import colors
+            from reportlab.lib.pagesizes import letter
+            from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+            from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
             doc = SimpleDocTemplate(str(target_file), pagesize=letter)
             styles = getSampleStyleSheet()
@@ -194,7 +192,7 @@ class Exporter:
 
             doc.build(story)
             logger.info("Exporter: PDF generated successfully via reportlab.")
-            
+
         except Exception as e:
             logger.error(f"Exporter: reportlab compilation failed: {e}. Graceful fallback to text layout.")
             # Graceful fallback: write as clean txt content
@@ -220,7 +218,7 @@ class Exporter:
         try:
             import docx
             doc = docx.Document()
-            
+
             for line in markdown_content.splitlines():
                 line_strip = line.strip()
                 if not line_strip:

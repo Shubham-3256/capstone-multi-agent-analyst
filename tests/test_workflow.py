@@ -17,7 +17,7 @@ def test_workflow_skips_modeling_and_returns_report(tmp_path):
         calls.append("data")
         return SimpleNamespace(is_valid=True, profile={"rows": 1}, cleaned_filepath=str(path))
 
-    def visualization(profile, feature, model):
+    def visualization(profile, feature, model, target=None):
         calls.append("visualization")
         return SimpleNamespace(is_success=True)
 

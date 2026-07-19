@@ -1,18 +1,18 @@
 """Reusable chart renderers for Plotly figures and local images."""
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
+
 import streamlit as st
 
 
 def render_chart(chart_meta: Any) -> None:
     """Render a single chart metadata component, showing the image/HTML, caption, and download buttons."""
+
     from app.services.config import PROJECT_ROOT
-    import streamlit as st
-    import streamlit.components.v1 as components
-    
+
     # 1. Resolve path robustly
-    def resolve_path(p: str) -> Optional[Path]:
+    def resolve_path(p: str) -> Path | None:
         if not p:
             return None
         # Try direct absolute path
@@ -38,6 +38,10 @@ def render_chart(chart_meta: Any) -> None:
     details = getattr(caption_obj, "details", "") if caption_obj else ""
 
     st.markdown(f"### {title}")
+    
+    if chart_id == "missing_heatmap" and not getattr(chart_meta, "file_path", ""):
+        st.info("No missing values detected.")
+        return
 
     # Render HTML if available
     html_path_str = getattr(chart_meta, "html_path", None)
@@ -48,7 +52,7 @@ def render_chart(chart_meta: Any) -> None:
     rendered = False
     if html_path and html_path.exists():
         try:
-            with open(html_path, "r", encoding="utf-8") as f:
+            with open(html_path, encoding="utf-8") as f:
                 html_content = f.read()
             import urllib.parse
             data_url = "data:text/html;charset=utf-8," + urllib.parse.quote(html_content)
@@ -80,7 +84,7 @@ def render_chart(chart_meta: Any) -> None:
             btn_bytes = f.read()
         with col1:
             st.download_button(
-                label=f"💾 Download PNG",
+                label="💾 Download PNG",
                 data=btn_bytes,
                 file_name=f"{chart_id}.png",
                 mime="image/png",
@@ -92,7 +96,7 @@ def render_chart(chart_meta: Any) -> None:
             html_bytes = f.read()
         with col2:
             st.download_button(
-                label=f"🌐 Download Interactive HTML",
+                label="🌐 Download Interactive HTML",
                 data=html_bytes,
                 file_name=f"{chart_id}.html",
                 mime="text/html",

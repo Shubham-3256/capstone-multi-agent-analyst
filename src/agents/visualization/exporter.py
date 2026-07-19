@@ -2,13 +2,13 @@
 
 import json
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+from typing import Any
 
+import matplotlib.pyplot as plt
+
+from src.agents.visualization.models import ChartCaption, ChartMetadata
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.agents.visualization.models import ChartMetadata, ChartCaption
 
 logger = get_logger(__name__)
 
@@ -21,7 +21,7 @@ class Exporter:
         chart_id: str,
         title: str,
         chart_type: str,
-        figures: Dict[str, Any],
+        figures: dict[str, Any],
         caption: ChartCaption,
         base_dir: Path = Paths.WORKSPACE_DIR / "artifacts"
     ) -> ChartMetadata:
@@ -39,11 +39,11 @@ class Exporter:
             ChartMetadata: Metadata detailing generated assets.
         """
         logger.info(f"Exporter: Saving chart '{chart_id}'...")
-        
+
         # Setup paths
         plots_dir = base_dir / "plots"
         html_dir = base_dir / "html"
-        
+
         plots_dir.mkdir(parents=True, exist_ok=True)
         html_dir.mkdir(parents=True, exist_ok=True)
 
@@ -84,7 +84,7 @@ class Exporter:
         )
 
     @staticmethod
-    def save_report_metadata(report_data: Dict[str, Any], filepath: Path) -> None:
+    def save_report_metadata(report_data: dict[str, Any], filepath: Path) -> None:
         """Serialize run parameters and chart descriptions to JSON.
 
         Args:

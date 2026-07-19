@@ -40,8 +40,19 @@ def test_visualization_agent_run(db_session):
 
     assert result.is_success is True
     assert len(result.report.charts) >= 3
-    assert Path(result.report.charts[0].file_path).exists()
-    assert Path(result.report.charts[0].html_path).exists()
+    
+    # Missingness heatmap has no missing values
+    assert result.report.charts[0].chart_id == "missing_heatmap"
+    assert result.report.charts[0].file_path == ""
+    assert result.report.charts[0].html_path is None
+    
+    # Correlation heatmap should exist
+    assert result.report.charts[1].chart_id == "correlation_heatmap"
+    assert Path(result.report.charts[1].file_path).exists()
+    assert Path(result.report.charts[1].html_path).exists()
+
+    # Distribution plot should exist
+    assert Path(result.report.charts[2].file_path).exists()
     
     # Assert database log exists
     logs = db_session.query(ExecutionLog).all()

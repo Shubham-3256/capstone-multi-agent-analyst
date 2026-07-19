@@ -1,0 +1,47 @@
+# ==============================================================================
+# Multi-Agent AI Data Analyst - Pre-commit Hooks Configuration
+# ==============================================================================
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: Strip Trailing Whitespace
+      - id: end-of-file-fixer
+        name: Fix End of Files
+      - id: check-yaml
+        name: Validate YAML Files
+      - id: check-json
+        name: Validate JSON Files
+      - id: check-added-large-files
+        name: Prevent Large File Commits
+        args: ['--maxkb=5000']
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        name: Format Code with Black
+        language_version: python3.12
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: Sort Imports with Isort
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.10
+    hooks:
+      - id: ruff
+        name: Lint with Ruff
+        args: [ --fix ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.1
+    hooks:
+      - id: mypy
+        name: Type Check with Mypy
+        additional_dependencies: [types-requests, types-pyyaml]
+        args: [--strict, --ignore-missing-imports]

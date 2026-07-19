@@ -9,6 +9,7 @@ import re
 import unicodedata
 import uuid
 from pathlib import Path
+
 from src.core.exceptions import ValidationException
 
 
@@ -24,7 +25,7 @@ def validate_extension(filename: str, allowed_extensions: set[str]) -> bool:
     """
     if not filename or "." not in filename:
         return False
-    
+
     ext = filename.rsplit(".", 1)[-1].lower()
     return ext in {allowed.lower().strip(".") for allowed in allowed_extensions}
 

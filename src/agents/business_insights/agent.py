@@ -1,32 +1,34 @@
 """Business Insight Agent orchestrating prompt compilations, LLM client calls, and reports parsing."""
 
 import time
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-from src.core.logger import get_logger
-from src.core.llm import LLMClient, StructuredParser, CostTracker
-from src.database.models import ExecutionLog
-from src.repositories.log_repository import ExecutionLogRepository
-from src.agents.feature_engineering.models import FeatureEngineeringResult
-from src.agents.machine_learning.models import MachineLearningResult
-from src.agents.visualization.models import VisualizationResult
-from src.agents.business_insights.executive_summary import ExecutiveSummaryBuilder
-from src.agents.business_insights.data_quality import DataQualityBuilder
-from src.agents.business_insights.model_analysis import ModelAnalysisBuilder
-from src.agents.business_insights.business_recommendations import BusinessRecommendationsBuilder
-from src.agents.business_insights.risk_analysis import RiskAnalysisBuilder
+from src.agents.business_insights.business_recommendations import (
+    BusinessRecommendationsBuilder,
+)
 from src.agents.business_insights.confidence import ConfidenceBuilder
+from src.agents.business_insights.data_quality import DataQualityBuilder
+from src.agents.business_insights.executive_summary import ExecutiveSummaryBuilder
+from src.agents.business_insights.model_analysis import ModelAnalysisBuilder
 from src.agents.business_insights.models import (
     BusinessInsightResult,
-    ExecutiveSummary,
+    ConfidenceReport,
     DatasetInsight,
+    ExecutiveSummary,
     ModelInsight,
     Recommendation,
     RiskItem,
-    ConfidenceReport
 )
+from src.agents.business_insights.risk_analysis import RiskAnalysisBuilder
+from src.agents.feature_engineering.models import FeatureEngineeringResult
+from src.agents.machine_learning.models import MachineLearningResult
+from src.agents.visualization.models import VisualizationResult
+from src.core.llm import CostTracker, LLMClient, StructuredParser
+from src.core.logger import get_logger
+from src.database.models import ExecutionLog
+from src.repositories.log_repository import ExecutionLogRepository
 
 logger = get_logger(__name__)
 
@@ -47,9 +49,9 @@ class BusinessInsightAgent:
     def run(
         self,
         dataset_profile: Any,
-        feature_result: Optional[FeatureEngineeringResult] = None,
-        ml_result: Optional[MachineLearningResult] = None,
-        visualization_result: Optional[VisualizationResult] = None
+        feature_result: FeatureEngineeringResult | None = None,
+        ml_result: MachineLearningResult | None = None,
+        visualization_result: VisualizationResult | None = None
     ) -> BusinessInsightResult:
         """Execute Business Intelligence translations.
 
@@ -80,22 +82,22 @@ class BusinessInsightAgent:
             # 1. Format input summaries
             # Safeguard profile extraction
             profile_summary = str(dataset_profile)
-            
+
             # Format leaderboard summary
             leaderboard_str = "None"
             best_model_name = "N/A"
             best_metrics_str = "None"
             importances_str = "None"
-            
+
             if ml_result:
                 best_model_name = ml_result.best_model_name
                 best_metrics_str = str(ml_result.best_metrics)
-                
+
                 leaderboard_records = []
                 for entry in ml_result.leaderboard.entries:
                     leaderboard_records.append(f"Rank {entry.rank}: {entry.model_name} (Score={entry.score})")
                 leaderboard_str = "; ".join(leaderboard_records)
-                
+
                 importances_records = []
                 for item in ml_result.feature_importances:
                     importances_records.append(f"{item.column}={item.importance}")
@@ -169,7 +171,7 @@ class BusinessInsightAgent:
 
             # 3. Retrieve token costs from session cost tracker
             session_stats = CostTracker.get_session_summary()
-            
+
             # Reset cost tracker session for cleanliness
             CostTracker.reset_session()
 

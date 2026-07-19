@@ -1,6 +1,7 @@
 """SQLAlchemy database models for application logging and dataset management."""
 
-from datetime import datetime
+from datetime import datetime, timezone
+
 from sqlalchemy import Column, DateTime, Float, Integer, String, Text
 
 from src.core.security import generate_secure_id
@@ -20,8 +21,8 @@ class DatasetRecord(Base):
     row_count = Column(Integer, nullable=True)
     column_count = Column(Integer, nullable=True)
     status = Column(String(50), default="uploaded", nullable=False)  # uploaded, cleaned, analyzed, failed
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     def to_dict(self) -> dict:
         """Convert ORM object to a flat dictionary payload."""
@@ -51,8 +52,8 @@ class ExecutionLog(Base):
     parameters = Column(Text, nullable=True)  # JSON-serialized parameter payload
     error_message = Column(Text, nullable=True)
     duration_seconds = Column(Float, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     def to_dict(self) -> dict:
         """Convert ORM object to a dictionary representation."""
@@ -82,7 +83,7 @@ class ReportRecord(Base):
     manifest_json = Column(Text, nullable=False)
     output_paths_json = Column(Text, nullable=False)
     duration_seconds = Column(Float, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
 
 class WorkflowExecution(Base):
@@ -96,4 +97,4 @@ class WorkflowExecution(Base):
     history_json = Column(Text, nullable=False)
     errors_json = Column(Text, nullable=False)
     timing_json = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

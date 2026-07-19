@@ -1,8 +1,8 @@
 """Feature type detection engine for mapping structures and profiling column behaviors."""
 
 import re
-from typing import Dict, List, Optional, Set, Any
-import numpy as np
+from typing import Any
+
 import pandas as pd
 
 from src.core.logger import get_logger
@@ -14,7 +14,7 @@ class FeatureDetector:
     """Detects and categorizes column types and behaviors for downstream pipeline steps."""
 
     @staticmethod
-    def detect(df: pd.DataFrame, target_column: Optional[str] = None) -> Dict[str, Any]:
+    def detect(df: pd.DataFrame, target_column: str | None = None) -> dict[str, Any]:
         """Perform comprehensive structure checks on the DataFrame features.
 
         Args:
@@ -27,20 +27,20 @@ class FeatureDetector:
         logger.info("FeatureDetector: Running column categorization audits...")
         rows, cols = df.shape
 
-        numeric_cols: List[str] = []
-        categorical_cols: List[str] = []
-        ordinal_cols: List[str] = []
-        boolean_cols: List[str] = []
-        datetime_cols: List[str] = []
-        identifier_cols: List[str] = []
-        text_cols: List[str] = []
+        numeric_cols: list[str] = []
+        categorical_cols: list[str] = []
+        ordinal_cols: list[str] = []
+        boolean_cols: list[str] = []
+        datetime_cols: list[str] = []
+        identifier_cols: list[str] = []
+        text_cols: list[str] = []
 
-        constant_cols: List[str] = []
-        near_constant_cols: List[str] = []
-        high_cardinality_cols: List[str] = []
-        low_variance_cols: List[str] = []
-        duplicate_features: Dict[str, str] = {}  # col -> identical_to_col
-        highly_correlated_features: List[Dict[str, Any]] = []
+        constant_cols: list[str] = []
+        near_constant_cols: list[str] = []
+        high_cardinality_cols: list[str] = []
+        low_variance_cols: list[str] = []
+        duplicate_features: dict[str, str] = {}  # col -> identical_to_col
+        highly_correlated_features: list[dict[str, Any]] = []
 
         # Identifier search pattern
         id_pattern = re.compile(r"(_id|id_|key|code|uuid|index|hash|^id$)", re.IGNORECASE)
@@ -77,7 +77,7 @@ class FeatureDetector:
                 var_val = float(series.var(ddof=1)) if len(series.dropna()) > 1 else 0.0
                 if var_val < 0.01:
                     low_variance_cols.append(col_name)
-                
+
                 # Check if it could be ordinal rating (integers and unique count between 2 and 10)
                 if pd.api.types.is_integer_dtype(series) and 2 < unique_count <= 10 and any(keyword in col_name.lower() for keyword in ["rating", "grade", "level", "scale", "rank", "score"]):
                     ordinal_cols.append(col_name)
@@ -94,16 +94,16 @@ class FeatureDetector:
                     # Check high cardinality Categorical limit
                     if unique_count > 50 and (unique_count / rows) > 0.1:
                         high_cardinality_cols.append(col_name)
-                    
+
                     # Heuristics for Ordinal text (e.g. low/med/high)
                     sample_set = {str(val).lower().strip() for val in sample_strings.unique()}
-                    if sample_set.intersection({"low", "medium", "high", "poor", "fair", "good", "excellent", "small", "medium", "large"}):
+                    if sample_set.intersection({"low", "medium", "high", "poor", "fair", "good", "excellent", "small", "large"}):
                         ordinal_cols.append(col_name)
                     else:
                         categorical_cols.append(col_name)
 
         # 2. Duplicate features check
-        checked_cols: List[str] = []
+        checked_cols: list[str] = []
         for col in df.columns:
             col_name = str(col)
             if col_name == target_column:
@@ -117,7 +117,7 @@ class FeatureDetector:
             checked_cols.append(col_name)
 
         # 3. Correlation checks (Numeric variables correlation > 0.85)
-        all_numeric = numeric_cols + ordinal_cols
+        all_numeric = [col for col in numeric_cols + ordinal_cols if pd.api.types.is_numeric_dtype(df[col])]
         if len(all_numeric) > 1:
             corr = df[all_numeric].corr().fillna(0.0)
             seen_pairs = set()

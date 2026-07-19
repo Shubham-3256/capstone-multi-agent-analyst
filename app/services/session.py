@@ -1,6 +1,6 @@
 """Streamlit session-state helpers that do not duplicate WorkflowState."""
 
-from typing import Any, Optional
+from typing import Any
 
 import streamlit as st
 
@@ -18,7 +18,7 @@ def set_workflow_result(result: Any) -> None:
     st.session_state.workflow_result = result
 
 
-def get_workflow_result() -> Optional[Any]:
+def get_workflow_result() -> Any | None:
     """Retrieve the latest workflow result, ensuring it is a fully validated Pydantic model."""
     raw = st.session_state.get("workflow_result")
     if raw is None:
@@ -35,12 +35,12 @@ def get_workflow_result() -> Optional[Any]:
     return raw
 
 
-def set_uploaded_dataset_path(path: Optional[str]) -> None:
+def set_uploaded_dataset_path(path: str | None) -> None:
     """Set the active dataset filepath in the session state."""
     st.session_state.uploaded_dataset_path = path
 
 
-def get_uploaded_dataset_path() -> Optional[str]:
+def get_uploaded_dataset_path() -> str | None:
     """Get the active dataset filepath from the session state."""
     return st.session_state.get("uploaded_dataset_path")
 

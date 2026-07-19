@@ -1,6 +1,5 @@
 """Template engine managing layout options and substituting section markdowns."""
 
-from typing import Dict, Any
 
 from src.core.logger import get_logger
 
@@ -12,7 +11,7 @@ class TemplateEngine:
 
     _HEADER = """# {report_heading}\n**Title**: {title}\n**Author**: {author}\n**Created**: {created_at}\n\n---\n\n"""
     _ALL_SECTIONS = """{cover_page}\n\n---\n\n{executive_summary}\n\n---\n\n{dataset_overview}\n\n---\n\n{data_quality}\n\n---\n\n{feature_engineering}\n\n---\n\n{machine_learning}\n\n---\n\n{visualizations}\n\n---\n\n{business_insights}\n\n---\n\n{recommendations}\n\n---\n\n{risks}\n\n---\n\n{technical_appendix}\n\n---\n\n{references}\n"""
-    TEMPLATES: Dict[str, str] = {
+    TEMPLATES: dict[str, str] = {
         "executive": _HEADER.replace("{report_heading}", "Executive Business Analytics Report") + _ALL_SECTIONS,
         "technical": _HEADER.replace("{report_heading}", "Technical AutoML Engineering Report") + _ALL_SECTIONS,
         "research": _HEADER.replace("{report_heading}", "Research Analytics Report") + _ALL_SECTIONS,
@@ -20,7 +19,7 @@ class TemplateEngine:
     }
 
     @classmethod
-    def render(cls, template_type: str, metadata: Dict[str, str], sections: Dict[str, str]) -> str:
+    def render(cls, template_type: str, metadata: dict[str, str], sections: dict[str, str]) -> str:
         """Replace template variables and sections placeholders.
 
         Args:
@@ -36,7 +35,7 @@ class TemplateEngine:
         if template_key not in cls.TEMPLATES:
             raise ValueError(f"Unsupported report template: {template_type}")
         template = cls.TEMPLATES[template_key]
-        
+
         # Merge metadata and sections
         payload = {**metadata, **sections}
 

@@ -1,18 +1,23 @@
 """Workflow History and Execution Logs screen."""
 
+import json
 import sys
 from pathlib import Path
-import json
-import streamlit as st
+
 import pandas as pd
+import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.components.sidebar import setup_page
-from app.components.tables import render_table, render_html_table
-from app.services.session import initialize_session, set_workflow_result, set_uploaded_dataset_path
+from app.components.tables import render_table
 from app.services.history_service import HistoryService
+from app.services.session import (
+    initialize_session,
+    set_uploaded_dataset_path,
+    set_workflow_result,
+)
 from src.core.paths import Paths
 from src.orchestration.checkpoint import FileCheckpointStore
 from src.orchestration.state import WorkflowResult
@@ -75,7 +80,7 @@ def main() -> None:
 
     # Render interactive table of executions with "Inspect" select box
     st.subheader(f"Workflow Executions ({len(workflows)} matches)")
-    
+
     # We will build a styled DataFrame and display it
     rows = []
     for idx, w in enumerate(workflows, 1):
@@ -87,7 +92,7 @@ def main() -> None:
         except Exception:
             duration = "N/A"
             err_count = "N/A"
-            
+
         rows.append({
             "Index": idx,
             "Workflow ID": w.workflow_id,
@@ -96,7 +101,7 @@ def main() -> None:
             "Errors Count": err_count,
             "Executed At": w.created_at.strftime("%Y-%m-%d %H:%M:%S")
         })
-        
+
     df_workflows = pd.DataFrame(rows)
     render_table(df_workflows)
 
@@ -105,10 +110,10 @@ def main() -> None:
     # 2. Inspect / Reload Past Workflow
     st.subheader("🕵️ Reload Past Run into Workspace")
     st.markdown("Select a workflow ID from the dropdown below to load its full state back into the active session.")
-    
+
     workflow_ids_list = [w.workflow_id for w in workflows]
     selected_id = st.selectbox("Select Workflow ID to Inspect", options=workflow_ids_list)
-    
+
     if st.button("🔄 Inspect and Reload Selected Run", width="stretch"):
         if load_past_workflow_result(selected_id):
             st.success(f"🎉 **Workflow ID `{selected_id}` successfully loaded!** Navigate to pages 2-7 to inspect its data.")

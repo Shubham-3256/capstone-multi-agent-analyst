@@ -1,7 +1,9 @@
 """Session dependency utilities for SQLAlchemy connections."""
 
-from typing import Generator
+from collections.abc import Generator
+
 from sqlalchemy.orm import Session
+
 from src.database.database import SessionLocal
 
 

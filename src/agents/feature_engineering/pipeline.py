@@ -1,18 +1,18 @@
 """Pipeline builder for compiling and serializing sklearn Preprocessing Pipelines."""
 
 from pathlib import Path
-from typing import List, Optional
+
 import joblib
 import pandas as pd
 from sklearn.pipeline import Pipeline
 
-from src.core.logger import get_logger
 from src.agents.feature_engineering.config import FeatureEngineeringConfig
 from src.agents.feature_engineering.encoder import CategoricalEncoder
-from src.agents.feature_engineering.scaler import NumericalScaler
 from src.agents.feature_engineering.generator import FeatureGenerator
-from src.agents.feature_engineering.selector import FeatureSelector
 from src.agents.feature_engineering.models import PipelineReport
+from src.agents.feature_engineering.scaler import NumericalScaler
+from src.agents.feature_engineering.selector import FeatureSelector
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -23,9 +23,9 @@ class PipelineBuilder:
     @staticmethod
     def build_and_fit(
         df_train: pd.DataFrame,
-        y_train: Optional[pd.Series] = None,
-        config: Optional[FeatureEngineeringConfig] = None,
-        target_column: Optional[str] = None
+        y_train: pd.Series | None = None,
+        config: FeatureEngineeringConfig | None = None,
+        target_column: str | None = None
     ) -> Pipeline:
         """Instantiate and fit the unified preprocessing pipeline on training data.
 
@@ -85,7 +85,7 @@ class PipelineBuilder:
 
         logger.info("PipelineBuilder: Fitting assembled pipeline on training data...")
         pipeline.fit(features_df, y_train)
-        
+
         return pipeline
 
     @staticmethod
@@ -123,7 +123,7 @@ class PipelineBuilder:
         """
         if not filepath.exists():
             raise FileNotFoundError(f"Pipeline file not found: {filepath}")
-        
+
         pipeline = joblib.load(str(filepath))
         logger.info(f"PipelineBuilder: Successfully loaded preprocessing pipeline from: {filepath}")
         return pipeline

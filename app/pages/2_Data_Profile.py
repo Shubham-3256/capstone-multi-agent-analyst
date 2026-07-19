@@ -2,17 +2,18 @@
 
 import sys
 from pathlib import Path
-import streamlit as st
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.cards import info_card
-from app.components.tables import render_table, render_html_table
-from app.services.session import initialize_session, get_workflow_result
+from app.components.sidebar import setup_page
+from app.components.tables import render_table
+from app.services.session import get_workflow_result, initialize_session
 
 
 def main() -> None:
@@ -21,7 +22,7 @@ def main() -> None:
     setup_page("Data Profile")
 
     st.title("📊 Dataset Profile & Data Quality")
-    
+
     result = get_workflow_result()
     if not result:
         st.info("No active workflow result. Please upload a dataset and run the pipeline on the Upload page.")
@@ -51,7 +52,7 @@ def main() -> None:
 
     # 2. Recommendations & Validation Issues
     st.subheader("Data Quality Warnings & Pipeline Recommendations")
-    
+
     # Validation report
     val_report = di_result.validation_report
     if val_report and val_report.issues:
@@ -74,7 +75,7 @@ def main() -> None:
 
     # 3. Column Profiles
     st.subheader("Detailed Column Summary Profiles")
-    
+
     # Compile a dataframe of columns
     col_rows = []
     for col_name, col_prof in profile.columns.items():
@@ -89,7 +90,7 @@ def main() -> None:
         elif col_prof.date_summary:
             s = col_prof.date_summary
             summary_txt = f"Min Date: {s.get('min', 'N/A')} | Max Date: {s.get('max', 'N/A')}"
-            
+
         col_rows.append({
             "Column Name": col_name,
             "Cleaned Type": col_prof.dtype,
@@ -98,7 +99,7 @@ def main() -> None:
             "Null %": f"{col_prof.null_percentage:.2f}%",
             "Summary Details": summary_txt
         })
-    
+
     render_table(pd.DataFrame(col_rows))
 
     # 4. Target distribution
@@ -126,7 +127,7 @@ def main() -> None:
         st.divider()
         st.subheader("Numeric Features Correlation Matrix")
         df_corr = pd.DataFrame(corr_matrix)
-        
+
         # Render a correlation heat map
         fig_corr = px.imshow(
             df_corr,

@@ -2,10 +2,9 @@
 
 import re
 from pathlib import Path
-from typing import Dict, Optional
 
+from src.agents.report_generation.models import ReportManifest, ReportSection
 from src.core.logger import get_logger
-from src.agents.report_generation.models import ReportSection, ReportManifest
 
 logger = get_logger(__name__)
 
@@ -16,10 +15,10 @@ class ReportValidator:
     @classmethod
     def validate_report(
         cls,
-        sections: Dict[str, ReportSection],
+        sections: dict[str, ReportSection],
         manifest: ReportManifest,
         target_dir: Path,
-        output_paths: Optional[Dict[str, str]] = None,
+        output_paths: dict[str, str] | None = None,
     ) -> bool:
         """Validate generated document assets, sections content, and manifest schemas.
 

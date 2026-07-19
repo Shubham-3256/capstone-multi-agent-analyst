@@ -3,13 +3,14 @@
 Coordinates engine construction, connection sessions, and tables setup.
 """
 
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
 
-from src.core.settings import settings
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
 from src.core.logger import get_logger
+from src.core.settings import settings
 from src.database.base import Base
 
 logger = get_logger(__name__)

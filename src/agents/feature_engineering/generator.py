@@ -1,6 +1,5 @@
 """Custom scikit-learn compatible feature generation transformer."""
 
-from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -15,8 +14,8 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        numeric_columns: Optional[List[str]] = None,
-        datetime_columns: Optional[List[str]] = None,
+        numeric_columns: list[str] | None = None,
+        datetime_columns: list[str] | None = None,
         polynomial_degree: int = 2,
         interaction_only: bool = True,
         date_features: bool = True,
@@ -43,12 +42,12 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
         self.skew_threshold = skew_threshold
 
         # Fitted parameters
-        self.skewed_cols_: List[str] = []
-        self.interaction_pairs_: List[tuple] = []
-        self.fitted_numeric_cols_: List[str] = []
-        self.fitted_datetime_cols_: List[str] = []
+        self.skewed_cols_: list[str] = []
+        self.interaction_pairs_: list[tuple] = []
+        self.fitted_numeric_cols_: list[str] = []
+        self.fitted_datetime_cols_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "FeatureGenerator":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "FeatureGenerator":
         """Determine columns to transform, pairs to interact, and skewness metrics.
 
         Args:

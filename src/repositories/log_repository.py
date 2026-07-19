@@ -1,7 +1,8 @@
 """Repository for managing ExecutionLog persistence."""
 
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
+
 from src.database.models import ExecutionLog
 
 
@@ -29,7 +30,7 @@ class ExecutionLogRepository:
         self.session.flush()
         return log_record
 
-    def get_by_id(self, log_id: str) -> Optional[ExecutionLog]:
+    def get_by_id(self, log_id: str) -> ExecutionLog | None:
         """Fetch a specific execution log by ID.
 
         Args:
@@ -40,7 +41,7 @@ class ExecutionLogRepository:
         """
         return self.session.query(ExecutionLog).filter(ExecutionLog.id == log_id).first()
 
-    def get_by_task(self, task_name: str) -> List[ExecutionLog]:
+    def get_by_task(self, task_name: str) -> list[ExecutionLog]:
         """Fetch all execution logs associated with a task name.
 
         Args:
@@ -51,7 +52,7 @@ class ExecutionLogRepository:
         """
         return self.session.query(ExecutionLog).filter(ExecutionLog.task_name == task_name).all()
 
-    def get_all(self) -> List[ExecutionLog]:
+    def get_all(self) -> list[ExecutionLog]:
         """Fetch all system execution logs.
 
         Returns:
@@ -63,9 +64,9 @@ class ExecutionLogRepository:
         self,
         log_id: str,
         status: str,
-        duration_seconds: Optional[float] = None,
-        error_message: Optional[str] = None
-    ) -> Optional[ExecutionLog]:
+        duration_seconds: float | None = None,
+        error_message: str | None = None
+    ) -> ExecutionLog | None:
         """Update active parameters and status markers on execution logs.
 
         Args:

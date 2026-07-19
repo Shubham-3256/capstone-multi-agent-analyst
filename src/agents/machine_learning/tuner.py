@@ -1,6 +1,7 @@
 """Tuning manager running GridSearchCV and RandomizedSearchCV parameter sweeps."""
 
-from typing import Any, Dict, Optional
+from typing import Any
+
 import pandas as pd
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
@@ -13,7 +14,7 @@ class HyperparameterTuner:
     """Performs parameter searches utilizing GridSearchCV or RandomizedSearchCV across candidates."""
 
     @staticmethod
-    def get_parameter_grid(model_name: str, mode: str = "fast") -> Dict[str, list]:
+    def get_parameter_grid(model_name: str, mode: str = "fast") -> dict[str, list]:
         """Fetch pre-configured grids for common models.
 
         Args:
@@ -24,7 +25,7 @@ class HyperparameterTuner:
             Dict[str, list]: Grid parameters mapping.
         """
         key = model_name.lower().strip().replace(" ", "_")
-        grids: Dict[str, Dict[str, list]] = {}
+        grids: dict[str, dict[str, list]] = {}
 
         if "logisticregression" in key:
             grids = {
@@ -103,14 +104,39 @@ class HyperparameterTuner:
             Any: The fitted best model estimator.
         """
         param_grid = HyperparameterTuner.get_parameter_grid(model.__class__.__name__, mode)
-        
+
         if not param_grid:
             logger.info(f"HyperparameterTuner: No parameter grid mapped for '{model_name}'. Fitting directly...")
             model.fit(X_train.fillna(0.0), y_train.fillna(0))
             return model
 
+        # Sanitize n_neighbors for KNeighbors models on small datasets
+        n_samples = X_train.shape[0]
+        if "n_neighbors" in param_grid:
+            # LeaveOneOut CV training split has size n_samples - 1.
+            # KFold CV has size n_samples * (cv - 1) / cv.
+            # Let's dynamically calculate max allowable neighbors:
+            max_neighbors = max(1, n_samples - 2) if n_samples >= 3 else 1
+            param_grid["n_neighbors"] = [n for n in param_grid["n_neighbors"] if n <= max_neighbors]
+            if not param_grid["n_neighbors"]:
+                param_grid["n_neighbors"] = [max_neighbors]
+
         logger.info(f"HyperparameterTuner: Tuning candidate '{model_name}' (method={search_type.upper()}, grid={param_grid})")
         scoring = "f1_macro" if task_type == "classification" else "neg_root_mean_squared_error"
+
+        # Resolve CV folds strategy for search
+        if n_samples <= 1:
+            logger.warning(f"HyperparameterTuner: Dataset has only {n_samples} samples. Cannot perform CV tuning. Fitting directly...")
+            model.fit(X_train.fillna(0.0), y_train.fillna(0))
+            return model
+
+        if n_samples < cv_folds:
+            logger.warning(f"HyperparameterTuner: Dataset size {n_samples} is less than cv_folds={cv_folds}. Switching tuning CV to LeaveOneOut.")
+            from sklearn.model_selection import LeaveOneOut
+            actual_cv = LeaveOneOut()
+            scoring = "accuracy" if task_type == "classification" else "neg_root_mean_squared_error"
+        else:
+            actual_cv = cv_folds
 
         try:
             if search_type == "grid":
@@ -118,7 +144,7 @@ class HyperparameterTuner:
                     estimator=model,
                     param_grid=param_grid,
                     scoring=scoring,
-                    cv=cv_folds,
+                    cv=actual_cv,
                     n_jobs=n_jobs,
                     refit=True
                 )
@@ -128,13 +154,13 @@ class HyperparameterTuner:
                 for v in param_grid.values():
                     param_combinations *= len(v)
                 actual_n_iter = min(n_iter, param_combinations)
-                
+
                 search = RandomizedSearchCV(
                     estimator=model,
                     param_distributions=param_grid,
                     n_iter=actual_n_iter,
                     scoring=scoring,
-                    cv=cv_folds,
+                    cv=actual_cv,
                     random_state=random_seed,
                     n_jobs=n_jobs,
                     refit=True

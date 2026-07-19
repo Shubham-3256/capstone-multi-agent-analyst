@@ -2,17 +2,18 @@
 
 import sys
 from pathlib import Path
-import streamlit as st
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.cards import info_card
-from app.components.tables import render_table, render_html_table
-from app.services.session import initialize_session, get_workflow_result
+from app.components.sidebar import setup_page
+from app.components.tables import render_html_table, render_table
+from app.services.session import get_workflow_result, initialize_session
 
 
 def main() -> None:
@@ -124,14 +125,14 @@ def main() -> None:
             **Features Selected Count:** {sel_rep.selected_count} (Pruned {sel_rep.original_count - sel_rep.selected_count} features)
             """
         )
-        
+
         if sel_rep.feature_importances:
             st.markdown("### Selection Feature Importance Scores")
             df_imp = pd.DataFrame([
                 {"Feature": col, "Importance Score": val}
                 for col, val in sel_rep.feature_importances.items()
             ]).sort_values("Importance Score", ascending=True)
-            
+
             fig = px.bar(
                 df_imp,
                 y="Feature",

@@ -5,11 +5,9 @@ environment variable loads, third-party libraries, and formats a startup diagnos
 """
 
 import importlib
-import os
 import platform
 import sys
-from pathlib import Path
-from typing import Dict, List, Tuple
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -18,7 +16,7 @@ from src.core.paths import Paths
 from src.core.settings import settings
 
 
-def check_python_version() -> Tuple[bool, str]:
+def check_python_version() -> tuple[bool, str]:
     """Verify that Python version complies with requirement >= 3.11.
 
     Returns:
@@ -27,14 +25,14 @@ def check_python_version() -> Tuple[bool, str]:
     major = sys.version_info.major
     minor = sys.version_info.minor
     current_version = f"{major}.{minor}.{sys.version_info.micro}"
-    
+
     # Requirement: 3.11+
     if major < 3 or (major == 3 and minor < 11):
         return False, f"Python 3.11+ required. Detected: {current_version}"
     return True, f"Python version OK: {current_version}"
 
 
-def check_required_directories() -> Tuple[bool, List[str]]:
+def check_required_directories() -> tuple[bool, list[str]]:
     """Validate that required workspace and application directories exist and are writable.
 
     Returns:
@@ -42,7 +40,7 @@ def check_required_directories() -> Tuple[bool, List[str]]:
     """
     logs = []
     success = True
-    
+
     dirs_to_check = {
         "Workspace": Paths.WORKSPACE_DIR,
         "Uploads": Paths.UPLOAD_DIR,
@@ -79,7 +77,7 @@ def check_required_directories() -> Tuple[bool, List[str]]:
     return success, logs
 
 
-def check_env_variables() -> Tuple[bool, List[str]]:
+def check_env_variables() -> tuple[bool, list[str]]:
     """Evaluate key settings parameters, warning if defaults or placeholders are active.
 
     Returns:
@@ -104,7 +102,7 @@ def check_env_variables() -> Tuple[bool, List[str]]:
     return success, logs
 
 
-def check_dependencies() -> Tuple[bool, List[str]]:
+def check_dependencies() -> tuple[bool, list[str]]:
     """Scan if required core packages can be imported successfully.
 
     Returns:
@@ -122,7 +120,7 @@ def check_dependencies() -> Tuple[bool, List[str]]:
         "langgraph",
         "crewai"
     ]
-    
+
     logs = []
     success = True
 
@@ -143,7 +141,7 @@ def system_summary() -> None:
     Consolidates Python version, system details, directory availability, and package states.
     """
     console = Console()
-    
+
     # 1. Gather stats
     py_ok, py_msg = check_python_version()
     dirs_ok, dir_logs = check_required_directories()
@@ -153,9 +151,9 @@ def system_summary() -> None:
     all_passed = py_ok and dirs_ok and env_ok and deps_ok
 
     # 2. Build Title Panel
-    title = f"[bold green]Multi-Agent AI Data Analyst - Core System Startup Diagnostic[/bold green]"
+    title = "[bold green]Multi-Agent AI Data Analyst - Core System Startup Diagnostic[/bold green]"
     if not all_passed:
-        title = f"[bold red]Multi-Agent AI Data Analyst - System Startup Warnings[/bold red]"
+        title = "[bold red]Multi-Agent AI Data Analyst - System Startup Warnings[/bold red]"
 
     # 3. Create Diagnostic Tables
     table_sys = Table(title="System Information", show_header=False, expand=True)
@@ -168,7 +166,7 @@ def system_summary() -> None:
 
     # Build directory checklist
     dir_summary = "All directories verified and writable." if dirs_ok else "\n".join(dir_logs)
-    
+
     # Build package checklist
     dep_summary = "All core dependencies verified." if deps_ok else "\n".join(dep_logs)
 
@@ -177,7 +175,7 @@ def system_summary() -> None:
 
     # Compile Group for rendering nested objects in Rich Panel
     from rich.console import Group
-    
+
     diagnostic_group = Group(
         table_sys,
         "",

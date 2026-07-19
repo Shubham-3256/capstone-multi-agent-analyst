@@ -5,8 +5,7 @@ and execution limits to prevent magic strings and values in downstream modules.
 """
 
 from enum import Enum
-from typing import Final, Tuple
-
+from typing import Final
 
 # --- Application Meta Information ---
 APP_NAME: Final[str] = "capstone-multi-agent-analyst"
@@ -27,7 +26,7 @@ DEFAULT_TEST_SIZE_FRACTION: Final[float] = 0.2
 # --- Supported Large Language Models ---
 class ModelName(str, Enum):
     """Supported OpenAI and fallback LLM models."""
-    
+
     GPT_4O = "gpt-4o"
     GPT_4O_MINI = "gpt-4o-mini"
     GPT_4_TURBO = "gpt-4-turbo"
@@ -38,7 +37,7 @@ class ModelName(str, Enum):
 # --- Visualizations Styling & Canvas Settings ---
 PLOT_DEFAULT_WIDTH_INCHES: Final[int] = 10
 PLOT_DEFAULT_HEIGHT_INCHES: Final[int] = 6
-PLOT_FIGSIZE: Final[Tuple[int, int]] = (10, 6)
+PLOT_FIGSIZE: Final[tuple[int, int]] = (10, 6)
 PLOT_DPI_RESOLUTION: Final[int] = 300
 
 

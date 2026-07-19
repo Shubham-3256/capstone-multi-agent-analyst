@@ -4,11 +4,12 @@ import json
 import pickle
 from pathlib import Path
 from typing import Any
+
 import pandas as pd
 import yaml
 
-from src.core.logger import get_logger
 from src.core.exceptions import ProjectException
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -44,7 +45,7 @@ def deserialize_json(filepath: Path) -> Any:
     if not filepath.exists():
         raise FileNotFoundError(f"JSON file does not exist: {filepath}")
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
         logger.error(f"JSON deserialization failed: {e}")
@@ -82,7 +83,7 @@ def deserialize_yaml(filepath: Path) -> Any:
     if not filepath.exists():
         raise FileNotFoundError(f"YAML file does not exist: {filepath}")
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             return yaml.safe_load(f)
     except Exception as e:
         logger.error(f"YAML deserialization failed: {e}")
@@ -140,7 +141,7 @@ def serialize_dataframe(df: pd.DataFrame, filepath: Path, fmt: str = "csv") -> N
     try:
         filepath.parent.mkdir(parents=True, exist_ok=True)
         fmt_lower = fmt.lower().strip(".")
-        
+
         if fmt_lower == "csv":
             df.to_csv(filepath, index=False)
         elif fmt_lower == "parquet":
@@ -169,7 +170,7 @@ def deserialize_dataframe(filepath: Path, fmt: str = "csv") -> pd.DataFrame:
     logger.info(f"Deserializing DataFrame from {fmt.upper()}: {filepath}")
     if not filepath.exists():
         raise FileNotFoundError(f"DataFrame file does not exist: {filepath}")
-        
+
     try:
         fmt_lower = fmt.lower().strip(".")
         if fmt_lower == "csv":

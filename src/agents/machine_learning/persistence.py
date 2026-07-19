@@ -2,13 +2,14 @@
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
+
 import joblib
 import pandas as pd
 
+from src.agents.machine_learning.models import FeatureImportance, Leaderboard
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.agents.machine_learning.models import Leaderboard, FeatureImportance
 
 logger = get_logger(__name__)
 
@@ -21,11 +22,11 @@ class Persistence:
         best_model: Any,
         best_model_name: str,
         leaderboard: Leaderboard,
-        metrics: Dict[str, float],
-        feature_importances: List[FeatureImportance],
-        metadata: Dict[str, Any],
+        metrics: dict[str, float],
+        feature_importances: list[FeatureImportance],
+        metadata: dict[str, Any],
         base_dir: Path = Paths.WORKSPACE_DIR / "artifacts"
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Save modeling models, leaderboards, and statistics details.
 
         Args:
@@ -41,16 +42,16 @@ class Persistence:
             Dict[str, str]: Map of saved filenames to resolved filepaths.
         """
         logger.info(f"Persistence: Serializing artifacts to: {base_dir}")
-        
+
         # Configure output subdirectories
         models_dir = base_dir / "models"
         metrics_dir = base_dir / "metrics"
         leaderboards_dir = base_dir / "leaderboards"
-        
+
         for d in [models_dir, metrics_dir, leaderboards_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
-        paths: Dict[str, str] = {}
+        paths: dict[str, str] = {}
 
         # 1. Save Best Model (.joblib)
         model_path = models_dir / f"best_model_{best_model_name.lower().replace(' ', '_')}.joblib"
@@ -100,7 +101,7 @@ class Persistence:
         """
         if not filepath.exists():
             raise FileNotFoundError(f"Model file not found: {filepath}")
-        
+
         model = joblib.load(str(filepath))
         logger.info(f"Persistence: Loaded fitted model from: {filepath}")
         return model

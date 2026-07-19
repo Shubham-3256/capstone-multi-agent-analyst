@@ -1,8 +1,9 @@
 """Schemas for tracking dataset profiling metadata and column maps."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
+
 from src.schemas.dataset import ColumnInfo
 
 
@@ -44,7 +45,7 @@ class DatasetMetadata(BaseModel):
         description="Total columns in the dataset table",
         examples=[14]
     )
-    columns: Dict[str, ColumnInfo] = Field(
+    columns: dict[str, ColumnInfo] = Field(
         ...,
         description="Key-value mapping of column name to its profile metadata"
     )

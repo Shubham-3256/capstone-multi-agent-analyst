@@ -1,13 +1,14 @@
 """Tool for loading datasets from CSV, Parquet, and Excel formats with format auto-detection."""
 
 from pathlib import Path
+
 import pandas as pd
 
-from src.core.logger import get_logger
 from src.core.exceptions import DatasetException
-from src.utils.validators import detect_file_encoding
+from src.core.logger import get_logger
 from src.optimization.config import OptimizationConfig
 from src.optimization.memory import downcast_dataframe
+from src.utils.validators import detect_file_encoding
 
 logger = get_logger(__name__)
 
@@ -41,16 +42,16 @@ class DataLoader:
                 encoding = detect_file_encoding(filepath)
                 logger.info(f"DataLoader: Ingesting CSV using encoding='{encoding}'")
                 df = pd.read_csv(filepath, encoding=encoding, memory_map=True, low_memory=True)
-                
+
             elif suffix in {".parquet", ".pq"}:
                 logger.info("DataLoader: Ingesting Parquet dataset")
                 df = pd.read_parquet(filepath)
-                
+
             elif suffix in {".xlsx", ".xls"}:
                 logger.info("DataLoader: Ingesting Excel spreadsheet")
                 # uses openpyxl as default engine for newer formats
                 df = pd.read_excel(filepath)
-                
+
             else:
                 logger.error(f"DataLoader: Unsupported file extension: {suffix}")
                 raise DatasetException(

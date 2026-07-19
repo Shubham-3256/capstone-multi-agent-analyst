@@ -1,8 +1,8 @@
 """Thread-safe key-value memory store supporting optional Time-To-Live (TTL) evictions."""
 
-import time
 import threading
-from typing import Any, Dict, Optional, Tuple
+import time
+from typing import Any
 
 from src.core.logger import get_logger
 
@@ -16,9 +16,9 @@ class MemoryStore:
         """Initialize the memory store with dictionary buffers and thread locks."""
         self._lock = threading.Lock()
         # Structure: key -> (value, expiration_timestamp_or_none)
-        self._store: Dict[str, Tuple[Any, Optional[float]]] = {}
+        self._store: dict[str, tuple[Any, float | None]] = {}
 
-    def set(self, key: str, value: Any, ttl_seconds: Optional[int] = None) -> None:
+    def set(self, key: str, value: Any, ttl_seconds: int | None = None) -> None:
         """Store a value in memory with an optional TTL expiration limit.
 
         Args:
@@ -27,7 +27,7 @@ class MemoryStore:
             ttl_seconds: Cache duration limit in seconds. None indicates persistent cache.
         """
         logger.debug(f"MemoryStore: Setting key='{key}' with TTL={ttl_seconds}")
-        
+
         expiration = None
         if ttl_seconds is not None:
             expiration = time.time() + ttl_seconds
@@ -35,7 +35,7 @@ class MemoryStore:
         with self._lock:
             self._store[key] = (value, expiration)
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Retrieve a value by its key. Handles lazy TTL eviction checks.
 
         Args:
@@ -45,19 +45,19 @@ class MemoryStore:
             Optional[Any]: The cached value if found and not expired, else None.
         """
         logger.debug(f"MemoryStore: Fetching key='{key}'")
-        
+
         with self._lock:
             if key not in self._store:
                 return None
-            
+
             value, expiration = self._store[key]
-            
+
             # Check for TTL expiry
             if expiration is not None and time.time() > expiration:
                 logger.info(f"MemoryStore: Key '{key}' expired. Evicting from cache.")
                 del self._store[key]
                 return None
-                
+
             return value
 
     def delete(self, key: str) -> bool:

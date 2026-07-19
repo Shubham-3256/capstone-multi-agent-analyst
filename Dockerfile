@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # --- Stage 1: Build Dependencies ---
-FROM python:3.10-slim-bookworm AS builder
+FROM python:3.12-slim-bookworm AS builder
 
 # Set build-time variables and environment
 ENV PYTHONUNBUFFERED=1 \
@@ -37,14 +37,14 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # --- Stage 2: Final Runtime ---
-FROM python:3.10-slim-bookworm AS runner
+FROM python:3.12-slim-bookworm AS runner
 
 # Environment settings
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     WORKSPACE_DIR=/app/workspace \
-    PORT=8000
+    PORT=8501
 
 # Install runtime dependencies for ML/plotting libraries and WeasyPrint PDF generation
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -68,7 +68,7 @@ COPY --from=builder /opt/venv /opt/venv
 # Copy configuration files and templates
 COPY pyproject.toml README.md LICENSE ./
 
-# Copy directory structure (including placeholders and gitkeeps)
+# Copy directory structure
 COPY app/ ./app/
 COPY src/ ./src/
 COPY workspace/ ./workspace/
@@ -84,13 +84,12 @@ RUN groupadd -g 10001 appuser && \
 # Switch to the non-privileged user
 USER appuser
 
-# Expose ports for FastAPI (8000) and Streamlit (8501)
-EXPOSE 8000
+# Expose Streamlit port
 EXPOSE 8501
 
-# Healthcheck to verify the runner's status
+# Healthcheck to verify Streamlit server status
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8501/_stcore/health || exit 1
 
-# Default runtime entry point (run FastAPI server, can be overridden for Streamlit)
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default runtime entry point (run Streamlit web dashboard)
+CMD ["streamlit", "run", "app/Home.py", "--server.port=8501", "--server.address=0.0.0.0"]

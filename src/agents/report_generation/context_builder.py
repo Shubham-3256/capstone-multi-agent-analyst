@@ -1,14 +1,15 @@
 """Context builder consolidating outputs from all pipeline agents into a single context."""
 
-from typing import Any, Optional
+from typing import Any
+
 import pandas as pd
 
-from src.core.logger import get_logger
+from src.agents.business_insights.models import BusinessInsightResult
 from src.agents.feature_engineering.models import FeatureEngineeringResult
 from src.agents.machine_learning.models import MachineLearningResult
-from src.agents.visualization.models import VisualizationResult
-from src.agents.business_insights.models import BusinessInsightResult
 from src.agents.report_generation.models import ReportContext
+from src.agents.visualization.models import VisualizationResult
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -28,10 +29,10 @@ class ContextBuilder:
     @staticmethod
     def build_context(
         dataset_profile: Any,
-        feature_result: Optional[FeatureEngineeringResult] = None,
-        ml_result: Optional[MachineLearningResult] = None,
-        visualization_result: Optional[VisualizationResult] = None,
-        business_result: Optional[BusinessInsightResult] = None
+        feature_result: FeatureEngineeringResult | None = None,
+        ml_result: MachineLearningResult | None = None,
+        visualization_result: VisualizationResult | None = None,
+        business_result: BusinessInsightResult | None = None
     ) -> ReportContext:
         """Merge agent run objects into a ReportContext structure.
 
@@ -78,7 +79,7 @@ class ContextBuilder:
                 score = _get(entry, "score")
                 leaderboard_lines.append(f"    * Rank {rank}: {model_name} (Score={score})")
             leaderboard_str = "\n".join(leaderboard_lines) if leaderboard_lines else "    * Empty Leaderboard"
-            
+
             ml_str = (
                 f"Machine Learning Results:\n"
                 f"  - Best Model: {_get(ml_result, 'best_model_name')}\n"
@@ -98,8 +99,11 @@ class ContextBuilder:
                 title = _get(chart, "title")
                 chart_type = _get(chart, "chart_type")
                 file_path = _get(chart, "file_path")
-                viz_lines.append(f"  - {title} ({str(chart_type).upper()}) at: {file_path}")
-                charts_paths.append(file_path)
+                if file_path:
+                    viz_lines.append(f"  - {title} ({str(chart_type).upper()}) at: {file_path}")
+                    charts_paths.append(file_path)
+                else:
+                    viz_lines.append(f"  - {title} ({str(chart_type).upper()}): Not plotted (No missing values)")
             viz_str = "Visualization charts metadata:\n" + "\n".join(viz_lines)
         else:
             viz_str = "No charts were generated or visualization metadata is missing."
@@ -109,7 +113,7 @@ class ContextBuilder:
             exec_summary = _get(business_result, "executive_summary")
             key_takeaways = _get(exec_summary, "key_takeaways") or []
             takeaways = "\n".join([f"    * {t}" for t in key_takeaways])
-            
+
             recs_list = _get(business_result, "recommendations") or []
             recs_formatted = []
             for r in recs_list:
@@ -117,7 +121,7 @@ class ContextBuilder:
                 r_desc = _get(r, "description")
                 recs_formatted.append(f"    * {r_title}: {r_desc}")
             recs = "\n".join(recs_formatted)
-            
+
             risks_list = _get(business_result, "risks") or []
             risks_formatted = []
             for rk in risks_list:
@@ -125,7 +129,7 @@ class ContextBuilder:
                 rk_sev = _get(rk, "severity")
                 risks_formatted.append(f"    * {rk_desc} (Severity={rk_sev})")
             risks = "\n".join(risks_formatted)
-            
+
             insights_str = (
                 f"Business Insights:\n"
                 f"  - Headline: {_get(exec_summary, 'headline')}\n"

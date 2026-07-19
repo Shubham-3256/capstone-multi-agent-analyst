@@ -1,15 +1,14 @@
 """Visualizer generating missing value, correlation matrices, and distributions plots."""
 
-from typing import Dict, Any, List
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-import plotly.express as px
+from typing import Any, List, Dict
 
-from src.core.logger import get_logger
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import seaborn as sns
+
 from src.agents.visualization.figure_factory import FigureFactory
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -18,7 +17,25 @@ class DatasetVisualizer:
     """Generates figures auditing missing values, correlations, and feature distributions."""
 
     @staticmethod
-    def generate_missing_heatmap(df: pd.DataFrame, theme_name: str = "corporate") -> Dict[str, Any]:
+    def get_valid_columns(df: pd.DataFrame) -> List[str]:
+        """Filter out identifier, constant, and empty columns from a DataFrame."""
+        valid_cols = []
+        for col in df.columns:
+            col_name = str(col)
+            col_lower = col_name.lower()
+            # 1. Identifier Check
+            is_id = col_lower == "id" or col_lower.endswith("_id") or col_lower.startswith("id_")
+            # 2. Constant Check
+            is_constant = df[col].nunique() <= 1
+            # 3. Empty Check
+            is_empty = df[col].isna().all()
+            
+            if not (is_id or is_constant or is_empty):
+                valid_cols.append(col_name)
+        return valid_cols
+
+    @staticmethod
+    def generate_missing_heatmap(df: pd.DataFrame, theme_name: str = "corporate") -> dict[str, Any]:
         """Generate a heatmap showing missing values across features.
 
         Args:
@@ -30,6 +47,9 @@ class DatasetVisualizer:
         """
         logger.info("DatasetVisualizer: Creating missingness heatmap...")
         
+        valid_cols = DatasetVisualizer.get_valid_columns(df)
+        plot_df = df[valid_cols] if valid_cols else df
+
         # 1. Matplotlib Heatmap
         fig_mpl, ax = FigureFactory.create_matplotlib_figure(
             title="Missing Value Matrix Heatmap",
@@ -39,7 +59,7 @@ class DatasetVisualizer:
             theme_name=theme_name
         )
         # Use simple bool mask as numeric array for heatmap
-        mask = df.isna()
+        mask = plot_df.isna()
         sns.heatmap(mask, cmap="Blues", cbar=False, yticklabels=False, ax=ax)
         fig_mpl.tight_layout()
 
@@ -55,8 +75,8 @@ class DatasetVisualizer:
         )
         fig_plotly.add_trace(go.Heatmap(
             z=mask_numeric,
-            x=list(df.columns),
-            y=list(df.index),
+            x=list(plot_df.columns),
+            y=list(plot_df.index),
             colorscale="Blues",
             showscale=False
         ))
@@ -64,7 +84,7 @@ class DatasetVisualizer:
         return {"matplotlib": fig_mpl, "plotly": fig_plotly}
 
     @staticmethod
-    def generate_correlation_heatmap(df: pd.DataFrame, theme_name: str = "corporate") -> Dict[str, Any]:
+    def generate_correlation_heatmap(df: pd.DataFrame, theme_name: str = "corporate") -> dict[str, Any]:
         """Generate a correlation matrix heatmap for numeric features.
 
         Args:
@@ -75,8 +95,11 @@ class DatasetVisualizer:
             Dict[str, Any]: Mapped figures.
         """
         logger.info("DatasetVisualizer: Creating correlation matrix heatmap...")
-        numeric_df = df.select_dtypes(include=[np.number])
         
+        valid_cols = DatasetVisualizer.get_valid_columns(df)
+        plot_df = df[valid_cols] if valid_cols else df
+        numeric_df = plot_df.select_dtypes(include=[np.number])
+
         if numeric_df.empty or numeric_df.shape[1] < 2:
             logger.warning("Insufficient numeric variables for correlation matrix. Creating dummy empty plots.")
             numeric_df = pd.DataFrame({"dummy_1": [1.0, 2.0], "dummy_2": [2.0, 1.0]})
@@ -117,7 +140,7 @@ class DatasetVisualizer:
         df: pd.DataFrame,
         column_name: str,
         theme_name: str = "corporate"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate distribution plots (histogram/kde) for a target feature column.
 
         Args:
@@ -129,13 +152,13 @@ class DatasetVisualizer:
             Dict[str, Any]: Mapped figures.
         """
         logger.info(f"DatasetVisualizer: Plotting distribution for '{column_name}'...")
-        
+
         # Guard if column not found
         col = column_name
         if col not in df.columns:
             logger.warning(f"Column '{col}' not found. Selecting first column '{df.columns[0]}'.")
             col = df.columns[0]
-            
+
         series = df[col].dropna()
         is_numeric = pd.api.types.is_numeric_dtype(series)
 
@@ -166,7 +189,7 @@ class DatasetVisualizer:
         else:
             # Categorical bar count plots
             counts = series.value_counts()
-            
+
             # 1. Matplotlib Count Plot
             fig_mpl, ax = FigureFactory.create_matplotlib_figure(
                 title=f"Categorical Value Counts: {col}",

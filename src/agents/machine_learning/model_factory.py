@@ -1,17 +1,28 @@
 """Model instantiation factory loading candidate estimators based on task type mappings."""
 
-from typing import Any, Dict, List
-from sklearn.linear_model import LogisticRegression, Ridge, Lasso, ElasticNet, LinearRegression
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from typing import Any
+
 from sklearn.ensemble import (
-    RandomForestClassifier, RandomForestRegressor,
-    ExtraTreesClassifier, ExtraTreesRegressor,
-    GradientBoostingClassifier, GradientBoostingRegressor,
-    AdaBoostClassifier, AdaBoostRegressor
+    AdaBoostClassifier,
+    AdaBoostRegressor,
+    ExtraTreesClassifier,
+    ExtraTreesRegressor,
+    GradientBoostingClassifier,
+    GradientBoostingRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
 )
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.linear_model import (
+    ElasticNet,
+    Lasso,
+    LinearRegression,
+    LogisticRegression,
+    Ridge,
+)
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.svm import SVC, SVR
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from src.core.logger import get_logger
 
@@ -22,19 +33,26 @@ class ModelFactory:
     """Instantiates estimators based on target task type and candidate name mappings."""
 
     @staticmethod
-    def get_candidate_models(task_type: str, candidate_names: List[str], random_seed: int = 42) -> Dict[str, Any]:
+    def get_candidate_models(task_type: str, candidate_names: list[str], random_seed: int = 42, n_samples: int | None = None) -> dict[str, Any]:
         """Load classification or regression model candidates.
 
         Args:
             task_type: Modeling task type ('classification' or 'regression').
             candidate_names: List of model candidate keys.
             random_seed: Random state seed.
+            n_samples: Optional number of training samples to sanitize default KNN settings.
 
         Returns:
             Dict[str, Any]: Mapping of candidate name to un-fitted estimator instance.
         """
         logger.info(f"ModelFactory: Loading model instances for task={task_type.upper()}")
-        models: Dict[str, Any] = {}
+        models: dict[str, Any] = {}
+
+        knn_neighbors = 5
+        if n_samples is not None:
+            # Leave-One-Out split training sample size is n_samples - 1.
+            # KNN needs n_neighbors <= n_samples_fit.
+            knn_neighbors = min(5, max(1, n_samples - 1))
 
         if task_type == "classification":
             # Map of classifiers
@@ -45,11 +63,11 @@ class ModelFactory:
                 "extra_trees": lambda: ExtraTreesClassifier(random_state=random_seed),
                 "gradient_boosting": lambda: GradientBoostingClassifier(random_state=random_seed),
                 "ada_boost": lambda: AdaBoostClassifier(random_state=random_seed),
-                "k_neighbors": lambda: KNeighborsClassifier(),
+                "k_neighbors": lambda: KNeighborsClassifier(n_neighbors=knn_neighbors),
                 "gaussian_nb": lambda: GaussianNB(),
                 "svc": lambda: SVC(random_state=random_seed, probability=True)
             }
-            
+
             # Optional XGBoost, LightGBM, CatBoost loaders
             try:
                 from xgboost import XGBClassifier
@@ -75,7 +93,7 @@ class ModelFactory:
                 "extra_trees": lambda: ExtraTreesRegressor(random_state=random_seed),
                 "gradient_boosting": lambda: GradientBoostingRegressor(random_state=random_seed),
                 "ada_boost": lambda: AdaBoostRegressor(random_state=random_seed),
-                "k_neighbors": lambda: KNeighborsRegressor(),
+                "k_neighbors": lambda: KNeighborsRegressor(n_neighbors=knn_neighbors),
                 "svr": lambda: SVR()
             }
 

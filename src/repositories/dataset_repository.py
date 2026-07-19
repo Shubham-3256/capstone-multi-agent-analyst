@@ -1,7 +1,8 @@
 """Repository for managing DatasetRecord persistence."""
 
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
+
 from src.database.models import DatasetRecord
 
 
@@ -29,7 +30,7 @@ class DatasetRepository:
         self.session.flush()  # Populates ID and generated fields
         return record
 
-    def get_by_id(self, record_id: str) -> Optional[DatasetRecord]:
+    def get_by_id(self, record_id: str) -> DatasetRecord | None:
         """Retrieve a DatasetRecord by its UUID identifier.
 
         Args:
@@ -40,7 +41,7 @@ class DatasetRepository:
         """
         return self.session.query(DatasetRecord).filter(DatasetRecord.id == record_id).first()
 
-    def get_by_hash(self, file_hash: str) -> Optional[DatasetRecord]:
+    def get_by_hash(self, file_hash: str) -> DatasetRecord | None:
         """Find a dataset by its SHA-256 checksum string.
 
         Args:
@@ -51,7 +52,7 @@ class DatasetRepository:
         """
         return self.session.query(DatasetRecord).filter(DatasetRecord.file_hash == file_hash).first()
 
-    def get_all(self) -> List[DatasetRecord]:
+    def get_all(self) -> list[DatasetRecord]:
         """Fetch all tracked datasets.
 
         Returns:
@@ -59,7 +60,7 @@ class DatasetRepository:
         """
         return self.session.query(DatasetRecord).all()
 
-    def update_status(self, record_id: str, status: str) -> Optional[DatasetRecord]:
+    def update_status(self, record_id: str, status: str) -> DatasetRecord | None:
         """Update the tracking status of a specific dataset record.
 
         Args:

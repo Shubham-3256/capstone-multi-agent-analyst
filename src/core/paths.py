@@ -29,9 +29,11 @@ class Paths:
     REPORTS_DIR: Path = WORKSPACE_DIR / "reports"
     PLOTS_DIR: Path = WORKSPACE_DIR / "plots"
     MODELS_DIR: Path = WORKSPACE_DIR / "models"
-    LOGS_DIR: Path = WORKSPACE_DIR / "logs"
+    LOGS_DIR: Path = PROJECT_ROOT / "logs"
     DATA_DIR: Path = WORKSPACE_DIR / "data"
     ARTIFACTS_DIR: Path = WORKSPACE_DIR / "artifacts"
+    CACHE_DIR: Path = WORKSPACE_DIR / "cache"
+    REPORT_OUTPUT_DIR: Path = WORKSPACE_DIR / "reports"
 
     # --- Base Top-Level System Folders ---
     TESTS_DIR: Path = PROJECT_ROOT / "tests"
@@ -67,11 +69,13 @@ _REQUIRED_DIRS = [
     Paths.CLEANED_DIR,
     Paths.PROCESSED_DIR,
     Paths.REPORTS_DIR,
+    Paths.REPORT_OUTPUT_DIR,
     Paths.PLOTS_DIR,
     Paths.MODELS_DIR,
     Paths.LOGS_DIR,
     Paths.DATA_DIR,
     Paths.ARTIFACTS_DIR,
+    Paths.CACHE_DIR,
     Paths.PROMPTS_DIR,
     Paths.CONFIG_DIR,
     Paths.TESTS_DIR,

@@ -1,13 +1,18 @@
 """Memory downcasting and chunk-based streaming optimizations for large datasets."""
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
-import numpy as np
+
 import pandas as pd
+from pandas.api.types import (
+    is_float_dtype,
+    is_integer_dtype,
+    is_object_dtype,
+    is_string_dtype,
+)
+
 from src.core.logger import get_logger
 from src.optimization.config import OptimizationConfig
-
-from pandas.api.types import is_integer_dtype, is_float_dtype, is_object_dtype, is_string_dtype
 
 logger = get_logger(__name__)
 
@@ -23,7 +28,7 @@ def downcast_dataframe(df: pd.DataFrame, inplace: bool = False) -> pd.DataFrame:
         pd.DataFrame: Memory-optimized DataFrame.
     """
     initial_memory = df.memory_usage(deep=True).sum()
-    
+
     # Process column-by-column to avoid high memory spikes from full copies
     working_df = df if inplace else df.copy(deep=False)
 
@@ -33,16 +38,16 @@ def downcast_dataframe(df: pd.DataFrame, inplace: bool = False) -> pd.DataFrame:
 
     for col in working_df.columns:
         col_type = working_df[col].dtype
-        
+
         # 1. Downcast Integers
         if is_integer_dtype(col_type):
             working_df[col] = pd.to_numeric(working_df[col], downcast="integer")
-            
+
         # 2. Downcast Floats
         elif is_float_dtype(col_type):
             # Downcast to float32 is safe and saves 50% memory
             working_df[col] = pd.to_numeric(working_df[col], downcast="float")
-            
+
         # 3. Categorical Conversion
         elif (is_object_dtype(col_type) or is_string_dtype(col_type)) and not isinstance(col_type, pd.CategoricalDtype):
             unique_count = working_df[col].nunique()

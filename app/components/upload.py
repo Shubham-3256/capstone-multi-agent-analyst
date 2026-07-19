@@ -1,13 +1,12 @@
 """Dataset upload widget with presentation-only preview."""
 
-from typing import Any, Optional
+from typing import Any
+
 import pandas as pd
 import streamlit as st
 
-from app.services.workflow_service import WorkflowService
 
-
-def upload_dataset() -> Optional[Any]:
+def upload_dataset() -> Any | None:
     """Render a drag-and-drop input and show a small pre-execution preview."""
     uploaded = st.file_uploader(
         "Upload Dataset File",
@@ -27,10 +26,10 @@ def upload_dataset() -> Optional[Any]:
             else:
                 st.error("Unsupported file format uploaded.")
                 return None
-                
+
             st.markdown(f"**Dataset Shape:** {df.shape[0]} rows, {df.shape[1]} columns")
             st.dataframe(df.head(10), width="stretch")
-            
+
             # Reset file pointer for downstream operations
             uploaded.seek(0)
             return uploaded

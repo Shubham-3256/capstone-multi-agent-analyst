@@ -1,6 +1,7 @@
 """Reusable dataframe rendering helpers."""
 
 from typing import Any
+
 import streamlit as st
 
 
@@ -30,12 +31,12 @@ def render_html_table(headers: list[str], rows: list[list[Any]], empty_message: 
     if not headers or not rows:
         st.info(empty_message)
         return
-        
+
     thead = "".join(f"<th>{h}</th>" for h in headers)
     tbody = ""
     for row in rows:
         tbody += "<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>"
-        
+
     html = f"""
     <div class="custom-table-container">
         <table class="custom-table">

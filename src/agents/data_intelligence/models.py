@@ -1,7 +1,7 @@
 """Data schemas for the Data Intelligence Agent output parameters."""
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -18,7 +18,7 @@ class ValidationIssue(BaseModel):
         description="Severity classification of the issue (warning or error)",
         examples=["warning"]
     )
-    column: Optional[str] = Field(
+    column: str | None = Field(
         default=None,
         description="Name of the column associated with the validation issue",
         examples=["age"]
@@ -38,11 +38,11 @@ class ValidationReport(BaseModel):
         description="True if the dataset passes validation tests without errors",
         examples=[True]
     )
-    issues: List[ValidationIssue] = Field(
+    issues: list[ValidationIssue] = Field(
         default=[],
         description="List of all warnings or errors detected in the dataset"
     )
-    summary: Dict[str, int] = Field(
+    summary: dict[str, int] = Field(
         default_factory=dict,
         description="Consolidated counts of total issues, warnings, and errors",
         examples=[{"total_issues": 3, "warnings": 3, "errors": 0}]
@@ -52,7 +52,7 @@ class ValidationReport(BaseModel):
 class CleaningAction(BaseModel):
     """Schema representing a single cleaning step applied to a dataset."""
 
-    column: Optional[str] = Field(
+    column: str | None = Field(
         default=None,
         description="Name of the target column cleaned",
         examples=["age"]
@@ -72,16 +72,16 @@ class CleaningAction(BaseModel):
 class CleaningReport(BaseModel):
     """Schema compiling the changes applied during dataset cleaning operations."""
 
-    transformations: List[CleaningAction] = Field(
+    transformations: list[CleaningAction] = Field(
         default=[],
         description="Chronological log list of all transformations applied"
     )
-    initial_shape: List[int] = Field(
+    initial_shape: list[int] = Field(
         ...,
         description="Data dimensions before cleaning [rows, columns]",
         examples=[[1000, 10]]
     )
-    final_shape: List[int] = Field(
+    final_shape: list[int] = Field(
         ...,
         description="Data dimensions after cleaning [rows, columns]",
         examples=[[988, 10]]
@@ -111,7 +111,7 @@ class Recommendation(BaseModel):
         description="Severity classification level (info, warning, critical)",
         examples=["warning"]
     )
-    column: Optional[str] = Field(
+    column: str | None = Field(
         default=None,
         description="Associated column name target",
         examples=["churn"]
@@ -146,17 +146,17 @@ class ColumnProfile(BaseModel):
         description="Percentage of null values in the column",
         examples=[0.0]
     )
-    numeric_summary: Optional[Dict[str, float]] = Field(
+    numeric_summary: dict[str, float] | None = Field(
         default=None,
         description="Descriptive statistics summary for numerical columns",
         examples=[{"mean": 38.5, "min": 18.0, "max": 90.0}]
     )
-    categorical_summary: Optional[Dict[str, Any]] = Field(
+    categorical_summary: dict[str, Any] | None = Field(
         default=None,
         description="Descriptive statistics summary for categorical columns",
         examples=[{"top": "Chicago", "freq": 15}]
     )
-    date_summary: Optional[Dict[str, str]] = Field(
+    date_summary: dict[str, str] | None = Field(
         default=None,
         description="Descriptive statistics summary for date columns",
         examples=[{"min": "2020-01-01", "max": "2025-12-31"}]
@@ -181,16 +181,16 @@ class DatasetProfile(BaseModel):
         description="Estimated RAM consumption for loading this dataset in bytes",
         examples=[450122]
     )
-    columns: Dict[str, ColumnProfile] = Field(
+    columns: dict[str, ColumnProfile] = Field(
         ...,
         description="Descriptive profile structures for each column in the dataset"
     )
-    correlation_matrix: Dict[str, Dict[str, float]] = Field(
+    correlation_matrix: dict[str, dict[str, float]] = Field(
         default_factory=dict,
         description="Pearson correlation matrix mapping numeric columns",
         examples=[{"age": {"age": 1.0, "tenure": 0.42}}]
     )
-    target_distribution: Optional[Dict[str, Any]] = Field(
+    target_distribution: dict[str, Any] | None = Field(
         default=None,
         description="Distributions details of class targets",
         examples=[{"0": 820, "1": 180}]
@@ -200,7 +200,7 @@ class DatasetProfile(BaseModel):
         description="Recommended ML objective category (classification, regression, clustering, unknown)",
         examples=["classification"]
     )
-    recommendations: List[Recommendation] = Field(
+    recommendations: list[Recommendation] = Field(
         default=[],
         description="List of calculated modeling suggestions"
     )
@@ -223,15 +223,15 @@ class DataIntelligenceResult(BaseModel):
         ...,
         description="Complete structural validation diagnostic parameters"
     )
-    cleaning_report: Optional[CleaningReport] = Field(
+    cleaning_report: CleaningReport | None = Field(
         default=None,
         description="Dataset transformations summary details"
     )
-    profile: Optional[DatasetProfile] = Field(
+    profile: DatasetProfile | None = Field(
         default=None,
         description="Dataset statistical summaries and model suggestions"
     )
-    cleaned_filepath: Optional[str] = Field(
+    cleaned_filepath: str | None = Field(
         default=None,
         description="Workspace filepath location of the generated clean dataset file",
         examples=["/app/workspace/cleaned/customer_churn.csv"]

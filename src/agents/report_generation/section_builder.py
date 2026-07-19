@@ -1,9 +1,13 @@
 """Section builder compiling individual markdown chapters from consolidated contexts."""
 
 from pathlib import Path
-from typing import Dict
+
+from src.agents.report_generation.models import (
+    FigureReference,
+    ReportContext,
+    ReportSection,
+)
 from src.core.logger import get_logger
-from src.agents.report_generation.models import ReportContext, ReportSection, FigureReference, TableReference
 
 logger = get_logger(__name__)
 
@@ -12,7 +16,7 @@ class SectionBuilder:
     """Builds distinct markdown sections (Cover, Executive Summary, ML, Visualizations, risks, references)."""
 
     @staticmethod
-    def build_sections(context: ReportContext) -> Dict[str, ReportSection]:
+    def build_sections(context: ReportContext) -> dict[str, ReportSection]:
         """Compile a dictionary of report sections from ReportContext.
 
         Args:
@@ -167,11 +171,11 @@ class SectionBuilder:
             title="Technical Appendix",
             section_id="technical_appendix",
             content_markdown=(
-                f"## Technical Appendix\n\n"
-                f"### System Configurations\n"
-                f"- Python Version: 3.12+  \n"
-                f"- Database: SQLite (relational logs schema)  \n"
-                f"- Execution: Scalable multi-agent framework  \n"
+                "## Technical Appendix\n\n"
+                "### System Configurations\n"
+                "- Python Version: 3.12+  \n"
+                "- Database: SQLite (relational logs schema)  \n"
+                "- Execution: Scalable multi-agent framework  \n"
             )
         )
 
@@ -180,9 +184,9 @@ class SectionBuilder:
             title="References",
             section_id="references",
             content_markdown=(
-                f"## References\n\n"
-                f"- [1] Capstone Handbooks, Section 8-9 (System Reporting Requirements).\n"
-                f"- [2] Scikit-Learn Model Selection Documentation (Cross-Validation Standards)."
+                "## References\n\n"
+                "- [1] Capstone Handbooks, Section 8-9 (System Reporting Requirements).\n"
+                "- [2] Scikit-Learn Model Selection Documentation (Cross-Validation Standards)."
             )
         )
 

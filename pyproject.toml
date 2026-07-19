@@ -1,16 +1,14 @@
 [project]
 name = "capstone-multi-agent-analyst"
-version = "0.1.0"
+version = "1.0.0"
 description = "A production-ready Multi-Agent AI Data Analyst framework."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [
     { name = "Principal Software Engineer & AI Architect", email = "architect@example.com" }
 ]
 classifiers = [
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -23,7 +21,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
-target-version = ["py310", "py311", "py312"]
+target-version = ["py312"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -41,7 +39,8 @@ exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
+exclude = [".venv", "venv", ".git", "__pycache__"]
 
 [tool.ruff.lint]
 select = [
@@ -57,7 +56,6 @@ select = [
     "T20",  # flake8-print
     "PT",   # flake8-pytest-style
     "ARG",  # flake8-unused-arguments
-    "RUFF", # Ruff-specific rules
 ]
 ignore = [
     "D100", # Missing docstring in public module (we can enforce locally as needed)
@@ -71,7 +69,7 @@ known-first-party = ["src", "app"]
 
 [tool.mypy]
 mypy_path = "."
-python_version = "3.10"
+python_version = "3.12"
 strict = true
 warn_unused_configs = true
 warn_redundant_casts = true

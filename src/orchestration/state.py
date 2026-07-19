@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
-
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -17,7 +15,7 @@ class NodeExecution(BaseModel):
     status: str
     duration_seconds: float = 0.0
     started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    error: Optional[str] = None
+    error: str | None = None
     retries: int = 0
 
 
@@ -26,17 +24,17 @@ class WorkflowMetadata(BaseModel):
 
     workflow_id: str
     started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    completed_at: Optional[datetime] = None
-    target_column: Optional[str] = None
+    completed_at: datetime | None = None
+    target_column: str | None = None
     template_type: str = "executive"
 
 
+from src.agents.business_insights.models import BusinessInsightResult
 from src.agents.data_intelligence.models import DataIntelligenceResult, DatasetProfile
 from src.agents.feature_engineering.models import FeatureEngineeringResult
 from src.agents.machine_learning.models import MachineLearningResult
-from src.agents.visualization.models import VisualizationResult
-from src.agents.business_insights.models import BusinessInsightResult
 from src.agents.report_generation.models import ReportResult
+from src.agents.visualization.models import VisualizationResult
 
 
 class WorkflowState(BaseModel):
@@ -45,18 +43,18 @@ class WorkflowState(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     dataset_path: str
-    dataframe: Optional[Any] = None
-    data_intelligence_result: Optional[Any] = None
-    dataset_profile: Optional[Any] = None
-    feature_result: Optional[Any] = None
-    ml_result: Optional[Any] = None
-    visualization_result: Optional[Any] = None
-    business_result: Optional[Any] = None
-    report_result: Optional[Any] = None
-    execution_history: List[NodeExecution] = Field(default_factory=list)
-    errors: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
-    timing: Dict[str, float] = Field(default_factory=dict)
+    dataframe: Any | None = None
+    data_intelligence_result: Any | None = None
+    dataset_profile: Any | None = None
+    feature_result: Any | None = None
+    ml_result: Any | None = None
+    visualization_result: Any | None = None
+    business_result: Any | None = None
+    report_result: Any | None = None
+    execution_history: list[NodeExecution] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    timing: dict[str, float] = Field(default_factory=dict)
     metadata: WorkflowMetadata
 
     @model_validator(mode="before")
@@ -123,4 +121,4 @@ class WorkflowResult(BaseModel):
 
     is_success: bool
     state: WorkflowState
-    output_paths: Dict[str, str] = Field(default_factory=dict)
+    output_paths: dict[str, str] = Field(default_factory=dict)

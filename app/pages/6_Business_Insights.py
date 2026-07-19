@@ -2,15 +2,16 @@
 
 import sys
 from pathlib import Path
+
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.cards import info_card
+from app.components.sidebar import setup_page
 from app.components.tables import render_html_table
-from app.services.session import initialize_session, get_workflow_result
+from app.services.session import get_workflow_result, initialize_session
 
 
 def main() -> None:
@@ -31,9 +32,9 @@ def main() -> None:
         return
 
     # 1. Headline & Executive Summary
-    st.markdown(f"### 📢 Business Headline")
+    st.markdown("### 📢 Business Headline")
     st.info(f"**{biz_result.executive_summary.headline}**")
-    
+
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Key Takeaways")
@@ -69,10 +70,10 @@ def main() -> None:
     for item in biz_result.risks:
         sev = item.severity.upper()
         prob = item.probability.upper()
-        
+
         s_color = "red" if sev == "HIGH" else "orange" if sev == "MEDIUM" else "blue"
         p_color = "red" if prob == "HIGH" else "orange" if prob == "MEDIUM" else "blue"
-        
+
         r_rows.append([
             item.description,
             f":{s_color}[**{sev}**]",
@@ -84,22 +85,22 @@ def main() -> None:
 
     # 4. Confidence Report
     st.subheader("🕵️ Analysis Confidence & Verification Audit")
-    
+
     col_c1, col_c2 = st.columns([1, 2])
     with col_c1:
         conf = biz_result.confidence_report
         rating = conf.reliability_rating.upper()
         r_color = "green" if rating == "HIGH" else "orange" if rating == "MEDIUM" else "red"
-        
+
         info_card(
             title="Reliability Rating",
             value=rating,
             subtitle=f"Confidence Score: {conf.confidence_score * 100:.1f}%",
             icon="🛡️",
-            bg_gradient=f"linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)"
+            bg_gradient="linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)"
         )
     with col_c2:
-        st.markdown(f"**Verification Justification:**")
+        st.markdown("**Verification Justification:**")
         st.markdown(conf.justification)
 
     # 5. Technical insights & token logs

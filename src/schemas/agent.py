@@ -1,6 +1,7 @@
 """Schemas representing standardized AI agent response structures."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -27,12 +28,12 @@ class AgentResponse(BaseModel):
         description="Primary textual output or summary explanation returned by the agent",
         examples=["Imputed 12 missing age rows using group median strategies."]
     )
-    structured_data: Optional[Dict[str, Any]] = Field(
+    structured_data: dict[str, Any] | None = Field(
         default=None,
         description="Key-value mapping of any raw data outputs generated during execution",
         examples=[{"imputed_count": 12, "strategy": "median"}]
     )
-    thoughts: Optional[List[str]] = Field(
+    thoughts: list[str] | None = Field(
         default=None,
         description="Chain-of-thought steps, reflections, or decision actions logged by the agent",
         examples=[["Detected 12 nulls in column 'age'.", "Inferred 'age' column data-type is float.", "Determined median age is 38.5."]]

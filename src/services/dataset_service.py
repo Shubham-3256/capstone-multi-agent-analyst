@@ -1,13 +1,13 @@
 """Service handling high-level dataset lifecycle tasks and database registrations."""
 
 from pathlib import Path
-from typing import List, Optional
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
+from src.core.exceptions import DatasetException
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.core.exceptions import DatasetException
 from src.core.security import generate_sha256_hash
 from src.database.models import DatasetRecord
 from src.repositories.dataset_repository import DatasetRepository
@@ -125,7 +125,7 @@ class DatasetService:
         logger.info(f"Loading dataset into DataFrame: {file_path}")
         return DataLoader.load_file(file_path)
 
-    def list_datasets(self) -> List[DatasetRecord]:
+    def list_datasets(self) -> list[DatasetRecord]:
         """Fetch all registered dataset entries.
 
         Returns:
@@ -133,7 +133,7 @@ class DatasetService:
         """
         return self.repo.get_all()
 
-    def get_dataset(self, record_id: str) -> Optional[DatasetRecord]:
+    def get_dataset(self, record_id: str) -> DatasetRecord | None:
         """Retrieve tracking metadata details for a registered dataset.
 
         Args:

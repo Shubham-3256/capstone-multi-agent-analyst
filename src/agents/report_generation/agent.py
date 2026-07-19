@@ -1,36 +1,34 @@
 """Report Generation Agent orchestrator compiling contexts, rendering layouts, validating and exporting formats."""
 
+import hashlib
 import json
 import time
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
-import hashlib
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-from src.core.logger import get_logger
-from src.database.models import ExecutionLog, ReportRecord
-from src.database.database import DatabaseManager, SessionLocal, init_db
-from src.repositories.log_repository import ExecutionLogRepository
+from src.agents.business_insights.models import BusinessInsightResult
 from src.agents.feature_engineering.models import FeatureEngineeringResult
 from src.agents.machine_learning.models import MachineLearningResult
-from src.agents.visualization.models import VisualizationResult
-from src.agents.business_insights.models import BusinessInsightResult
-from src.agents.report_generation.config import ReportConfig
-from src.agents.report_generation.context_builder import ContextBuilder
-from src.agents.report_generation.template_engine import TemplateEngine
-from src.agents.report_generation.section_builder import SectionBuilder
 from src.agents.report_generation.asset_manager import AssetManager
 from src.agents.report_generation.citation_manager import CitationManager
-from src.agents.report_generation.manifest import ManifestGenerator
-from src.agents.report_generation.validator import ReportValidator
+from src.agents.report_generation.config import ReportConfig
+from src.agents.report_generation.context_builder import ContextBuilder
 from src.agents.report_generation.exporter import Exporter
+from src.agents.report_generation.manifest import ManifestGenerator
 from src.agents.report_generation.models import (
-    ReportSection,
-    ReportManifest,
     ReportMetadata,
-    ReportResult
+    ReportResult,
 )
+from src.agents.report_generation.section_builder import SectionBuilder
+from src.agents.report_generation.template_engine import TemplateEngine
+from src.agents.report_generation.validator import ReportValidator
+from src.agents.visualization.models import VisualizationResult
+from src.core.logger import get_logger
+from src.database.database import SessionLocal, init_db
+from src.database.models import ExecutionLog, ReportRecord
+from src.repositories.log_repository import ExecutionLogRepository
 
 logger = get_logger(__name__)
 
@@ -38,7 +36,7 @@ logger = get_logger(__name__)
 class ReportGenerationAgent:
     """Orchestrates report compilation, asset transfers, and exports in MD/HTML/PDF/DOCX formats."""
 
-    def __init__(self, db_session: Optional[Session] = None, config: Optional[ReportConfig] = None) -> None:
+    def __init__(self, db_session: Session | None = None, config: ReportConfig | None = None) -> None:
         """Initialize ReportGenerationAgent.
 
         Args:
@@ -56,10 +54,10 @@ class ReportGenerationAgent:
     def run(
         self,
         dataset_profile: Any,
-        feature_result: Optional[FeatureEngineeringResult] = None,
-        ml_result: Optional[MachineLearningResult] = None,
-        visualization_result: Optional[VisualizationResult] = None,
-        business_result: Optional[BusinessInsightResult] = None,
+        feature_result: FeatureEngineeringResult | None = None,
+        ml_result: MachineLearningResult | None = None,
+        visualization_result: VisualizationResult | None = None,
+        business_result: BusinessInsightResult | None = None,
         template_type: str = "executive"
     ) -> ReportResult:
         """Orchestrate document assembly and export cycles.

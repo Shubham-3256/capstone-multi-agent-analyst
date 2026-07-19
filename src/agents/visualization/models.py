@@ -1,6 +1,5 @@
 """Pydantic data schemas representing generated charts, captions, and export metadata."""
 
-from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -18,14 +17,14 @@ class ChartMetadata(BaseModel):
     title: str = Field(..., description="Chart title string", examples=["Feature Correlation Matrix"])
     chart_type: str = Field(..., description="Chart formatting type category (e.g. heatmap, scatter, bar)", examples=["heatmap"])
     file_path: str = Field(..., description="File path location of saved PNG/SVG chart", examples=["/app/artifacts/plots/correlation_heatmap.png"])
-    html_path: Optional[str] = Field(default=None, description="File path location of interactive Plotly HTML if generated", examples=["/app/artifacts/plots/correlation_heatmap.html"])
+    html_path: str | None = Field(default=None, description="File path location of interactive Plotly HTML if generated", examples=["/app/artifacts/plots/correlation_heatmap.html"])
     caption: ChartCaption = Field(..., description="Auto-generated analytical details description")
 
 
 class VisualizationMetadata(BaseModel):
     """Schema tracking execution environment details of generated visualizations."""
 
-    dataset_hash: Optional[str] = Field(default=None, description="Sha256 hash reference of the target dataset source")
+    dataset_hash: str | None = Field(default=None, description="Sha256 hash reference of the target dataset source")
     created_at: str = Field(..., description="Creation date timestamp iso-string")
     theme: str = Field(..., description="Applied styling design layout theme", examples=["corporate"])
 
@@ -34,14 +33,14 @@ class FigureReference(BaseModel):
     """Schema mapping target chart slugs to JSON-serialized interactive structures."""
 
     chart_id: str = Field(..., description="Unique slug reference ID of target chart", examples=["correlation_heatmap"])
-    plotly_fig_json: Optional[str] = Field(default=None, description="Plotly figure JSON string dictionary for frontend embedding")
+    plotly_fig_json: str | None = Field(default=None, description="Plotly figure JSON string dictionary for frontend embedding")
 
 
 class VisualizationReport(BaseModel):
     """Schema compiling lists of generated charts metadata."""
 
-    charts: List[ChartMetadata] = Field(default=[], description="List of generated chart metadata records")
-    metadata: Optional[VisualizationMetadata] = Field(default=None, description="Orchestration metadata mapping details")
+    charts: list[ChartMetadata] = Field(default=[], description="List of generated chart metadata records")
+    metadata: VisualizationMetadata | None = Field(default=None, description="Orchestration metadata mapping details")
 
 
 class VisualizationResult(BaseModel):

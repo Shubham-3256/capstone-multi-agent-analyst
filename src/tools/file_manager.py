@@ -2,11 +2,11 @@
 
 import shutil
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
+from src.core.exceptions import ProjectException
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.core.exceptions import ProjectException
 
 logger = get_logger(__name__)
 
@@ -15,14 +15,14 @@ class FileManager:
     """Workspace orchestration tool to audit disk usage, execute cleanups, and manage archives."""
 
     @staticmethod
-    def get_workspace_disk_summary() -> Dict[str, Any]:
+    def get_workspace_disk_summary() -> dict[str, Any]:
         """Audit the size and file count of all folders in the workspace.
 
         Returns:
             Dict[str, Any]: Mapping of subfolder names to stats (bytes size, file counts).
         """
         logger.info("FileManager: Performing workspace storage audit...")
-        
+
         directories = {
             "uploads": Paths.UPLOAD_DIR,
             "cleaned": Paths.CLEANED_DIR,
@@ -35,7 +35,7 @@ class FileManager:
             "artifacts": Paths.ARTIFACTS_DIR
         }
 
-        summary: Dict[str, Any] = {}
+        summary: dict[str, Any] = {}
         total_size = 0
         total_files = 0
 
@@ -43,7 +43,7 @@ class FileManager:
             if not path.exists():
                 summary[key] = {"bytes_size": 0, "file_count": 0}
                 continue
-                
+
             files = [f for f in path.glob("**/*") if f.is_file() and f.name != ".gitkeep"]
             size = sum(f.stat().st_size for f in files)
             summary[key] = {
@@ -57,7 +57,7 @@ class FileManager:
             "bytes_size": total_size,
             "file_count": total_files
         }
-        
+
         logger.info(f"Storage audit complete: {total_files} active files, {total_size} total bytes.")
         return summary
 
@@ -85,7 +85,7 @@ class FileManager:
                 deleted_count += 1
             except Exception as e:
                 logger.error(f"Failed to clear temp item {item.name}: {e}")
-                
+
         logger.info(f"FileManager: Cleaned {deleted_count} items from temp directory.")
         return deleted_count
 
@@ -101,16 +101,16 @@ class FileManager:
         """
         archive_dir = Paths.ARTIFACTS_DIR / "archives"
         archive_dir.mkdir(parents=True, exist_ok=True)
-        
+
         archive_file = archive_dir / f"{dataset_name}_archive"
         logger.info(f"FileManager: Archiving outputs to {archive_file}.zip")
-        
+
         try:
             # Archive uploads and cleaned dirs for this dataset
             # We construct a temporary folder, copy matched files, and zip it
             temp_archive_src = Paths.WORKSPACE_DIR / "temp" / f"arch_{dataset_name}"
             temp_archive_src.mkdir(parents=True, exist_ok=True)
-            
+
             # Match files in uploads and cleaned
             files_to_archive = []
             for directory in [Paths.UPLOAD_DIR, Paths.CLEANED_DIR, Paths.PLOTS_DIR, Paths.REPORTS_DIR]:
@@ -127,14 +127,14 @@ class FileManager:
                 format="zip",
                 root_dir=str(temp_archive_src)
             )
-            
+
             # Clean temp
             shutil.rmtree(temp_archive_src)
-            
+
             final_zip_path = Path(zip_output)
             logger.info(f"FileManager: Archive successfully created at {final_zip_path}")
             return final_zip_path
-            
+
         except Exception as e:
             logger.error(f"Failed to compile archive: {e}")
             raise ProjectException(f"Error archiving workspace files: {e}") from e

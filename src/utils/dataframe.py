@@ -1,6 +1,7 @@
 """Utility functions for analyzing and extracting profiles from Pandas DataFrames."""
 
-from typing import Any, Dict, List
+from typing import Any
+
 import pandas as pd
 
 
@@ -52,7 +53,7 @@ def get_missing_summary(df: pd.DataFrame) -> dict:
     """
     missing_series = df.isnull().sum()
     total_missing = int(missing_series.sum())
-    
+
     col_missing = {}
     total_rows = len(df)
     for col, val in missing_series.items():
@@ -62,14 +63,14 @@ def get_missing_summary(df: pd.DataFrame) -> dict:
             "count": val_int,
             "percentage": round(pct, 2)
         }
-        
+
     return {
         "total_missing": total_missing,
         "column_missing": col_missing
     }
 
 
-def extract_column_statistics(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
+def extract_column_statistics(df: pd.DataFrame) -> dict[str, dict[str, Any]]:
     """Generate descriptive statistics maps for each column in a DataFrame.
 
     Args:
@@ -82,10 +83,10 @@ def extract_column_statistics(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     for col in df.columns:
         col_name = str(col)
         series = df[col]
-        
+
         # Determine stats based on inferred pandas data types
-        col_stats: Dict[str, Any] = {}
-        
+        col_stats: dict[str, Any] = {}
+
         if pd.api.types.is_numeric_dtype(series):
             # Compute numeric metrics, skipping NaNs
             desc = series.describe()
@@ -111,7 +112,7 @@ def extract_column_statistics(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
                 "top": str(mode.iloc[0]) if not mode.empty else None,
                 "freq": int(desc.get("freq", 0)) if not pd.isna(desc.get("freq")) else 0,
             }
-            
+
         stats_dict[col_name] = col_stats
-        
+
     return stats_dict

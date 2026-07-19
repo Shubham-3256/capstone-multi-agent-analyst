@@ -2,25 +2,29 @@
 
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
+from src.agents.data_intelligence.cleaner import Cleaner
+from src.agents.data_intelligence.models import (
+    CleaningReport,
+    DataIntelligenceResult,
+    DatasetProfile,
+    ValidationReport,
+)
+from src.agents.data_intelligence.profiler import Profiler
+from src.agents.data_intelligence.validator import Validator
+from src.core.exceptions import DatasetException
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.core.exceptions import DatasetException
 from src.core.security import secure_filename
-from src.database.database import DatabaseManager
 from src.database.models import DatasetRecord, ExecutionLog
-from src.repositories.log_repository import ExecutionLogRepository
 from src.repositories.dataset_repository import DatasetRepository
+from src.repositories.log_repository import ExecutionLogRepository
 from src.services.dataset_service import DatasetService
 from src.services.metadata_service import MetadataService
 from src.utils.serialization import serialize_dataframe
-from src.agents.data_intelligence.models import DataIntelligenceResult, ValidationReport, CleaningReport, DatasetProfile
-from src.agents.data_intelligence.validator import Validator
-from src.agents.data_intelligence.cleaner import Cleaner
-from src.agents.data_intelligence.profiler import Profiler
 
 logger = get_logger(__name__)
 
@@ -39,7 +43,7 @@ class DataIntelligenceAgent:
         self.dataset_repo = DatasetRepository(db_session)
         self.dataset_service = DatasetService(db_session)
 
-    def validate(self, df: pd.DataFrame, file_path: Path, target_column: Optional[str] = None) -> ValidationReport:
+    def validate(self, df: pd.DataFrame, file_path: Path, target_column: str | None = None) -> ValidationReport:
         """Execute structural check sequences on the dataset DataFrame.
 
         Args:
@@ -55,9 +59,9 @@ class DataIntelligenceAgent:
     def clean(
         self,
         df: pd.DataFrame,
-        imputation_strategies: Optional[Dict[str, str]] = None,
-        outlier_strategies: Optional[Dict[str, str]] = None,
-        datatype_conversions: Optional[Dict[str, str]] = None
+        imputation_strategies: dict[str, str] | None = None,
+        outlier_strategies: dict[str, str] | None = None,
+        datatype_conversions: dict[str, str] | None = None
     ) -> tuple[pd.DataFrame, CleaningReport]:
         """Normalize types, impute missing values, and handle outlier caps on the dataset.
 
@@ -77,7 +81,7 @@ class DataIntelligenceAgent:
             datatype_conversions=datatype_conversions
         )
 
-    def profile(self, df: pd.DataFrame, target_column: Optional[str] = None) -> DatasetProfile:
+    def profile(self, df: pd.DataFrame, target_column: str | None = None) -> DatasetProfile:
         """Extract multi-column correlations, distributions, and model suggestions from the DataFrame.
 
         Args:
@@ -92,10 +96,10 @@ class DataIntelligenceAgent:
     def run(
         self,
         file_path: Path,
-        target_column: Optional[str] = None,
-        imputation_strategies: Optional[Dict[str, str]] = None,
-        outlier_strategies: Optional[Dict[str, str]] = None,
-        datatype_conversions: Optional[Dict[str, str]] = None
+        target_column: str | None = None,
+        imputation_strategies: dict[str, str] | None = None,
+        outlier_strategies: dict[str, str] | None = None,
+        datatype_conversions: dict[str, str] | None = None
     ) -> DataIntelligenceResult:
         """Execute the complete Data Intelligence Pipeline: Ingest -> Validate -> Clean -> Profile.
 
@@ -139,7 +143,7 @@ class DataIntelligenceAgent:
             # 2. Dataset Validation
             logger.info("Step 2: Performing dataset validations...")
             v_report = self.validate(df, file_path, target_column)
-            
+
             # If validation has blocker errors, fail the run immediately
             if not v_report.is_valid:
                 logger.error("Dataset validation failed with errors. Aborting pipeline.")
@@ -171,12 +175,12 @@ class DataIntelligenceAgent:
             clean_filename = f"clean_{secure_filename(file_path.name)}"
             cleaned_path = Paths.CLEANED_DIR / clean_filename
             serialize_dataframe(cleaned_df, cleaned_path, fmt=file_path.suffix)
-            
+
             # Calculate metrics for registering the clean file
             clean_size = cleaned_path.stat().st_size
             clean_hash = self.dataset_service.calculate_checksum(cleaned_path)
             clean_rows, clean_cols = cleaned_df.shape
-            
+
             # Register or update clean dataset record
             clean_record = self.dataset_repo.get_by_hash(clean_hash)
             if not clean_record:
@@ -198,7 +202,7 @@ class DataIntelligenceAgent:
 
             # 4. Dataset Profiling
             logger.info("Step 4: Executing data profiling summaries...")
-            
+
             clean_target_col = None
             if target_column:
                 import re

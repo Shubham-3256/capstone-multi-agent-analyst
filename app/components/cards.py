@@ -1,15 +1,15 @@
 """Reusable corporate metric-card renderer."""
 
-from typing import Optional
+
 import streamlit as st
 
 
-def metric_card(label: str, value: str, delta: Optional[str] = None) -> None:
+def metric_card(label: str, value: str, delta: str | None = None) -> None:
     """Render one compact enterprise metric card using Streamlit native components."""
     st.metric(label, value, delta)
 
 
-def info_card(title: str, value: str, subtitle: Optional[str] = None, icon: Optional[str] = "📊", bg_gradient: Optional[str] = None) -> None:
+def info_card(title: str, value: str, subtitle: str | None = None, icon: str | None = "📊", bg_gradient: str | None = None) -> None:
     """Render a premium enterprise card with custom HTML/CSS styling."""
     style_str = f"background: {bg_gradient};" if bg_gradient else ""
     html = f"""

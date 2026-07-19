@@ -1,8 +1,8 @@
 """Ranking engine to compile performance leaderboards and identify the best candidate."""
 
-from typing import Dict, List, Tuple
-from src.core.logger import get_logger
+
 from src.agents.machine_learning.models import Leaderboard, LeaderboardEntry
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -12,9 +12,9 @@ class ModelRanker:
 
     @staticmethod
     def rank_models(
-        candidate_metrics: Dict[str, Dict[str, float]],
+        candidate_metrics: dict[str, dict[str, float]],
         task_type: str
-    ) -> Tuple[Leaderboard, str]:
+    ) -> tuple[Leaderboard, str]:
         """Rank model candidate runs based on task-specific primary keys.
 
         Args:
@@ -25,7 +25,7 @@ class ModelRanker:
             Tuple[Leaderboard, str]: Ranked leaderboard and the name key of the best model.
         """
         logger.info(f"ModelRanker: Sorting trained candidates leaderboard (task={task_type.upper()})")
-        
+
         # Resolve sorting parameters
         # Classification: sort descending on 'f1'
         # Regression: sort ascending on 'rmse'
@@ -43,7 +43,7 @@ class ModelRanker:
         entries_to_sort.sort(key=lambda x: x[1], reverse=reverse_sort)
 
         # Build Leaderboard entries
-        leaderboard_entries: List[LeaderboardEntry] = []
+        leaderboard_entries: list[LeaderboardEntry] = []
         best_model_name = ""
 
         for idx, (model_name, score, metrics) in enumerate(entries_to_sort):

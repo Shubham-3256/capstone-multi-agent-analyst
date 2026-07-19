@@ -1,17 +1,21 @@
 """Profiling engine for evaluating dataset statistics, correlations, tasks and recommendations."""
 
-from typing import Dict, List, Optional
+
 import numpy as np
 import pandas as pd
 
+from src.agents.data_intelligence.models import (
+    ColumnProfile,
+    DatasetProfile,
+    Recommendation,
+)
 from src.core.logger import get_logger
 from src.utils.dataframe import (
+    extract_column_statistics,
     get_duplicate_count,
     get_memory_footprint,
     get_missing_summary,
-    extract_column_statistics,
 )
-from src.agents.data_intelligence.models import ColumnProfile, DatasetProfile, Recommendation
 
 logger = get_logger(__name__)
 
@@ -20,7 +24,7 @@ class Profiler:
     """Profiler class to extract statistical features and model task suggestions from DataFrames."""
 
     @staticmethod
-    def profile(df: pd.DataFrame, target_column: Optional[str] = None) -> DatasetProfile:
+    def profile(df: pd.DataFrame, target_column: str | None = None) -> DatasetProfile:
         """Run deep statistical profile evaluations on a Pandas DataFrame.
 
         Args:
@@ -40,8 +44,8 @@ class Profiler:
         stats_dict = extract_column_statistics(df)
 
         # 2. Build column profile lists
-        columns_profile: Dict[str, ColumnProfile] = {}
-        recommendations: List[Recommendation] = []
+        columns_profile: dict[str, ColumnProfile] = {}
+        recommendations: list[Recommendation] = []
 
         for col in df.columns:
             col_name = str(col)
@@ -96,7 +100,7 @@ class Profiler:
                 ))
 
         # 3. Pearson Correlation matrix calculation
-        corr_matrix: Dict[str, Dict[str, float]] = {}
+        corr_matrix: dict[str, dict[str, float]] = {}
         numeric_cols = df.select_dtypes(include=[np.number]).columns
         if len(numeric_cols) > 1:
             try:
@@ -105,7 +109,7 @@ class Profiler:
                     str(c): {str(k): float(v) for k, v in row.items()}
                     for c, row in corr.to_dict(orient="index").items()
                 }
-                
+
                 # Check for high multicollinearity (> 0.85)
                 seen_pairs = set()
                 for c1 in corr.columns:
@@ -131,7 +135,7 @@ class Profiler:
             if target_column in df.columns:
                 target_series = df[target_column]
                 target_dist = {str(k): int(v) for k, v in target_series.value_counts(dropna=False).items()}
-                
+
                 # Infer ML task type
                 unique_vals = target_series.nunique()
                 if pd.api.types.is_numeric_dtype(target_series) and unique_vals > 10:
@@ -145,7 +149,7 @@ class Profiler:
                     max_class = counts.max()
                     min_class = counts.min()
                     total = counts.sum()
-                    
+
                     if total > 0 and (max_class / min_class) > 4.0:
                         recommendations.append(Recommendation(
                             title="Highly imbalanced target",

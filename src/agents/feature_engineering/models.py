@@ -1,6 +1,7 @@
 """Data schemas for the Feature Engineering Agent outputs."""
 
-from typing import Dict, List, Optional, Any
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -17,12 +18,12 @@ class FeatureInfo(BaseModel):
 class EncodingReport(BaseModel):
     """Schema compiling encoding strategies and category category keys."""
 
-    strategy_used: Dict[str, str] = Field(
+    strategy_used: dict[str, str] = Field(
         default_factory=dict,
         description="Mappings of column names to encoder strategy chosen ('onehot', 'ordinal', 'frequency', 'label')",
         examples=[{"city": "onehot", "occupation": "frequency"}]
     )
-    mappings: Dict[str, Dict[str, Any]] = Field(
+    mappings: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
         description="Fitted mapping lookup values (e.g. for label or ordinal categories)",
         examples=[{"city": {"New York": 0, "Chicago": 1}}]
@@ -32,12 +33,12 @@ class EncodingReport(BaseModel):
 class ScalingReport(BaseModel):
     """Schema compiling scaling settings and fitted coefficients."""
 
-    scaler_type: Dict[str, str] = Field(
+    scaler_type: dict[str, str] = Field(
         default_factory=dict,
         description="Scaling methods applied to numeric features ('standard', 'robust', 'minmax', 'maxabs', 'none')",
         examples=[{"age": "standard", "salary": "robust"}]
     )
-    scaling_parameters: Dict[str, Dict[str, float]] = Field(
+    scaling_parameters: dict[str, dict[str, float]] = Field(
         default_factory=dict,
         description="Fitted scaling parameters (e.g. means, stds, minimums, maximums)",
         examples=[{"age": {"mean": 38.5, "scale": 12.3}}]
@@ -50,8 +51,8 @@ class SelectionReport(BaseModel):
     method: str = Field(..., description="Selection strategy executed", examples=["mutual_info"])
     original_count: int = Field(..., description="Input feature dimensions", examples=[25])
     selected_count: int = Field(..., description="Final output selected dimensions", examples=[10])
-    selected_features: List[str] = Field(default=[], description="Selected column names", examples=[["age", "salary"]])
-    feature_importances: Dict[str, float] = Field(
+    selected_features: list[str] = Field(default=[], description="Selected column names", examples=[["age", "salary"]])
+    feature_importances: dict[str, float] = Field(
         default_factory=dict,
         description="Calculated feature score or coefficient importance",
         examples=[{"age": 0.42, "salary": 0.35}]
@@ -62,7 +63,7 @@ class LeakageReport(BaseModel):
     """Schema summarizing potential target or identifier data leakages."""
 
     has_leakage: bool = Field(..., description="True if any target leak or ID leaks are flagged", examples=[False])
-    leakage_issues: List[Dict[str, str]] = Field(
+    leakage_issues: list[dict[str, str]] = Field(
         default=[],
         description="List of detected leakage warnings and details",
         examples=[[{"column": "customer_id", "issue": "Identifier column included as numerical input"}]],
@@ -72,9 +73,9 @@ class LeakageReport(BaseModel):
 class SplitReport(BaseModel):
     """Schema compiling data split configurations and shapes."""
 
-    train_shape: List[int] = Field(..., description="Dimensions of training set [rows, columns]", examples=[[700, 10]])
-    val_shape: List[int] = Field(..., description="Dimensions of validation set [rows, columns]", examples=[[150, 10]])
-    test_shape: List[int] = Field(..., description="Dimensions of test set [rows, columns]", examples=[[150, 10]])
+    train_shape: list[int] = Field(..., description="Dimensions of training set [rows, columns]", examples=[[700, 10]])
+    val_shape: list[int] = Field(..., description="Dimensions of validation set [rows, columns]", examples=[[150, 10]])
+    test_shape: list[int] = Field(..., description="Dimensions of test set [rows, columns]", examples=[[150, 10]])
     strategy: str = Field(..., description="Splitting technique chosen", examples=["stratified"])
 
 
@@ -82,7 +83,7 @@ class PipelineReport(BaseModel):
     """Schema tracking preprocessing pipeline files and pipelines components."""
 
     pipeline_filepath: str = Field(..., description="Physical path location of joblib pipeline", examples=["/app/workspace/processed/pipeline.joblib"])
-    components: List[str] = Field(default=[], description="Components included in the pipeline", examples=[["encoding", "scaling", "selection"]])
+    components: list[str] = Field(default=[], description="Components included in the pipeline", examples=[["encoding", "scaling", "selection"]])
 
 
 class FeatureEngineeringResult(BaseModel):
@@ -94,7 +95,7 @@ class FeatureEngineeringResult(BaseModel):
         examples=["4a4f7a9a-7a9a-4f7a-9a7a-9a7a9a7a9a7a"]
     )
     is_success: bool = Field(..., description="True if pipeline completes without fatal failures", examples=[True])
-    feature_types: Dict[str, str] = Field(
+    feature_types: dict[str, str] = Field(
         ...,
         description="Column category types mapped by the detector",
         examples=[{"age": "numeric", "city": "categorical"}]

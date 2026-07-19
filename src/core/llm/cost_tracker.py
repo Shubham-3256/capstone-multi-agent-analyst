@@ -1,6 +1,6 @@
 """Financial cost and token counters tracker tracking prompt and completion metrics."""
 
-from typing import Dict
+
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,7 +21,7 @@ class CostTracker:
         output_tokens: int,
         cost_per_million_input: float = 5.0,
         cost_per_million_output: float = 15.0
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Record usage metrics for a single request. Accumulates to session stats.
 
         Args:
@@ -56,7 +56,7 @@ class CostTracker:
         }
 
     @classmethod
-    def get_session_summary(cls) -> Dict[str, float]:
+    def get_session_summary(cls) -> dict[str, float]:
         """Fetch accumulated usage stats.
 
         Returns:

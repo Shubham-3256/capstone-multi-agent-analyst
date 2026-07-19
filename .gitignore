@@ -63,6 +63,14 @@ workspace/models/*
 workspace/logs/*
 !workspace/logs/.gitkeep
 
+# --- Runtime Artifacts, Cache, Checkpoints, and Databases ---
+workspace/artifacts/
+workspace/cache/
+workspace/checkpoints/
+workspace/temp_parallel_test.db
+workspace/*.db
+workspace/*.db-journal
+
 # --- OS System Files ---
 Thumbs.db
 ehthumbs.db

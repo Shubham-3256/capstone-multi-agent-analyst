@@ -1,11 +1,15 @@
 """Custom scikit-learn compatible feature selector transformer."""
 
-from typing import Dict, List, Optional
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.feature_selection import SelectorMixin, VarianceThreshold
-from sklearn.feature_selection import SelectKBest, mutual_info_classif, mutual_info_regression
+from sklearn.feature_selection import (
+    SelectKBest,
+    VarianceThreshold,
+    mutual_info_classif,
+    mutual_info_regression,
+)
 
 from src.core.logger import get_logger
 
@@ -37,14 +41,14 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
         self.correlation_threshold = correlation_threshold
         self.k_best = k_best
         self.task_type = task_type
-        
-        # Fitted states
-        self.variance_selector_: Optional[VarianceThreshold] = None
-        self.k_best_selector_: Optional[SelectKBest] = None
-        self.columns_to_keep_: List[str] = []
-        self.feature_importances_: Dict[str, float] = {}
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "FeatureSelector":
+        # Fitted states
+        self.variance_selector_: VarianceThreshold | None = None
+        self.k_best_selector_: SelectKBest | None = None
+        self.columns_to_keep_: list[str] = []
+        self.feature_importances_: dict[str, float] = {}
+
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "FeatureSelector":
         """Fit feature selectors on X (and optionally y).
 
         Args:
@@ -55,10 +59,10 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
             FeatureSelector: Fitted instance.
         """
         logger.info(f"FeatureSelector: Fitting feature selector (method={self.method.upper()}) on X shape {X.shape}")
-        
+
         # Start with all columns
         current_cols = list(X.columns)
-        
+
         # Ensure only numeric inputs for selector methods
         numeric_df = X.select_dtypes(include=[np.number])
         if numeric_df.empty:
@@ -92,21 +96,21 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
                 y_clean = pd.Series(y).fillna(pd.Series(y).mode().iloc[0] if not pd.Series(y).mode().empty else 0)
                 # Cap k_best to column counts
                 k = min(self.k_best, numeric_subset.shape[1])
-                
+
                 score_func = mutual_info_classif if self.task_type == "classification" else mutual_info_regression
-                
+
                 self.k_best_selector_ = SelectKBest(score_func=score_func, k=k)
                 self.k_best_selector_.fit(numeric_subset, y_clean)
-                
+
                 # Fetch importances
                 scores = self.k_best_selector_.scores_
                 for i, col in enumerate(numeric_subset.columns):
                     self.feature_importances_[col] = float(scores[i])
-                
+
                 # Get best features
                 support = self.k_best_selector_.get_support()
                 k_best_cols = [col for i, col in enumerate(numeric_subset.columns) if support[i]]
-                
+
                 # Combine non-numeric columns back
                 non_numeric = [c for c in X.columns if c not in numeric_subset.columns]
                 current_cols = k_best_cols + non_numeric

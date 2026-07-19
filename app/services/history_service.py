@@ -1,15 +1,13 @@
 """Read-only history queries for dashboard presentation."""
 
-from typing import Any, List, Optional
+from types import SimpleNamespace
+from typing import Any
 
 from src.database.database import DatabaseManager
 from src.database.models import DatasetRecord, ReportRecord, WorkflowExecution
 
 
-from types import SimpleNamespace
-
-
-def _map_workflow(w: Any) -> Optional[SimpleNamespace]:
+def _map_workflow(w: Any) -> SimpleNamespace | None:
     if w is None:
         return None
     return SimpleNamespace(
@@ -22,7 +20,7 @@ def _map_workflow(w: Any) -> Optional[SimpleNamespace]:
     )
 
 
-def _map_report(r: Any) -> Optional[SimpleNamespace]:
+def _map_report(r: Any) -> SimpleNamespace | None:
     if r is None:
         return None
     return SimpleNamespace(
@@ -37,7 +35,7 @@ def _map_report(r: Any) -> Optional[SimpleNamespace]:
     )
 
 
-def _map_dataset(d: Any) -> Optional[SimpleNamespace]:
+def _map_dataset(d: Any) -> SimpleNamespace | None:
     if d is None:
         return None
     return SimpleNamespace(
@@ -57,7 +55,7 @@ class HistoryService:
     """Provides workflow and report history without workflow-side mutations."""
 
     @staticmethod
-    def workflows(status_filter: Optional[str] = None, search_query: Optional[str] = None) -> List[Any]:
+    def workflows(status_filter: str | None = None, search_query: str | None = None) -> list[Any]:
         """Return latest persisted workflow executions with optional filtering."""
         with DatabaseManager.get_session() as session:
             query = session.query(WorkflowExecution)
@@ -72,28 +70,28 @@ class HistoryService:
             return [_map_workflow(w) for w in results if w is not None]
 
     @staticmethod
-    def reports() -> List[Any]:
+    def reports() -> list[Any]:
         """Return latest persisted report records."""
         with DatabaseManager.get_session() as session:
             results = session.query(ReportRecord).order_by(ReportRecord.created_at.desc()).all()
             return [_map_report(r) for r in results if r is not None]
 
     @staticmethod
-    def datasets() -> List[Any]:
+    def datasets() -> list[Any]:
         """Return latest persisted dataset records."""
         with DatabaseManager.get_session() as session:
             results = session.query(DatasetRecord).order_by(DatasetRecord.created_at.desc()).all()
             return [_map_dataset(d) for d in results if d is not None]
 
     @staticmethod
-    def workflow_by_id(workflow_id: str) -> Optional[Any]:
+    def workflow_by_id(workflow_id: str) -> Any | None:
         """Fetch a specific workflow execution by ID."""
         with DatabaseManager.get_session() as session:
             w = session.query(WorkflowExecution).filter(WorkflowExecution.workflow_id == workflow_id).first()
             return _map_workflow(w)
 
     @staticmethod
-    def report_by_id(report_id: str) -> Optional[Any]:
+    def report_by_id(report_id: str) -> Any | None:
         """Fetch a specific report record by ID."""
         with DatabaseManager.get_session() as session:
             r = session.query(ReportRecord).filter(ReportRecord.report_id == report_id).first()

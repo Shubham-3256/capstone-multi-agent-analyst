@@ -1,14 +1,21 @@
 """Custom scikit-learn compatible numerical features scaler transformer."""
 
-from typing import Dict, List, Optional, Any
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import (
-    StandardScaler as SKStandardScaler,
-    RobustScaler as SKRobustScaler,
-    MinMaxScaler as SKMinMaxScaler,
     MaxAbsScaler as SKMaxAbsScaler,
+)
+from sklearn.preprocessing import (
+    MinMaxScaler as SKMinMaxScaler,
+)
+from sklearn.preprocessing import (
+    RobustScaler as SKRobustScaler,
+)
+from sklearn.preprocessing import (
+    StandardScaler as SKStandardScaler,
 )
 
 from src.core.logger import get_logger
@@ -21,7 +28,7 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        columns: Optional[List[str]] = None,
+        columns: list[str] | None = None,
         outlier_threshold: float = 0.05,
         default_scaler: str = "auto"
     ) -> None:
@@ -35,13 +42,13 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
         self.columns = columns
         self.outlier_threshold = outlier_threshold
         self.default_scaler = default_scaler
-        
-        # Fitted states
-        self.scalers_: Dict[str, str] = {}
-        self.scaler_instances_: Dict[str, Any] = {}
-        self.scaling_params_: Dict[str, Dict[str, float]] = {}
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "NumericalScaler":
+        # Fitted states
+        self.scalers_: dict[str, str] = {}
+        self.scaler_instances_: dict[str, Any] = {}
+        self.scaling_params_: dict[str, dict[str, float]] = {}
+
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "NumericalScaler":
         """Evaluate numeric distributions and fit scalers.
 
         Args:
@@ -143,7 +150,7 @@ class NumericalScaler(BaseEstimator, TransformerMixin):
             pd.DataFrame: Scaled DataFrame.
         """
         X_trans = X.copy()
-        
+
         for col, scaler_type in self.scalers_.items():
             if col not in X_trans.columns or scaler_type == "none":
                 continue

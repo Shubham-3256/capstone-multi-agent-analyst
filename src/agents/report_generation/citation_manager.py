@@ -1,6 +1,6 @@
 """Citation manager tracking and indexing tables, figures, and footnotes."""
 
-from typing import Dict
+
 from src.core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -14,10 +14,10 @@ class CitationManager:
         self.figure_count = 0
         self.table_count = 0
         self.reference_count = 0
-        
-        self.figures_registry: Dict[str, str] = {}
-        self.tables_registry: Dict[str, str] = {}
-        self.references_registry: Dict[str, str] = {}
+
+        self.figures_registry: dict[str, str] = {}
+        self.tables_registry: dict[str, str] = {}
+        self.references_registry: dict[str, str] = {}
 
     def register_figure(self, chart_id: str, caption: str) -> str:
         """Register a visual chart, incrementing the counter and returning the label tag.

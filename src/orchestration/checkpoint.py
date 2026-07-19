@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from typing import Optional
 
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -26,7 +25,7 @@ class FileCheckpointStore:
         path.write_text(json.dumps(payload, default=str), encoding="utf-8")
         return path
 
-    def load(self, workflow_id: str) -> Optional[WorkflowState]:
+    def load(self, workflow_id: str) -> WorkflowState | None:
         """Load a prior snapshot when it exists."""
         path = self.directory / f"{workflow_id}.json"
         return WorkflowState.model_validate_json(path.read_text(encoding="utf-8")) if path.exists() else None

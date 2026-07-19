@@ -1,6 +1,5 @@
 """Pydantic data schemas representing generated business insight report sections."""
 
-from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +7,7 @@ class ExecutiveSummary(BaseModel):
     """Schema tracking operations optimizations summary findings."""
 
     headline: str = Field(..., description="High-level punchy business summary statement")
-    key_takeaways: List[str] = Field(..., description="List of primary operational summary points")
+    key_takeaways: list[str] = Field(..., description="List of primary operational summary points")
     impact_statement: str = Field(..., description="Details regarding business value or cost reductions")
 
 
@@ -16,7 +15,7 @@ class DatasetInsight(BaseModel):
     """Schema tracking data quality anomalies audits and cleaning actions."""
 
     completeness_score: float = Field(..., description="Value representing completeness ratios")
-    anomalies_detected: List[str] = Field(..., description="Issues discovered in data schema formats")
+    anomalies_detected: list[str] = Field(..., description="Issues discovered in data schema formats")
     recommendation: str = Field(..., description="Suggested operations cleaning actions")
 
 
@@ -26,7 +25,7 @@ class ModelInsight(BaseModel):
     algorithm_name: str = Field(..., description="Best performing algorithm selected")
     accuracy: float = Field(..., description="Accuracy metric score")
     f1: float = Field(..., description="F1-macro metric score")
-    feature_weights: Dict[str, float] = Field(..., description="Coefficients representing feature importances")
+    feature_weights: dict[str, float] = Field(..., description="Coefficients representing feature importances")
     conclusion: str = Field(..., description="Summary explanation of model validity and error bounds")
 
 
@@ -60,8 +59,8 @@ class BusinessInsightResult(BaseModel):
     executive_summary: ExecutiveSummary = Field(..., description="Executive summary overview findings")
     dataset_insight: DatasetInsight = Field(..., description="Data quality validation metrics findings")
     model_insight: ModelInsight = Field(..., description="Model validation accuracy interpretations")
-    recommendations: List[Recommendation] = Field(default=[], description="Strategic recommendations checklist")
-    risks: List[RiskItem] = Field(default=[], description="Identified operational risk items")
+    recommendations: list[Recommendation] = Field(default=[], description="Strategic recommendations checklist")
+    risks: list[RiskItem] = Field(default=[], description="Identified operational risk items")
     confidence_report: ConfidenceReport = Field(..., description="Analysis confidence verification report")
-    token_usage: Dict[str, float] = Field(default_factory=dict, description="Estimated token usage summary count")
+    token_usage: dict[str, float] = Field(default_factory=dict, description="Estimated token usage summary count")
     estimated_cost_usd: float = Field(default=0.0, description="Estimated cost in USD")

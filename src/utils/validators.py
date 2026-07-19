@@ -2,10 +2,11 @@
 
 import csv
 from pathlib import Path
+
 import pandas as pd
 
-from src.core.logger import get_logger
 from src.core.exceptions import ValidationException
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -20,11 +21,11 @@ def detect_file_encoding(filepath: Path) -> str:
         str: Inferred encoding name.
     """
     logger.debug(f"Detecting encoding for file: {filepath}")
-    
+
     encodings = ["utf-8", "latin1", "cp1252", "utf-16"]
     for encoding in encodings:
         try:
-            with open(filepath, "r", encoding=encoding) as f:
+            with open(filepath, encoding=encoding) as f:
                 # Read a small subset of lines to test decoding
                 f.read(4096)
             logger.debug(f"Detected encoding: {encoding} for {filepath.name}")
@@ -51,15 +52,15 @@ def validate_csv_structure(filepath: Path) -> bool:
     """
     logger.info(f"Validating CSV structure: {filepath}")
     encoding = detect_file_encoding(filepath)
-    
+
     try:
-        with open(filepath, "r", encoding=encoding, newline="") as f:
+        with open(filepath, encoding=encoding, newline="") as f:
             reader = csv.reader(f)
             headers = next(reader)
-            
+
             if not headers:
                 raise ValidationException("CSV validation failed: Empty file or headers missing.")
-                
+
             # Verify the row column counts are uniform on first 100 rows
             col_count = len(headers)
             for idx, row in enumerate(reader):

@@ -1,6 +1,7 @@
 """Schemas for report compilation and PDF generation metadata."""
 
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 

@@ -1,6 +1,7 @@
 """Style theme mapping providing color palettes and formatting grids."""
 
-from typing import Any, Dict, List
+from typing import Any
+
 import matplotlib as mpl
 
 from src.core.logger import get_logger
@@ -17,7 +18,7 @@ class Theme:
         background_color: str,
         text_color: str,
         grid_color: str,
-        color_palette: List[str]
+        color_palette: list[str]
     ) -> None:
         """Initialize Theme structure.
 
@@ -39,7 +40,7 @@ class ThemeManager:
     """Resolves professional light, dark, and corporate themes for matplotlib and plotly engines."""
 
     # Curated color configurations
-    THEMES: Dict[str, Theme] = {
+    THEMES: dict[str, Theme] = {
         "light": Theme(
             name="light",
             background_color="#FFFFFF",
@@ -87,14 +88,14 @@ class ThemeManager:
         mpl.rcParams["grid.color"] = theme.grid_color
         mpl.rcParams["grid.alpha"] = 0.5
         mpl.rcParams["axes.grid"] = True
-        
+
         # Apply color cycle
         mpl.rcParams["axes.prop_cycle"] = mpl.cycler(color=theme.color_palette)
-        
+
         return theme
 
     @classmethod
-    def get_plotly_layout(cls, theme_name: str = "corporate") -> Dict[str, Any]:
+    def get_plotly_layout(cls, theme_name: str = "corporate") -> dict[str, Any]:
         """Generate dict templates of theme parameters for Plotly configurations.
 
         Args:
@@ -104,9 +105,9 @@ class ThemeManager:
             Dict[str, Any]: Layout parameters.
         """
         theme = cls.THEMES.get(theme_name.lower(), cls.THEMES["corporate"])
-        
+
         plotly_template = "plotly_white" if theme.name != "dark" else "plotly_dark"
-        
+
         return {
             "template": plotly_template,
             "paper_bgcolor": theme.background_color,

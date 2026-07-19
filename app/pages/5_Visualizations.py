@@ -2,14 +2,15 @@
 
 import sys
 from pathlib import Path
+
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.charts import render_chart
-from app.services.session import initialize_session, get_workflow_result
+from app.components.sidebar import setup_page
+from app.services.session import get_workflow_result, initialize_session
 
 
 def main() -> None:

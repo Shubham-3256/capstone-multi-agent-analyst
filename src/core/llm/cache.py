@@ -4,7 +4,7 @@ import hashlib
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from src.core.logger import get_logger
 from src.core.paths import Paths
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 class LLMCache:
     """JSON-file backed cache client for indexing and retrieving LLM prompt responses."""
 
-    def __init__(self, cache_file: Optional[Path] = None, ttl_seconds: int = 86400) -> None:
+    def __init__(self, cache_file: Path | None = None, ttl_seconds: int = 86400) -> None:
         """Initialize LLMCache.
 
         Args:
@@ -24,17 +24,17 @@ class LLMCache:
         """
         self.cache_file = cache_file or Paths.WORKSPACE_DIR / "cache" / "llm_cache.json"
         self.ttl_seconds = ttl_seconds
-        
+
         # Ensure parent folders exist
         self.cache_file.parent.mkdir(parents=True, exist_ok=True)
         self._load_cache()
 
     def _load_cache(self) -> None:
         """Internal helper to load cache index dictionary from disk."""
-        self.data_: Dict[str, Dict[str, Any]] = {}
+        self.data_: dict[str, dict[str, Any]] = {}
         if self.cache_file.exists():
             try:
-                with open(self.cache_file, "r", encoding="utf-8") as f:
+                with open(self.cache_file, encoding="utf-8") as f:
                     self.data_ = json.load(f)
                 logger.info(f"LLMCache: Loaded {len(self.data_)} cached entries from {self.cache_file}")
             except Exception as e:
@@ -60,7 +60,7 @@ class LLMCache:
         """
         return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
-    def get(self, prompt: str) -> Optional[str]:
+    def get(self, prompt: str) -> str | None:
         """Fetch cached response string if key matches and within TTL intervals.
 
         Args:
@@ -71,13 +71,13 @@ class LLMCache:
         """
         prompt_hash = self.calculate_hash(prompt)
         entry = self.data_.get(prompt_hash)
-        
+
         if not entry:
             return None
-            
+
         timestamp = entry.get("timestamp", 0.0)
         age = time.time() - timestamp
-        
+
         if age > self.ttl_seconds:
             logger.info(f"LLMCache: Cache hit for key {prompt_hash[:8]} but expired (age: {round(age, 1)}s > TTL: {self.ttl_seconds}s).")
             # Prune expired entry

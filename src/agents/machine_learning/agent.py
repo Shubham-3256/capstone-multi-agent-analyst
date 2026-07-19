@@ -1,29 +1,27 @@
 """Machine Learning Agent orchestrating model fits, cross validation, evaluations and rankings."""
 
 import time
-import json
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
-from src.core.logger import get_logger
-from src.core.paths import Paths
+from src.agents.machine_learning.config import MachineLearningConfig
+from src.agents.machine_learning.cross_validator import CrossValidator
+from src.agents.machine_learning.evaluator import Evaluator
+from src.agents.machine_learning.explainer import Explainer
+from src.agents.machine_learning.model_factory import ModelFactory
+from src.agents.machine_learning.models import MachineLearningResult
+from src.agents.machine_learning.persistence import Persistence
+from src.agents.machine_learning.ranking import ModelRanker
+from src.agents.machine_learning.task_detector import TaskDetector
+from src.agents.machine_learning.trainer import Trainer
+from src.agents.machine_learning.tuner import HyperparameterTuner
 from src.core.exceptions import DatasetException
-from src.database.database import DatabaseManager
+from src.core.logger import get_logger
 from src.database.models import ExecutionLog
 from src.repositories.log_repository import ExecutionLogRepository
-from src.agents.machine_learning.config import MachineLearningConfig
-from src.agents.machine_learning.task_detector import TaskDetector
-from src.agents.machine_learning.model_factory import ModelFactory
-from src.agents.machine_learning.trainer import Trainer
-from src.agents.machine_learning.cross_validator import CrossValidator
-from src.agents.machine_learning.tuner import HyperparameterTuner
-from src.agents.machine_learning.evaluator import Evaluator
-from src.agents.machine_learning.ranking import ModelRanker
-from src.agents.machine_learning.explainer import Explainer
-from src.agents.machine_learning.persistence import Persistence
-from src.agents.machine_learning.models import MachineLearningResult
 
 logger = get_logger(__name__)
 
@@ -46,7 +44,7 @@ class MachineLearningAgent:
         train_target: pd.Series,
         validation_data: pd.DataFrame,
         validation_target: pd.Series,
-        config_path: Optional[Path] = None
+        config_path: Path | None = None
     ) -> MachineLearningResult:
         """Execute the AutoML Preprocessing and Training Pipeline.
 
@@ -94,20 +92,20 @@ class MachineLearningAgent:
                 if task_type == "classification"
                 else config.selection.regression_candidates
             )
-            candidates = ModelFactory.get_candidate_models(task_type, candidate_list, config.modeling.random_seed)
+            candidates = ModelFactory.get_candidate_models(task_type, candidate_list, config.modeling.random_seed, n_samples=train_data.shape[0])
 
             if not candidates:
                 raise DatasetException("No candidate models could be instantiated by the ModelFactory.")
 
             # Mappings to collect scores and fitted models
-            candidate_metrics: Dict[str, Dict[str, float]] = {}
-            fitted_candidates: Dict[str, Any] = {}
+            candidate_metrics: dict[str, dict[str, float]] = {}
+            fitted_candidates: dict[str, Any] = {}
             training_results = []
 
             # 3. Fit, Cross-Validate, Tune, and Evaluate each candidate
             for name, model in candidates.items():
                 logger.info(f"MachineLearningAgent: Processing model candidate '{name}'...")
-                
+
                 # A. Cross-validate first (on untuned candidate to get baseline stability)
                 cv_report = CrossValidator.evaluate(
                     model=model,
@@ -141,9 +139,9 @@ class MachineLearningAgent:
                     y_train=train_target,
                     cv_score=cv_report.mean_score
                 )
-                
+
                 training_results.append(fit_result)
-                
+
                 # Skip model if fit failed
                 if fit_result.error_message:
                     logger.warning(f"Skipping model evaluation for '{name}' due to fit error.")
@@ -159,7 +157,7 @@ class MachineLearningAgent:
                     task_type=task_type,
                     is_binary=is_binary
                 )
-                
+
                 candidate_metrics[name] = eval_report.metrics
 
             if not fitted_candidates:
@@ -182,7 +180,7 @@ class MachineLearningAgent:
                 "run_timestamp": time.time(),
                 "metrics_summary": best_metrics
             }
-            
+
             saved_paths = Persistence.save_artifacts(
                 best_model=best_model,
                 best_model_name=best_model_name,

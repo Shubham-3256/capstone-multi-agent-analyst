@@ -1,12 +1,11 @@
 """Analytical caption generator generating dynamic descriptions of visualizations."""
 
-from typing import List, Optional
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from src.core.logger import get_logger
+from src.agents.machine_learning.models import FeatureImportance, Leaderboard
 from src.agents.visualization.models import ChartCaption
-from src.agents.machine_learning.models import Leaderboard, FeatureImportance
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -26,7 +25,7 @@ class CaptionGenerator:
         """
         null_counts = df.isna().sum()
         total_nulls = null_counts.sum()
-        
+
         if total_nulls == 0:
             summary = "The dataset has complete values without missing records."
             details = "All columns have 100% data density, requiring no imputation blocks."
@@ -62,12 +61,12 @@ class CaptionGenerator:
         np.fill_diagonal(corr_values, 0)
         max_idx = corr_values.argmax()
         r, c = np.unravel_index(max_idx, corr_values.shape)
-        
+
         max_val = corr_values[r, c]
         col1, col2 = corr.index[r], corr.columns[c]
 
         if max_val > 0.5:
-            summary = f"Strong linear association observed between numeric columns."
+            summary = "Strong linear association observed between numeric columns."
             details = f"Pearson correlation coefficient R={round(max_val, 3)} for pairs '{col1}' and '{col2}'."
         else:
             summary = "Weak correlations observed across numeric variables."
@@ -88,7 +87,7 @@ class CaptionGenerator:
         """
         if col not in df.columns:
             return ChartCaption(summary="Distribution skipped.", details="Column not found.")
-            
+
         series = df[col].dropna()
         is_numeric = pd.api.types.is_numeric_dtype(series)
 
@@ -121,14 +120,14 @@ class CaptionGenerator:
 
         best_entry = leaderboard.entries[0]
         metric_name = "macro F1 score" if task_type == "classification" else "RMSE"
-        
+
         summary = f"The best performing algorithm is '{best_entry.model_name}'."
         details = f"It achieved validation {metric_name} of {round(best_entry.score, 4)} on test subsets splits."
-        
+
         return ChartCaption(summary=summary, details=details)
 
     @staticmethod
-    def generate_importance_caption(importances: List[FeatureImportance]) -> ChartCaption:
+    def generate_importance_caption(importances: list[FeatureImportance]) -> ChartCaption:
         """Generate caption ranking feature importances.
 
         Args:

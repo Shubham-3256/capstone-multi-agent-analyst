@@ -1,7 +1,8 @@
 """Structured response parser validating and deserializing JSON outputs to Pydantic models."""
 
 import json
-from typing import Type, TypeVar, Any
+from typing import TypeVar
+
 from pydantic import BaseModel
 
 from src.core.logger import get_logger
@@ -15,7 +16,7 @@ class StructuredParser:
     """Deserializes raw JSON strings to Pydantic schemas, correcting formatting errors."""
 
     @staticmethod
-    def parse_response(response_text: str, model_class: Type[T]) -> T:
+    def parse_response(response_text: str, model_class: type[T]) -> T:
         """Parse text string to model class. Handles Markdown code blocks and trailing errors.
 
         Args:

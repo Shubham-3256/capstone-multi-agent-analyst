@@ -2,7 +2,7 @@
 
 import shutil
 from pathlib import Path
-from typing import List
+
 from PIL import Image
 
 from src.core.logger import get_logger
@@ -15,7 +15,7 @@ class AssetManager:
     """Copies, resizes, and organizes graph files and logos for clean document imports."""
 
     @staticmethod
-    def organize_assets(charts_paths: List[str], target_dir: Path, resize_width: int = 600) -> List[str] | None:
+    def organize_assets(charts_paths: list[str], target_dir: Path, resize_width: int = 600) -> list[str] | None:
         """Copy visual charts from workspace to target reports asset directory.
 
         Args:
@@ -28,7 +28,7 @@ class AssetManager:
         """
         logger.info(f"AssetManager: Organizing {len(charts_paths)} charts to: {target_dir}")
         copied_paths = []
-        
+
         assets_dir = target_dir / "assets"
         assets_dir.mkdir(parents=True, exist_ok=True)
 
@@ -40,7 +40,7 @@ class AssetManager:
             # Fallback path resolve check
             if not src_path.exists():
                 src_path = Paths.WORKSPACE_DIR / "workspace" / "artifacts" / "plots" / src_path.name
-                
+
             if not src_path.exists():
                 logger.warning(f"AssetManager: Reference file {src_path} does not exist. Skipping.")
                 continue
@@ -49,7 +49,7 @@ class AssetManager:
             try:
                 # Copy file
                 shutil.copy2(src_path, dest_path)
-                
+
                 # Perform Pillow image resizing for HTML/PDF uniformity
                 try:
                     with Image.open(dest_path) as img:
@@ -65,7 +65,7 @@ class AssetManager:
 
                 # Keep relative path for document generation references
                 copied_paths.append(f"assets/{src_path.name}")
-                
+
             except Exception as e:
                 logger.error(f"AssetManager: Failed to copy reference asset {src_path.name}: {e}")
 

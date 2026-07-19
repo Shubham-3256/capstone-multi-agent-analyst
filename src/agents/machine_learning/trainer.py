@@ -1,11 +1,12 @@
 """Training manager executing candidate models fits with exceptions capturing."""
 
 import time
-from typing import Any, Dict, Optional
+from typing import Any
+
 import pandas as pd
 
-from src.core.logger import get_logger
 from src.agents.machine_learning.models import TrainingResult
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -35,18 +36,18 @@ class Trainer:
         """
         logger.info(f"Trainer: Starting fit for candidate '{model_name}'...")
         start_time = time.time()
-        
+
         try:
             # Clean dataframe inputs from infs/nans (safeguard)
             X_clean = X_train.fillna(0.0)
             y_clean = y_train.fillna(0.0)
-            
+
             # Perform fit
             model.fit(X_clean, y_clean)
-            
+
             duration = time.time() - start_time
             logger.info(f"Trainer: Successfully trained '{model_name}' in {round(duration, 4)}s")
-            
+
             # Fetch hyperparameter details from fitted model
             params = {}
             if hasattr(model, "get_params"):
@@ -63,7 +64,7 @@ class Trainer:
             duration = time.time() - start_time
             err_msg = str(e)
             logger.error(f"Trainer: Exception training '{model_name}': {err_msg}")
-            
+
             return TrainingResult(
                 model_name=model_name,
                 best_params={},

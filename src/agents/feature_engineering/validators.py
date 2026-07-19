@@ -1,11 +1,11 @@
 """Validation engine implementing target, identifier, and temporal leakage checks."""
 
-from typing import Dict, List, Optional
+
 import numpy as np
 import pandas as pd
 
-from src.core.logger import get_logger
 from src.agents.feature_engineering.models import LeakageReport
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -14,7 +14,7 @@ class LeakageDetector:
     """Audits feature sets for data leakage issues, target flags, and duplicate columns."""
 
     @staticmethod
-    def detect_leakage(df: pd.DataFrame, target_column: str, identifier_cols: Optional[List[str]] = None) -> LeakageReport:
+    def detect_leakage(df: pd.DataFrame, target_column: str, identifier_cols: list[str] | None = None) -> LeakageReport:
         """Run leakage check sequences on the DataFrame.
 
         Args:
@@ -26,7 +26,7 @@ class LeakageDetector:
             LeakageReport: Compiled leakage audit report.
         """
         logger.info(f"LeakageDetector: Checking for data leaks targeting column '{target_column}'")
-        issues: List[Dict[str, str]] = []
+        issues: list[dict[str, str]] = []
         has_leakage = False
 
         if target_column not in df.columns:
@@ -40,7 +40,7 @@ class LeakageDetector:
             for col in numeric_df.columns:
                 if col == target_column:
                     continue
-                
+
                 series = numeric_df[col].fillna(0)
                 try:
                     corr_val = float(np.corrcoef(series, target_series)[0, 1])
@@ -58,7 +58,7 @@ class LeakageDetector:
         for col in df.columns:
             if col == target_column:
                 continue
-            
+
             col_name = str(col).lower()
             if col in ids or any(keyword in col_name for keyword in ["customer_id", "userid", "user_id", "session_id", "transaction_id", "index"]):
                 has_leakage = True

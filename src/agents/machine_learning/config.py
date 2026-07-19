@@ -1,8 +1,8 @@
 """YAML-driven configuration parser for Machine Learning modeling parameters."""
 
-from typing import Any, Dict, List, Optional
-import yaml
 from pathlib import Path
+
+import yaml
 from pydantic import BaseModel, Field
 
 from src.core.logger import get_logger
@@ -25,7 +25,7 @@ class ModelingConfig(BaseModel):
 class ModelSelectionConfig(BaseModel):
     """Configuration for selected target classifiers and regressors."""
 
-    classification_candidates: List[str] = Field(
+    classification_candidates: list[str] = Field(
         default=[
             "logistic_regression",
             "decision_tree",
@@ -36,7 +36,7 @@ class ModelSelectionConfig(BaseModel):
         ],
         description="Candidate models to train for classification tasks"
     )
-    regression_candidates: List[str] = Field(
+    regression_candidates: list[str] = Field(
         default=[
             "linear_regression",
             "ridge",
@@ -56,7 +56,7 @@ class MachineLearningConfig(BaseModel):
     selection: ModelSelectionConfig = Field(default_factory=ModelSelectionConfig)
 
     @classmethod
-    def load_from_yaml(cls, yaml_path: Optional[Path] = None) -> "MachineLearningConfig":
+    def load_from_yaml(cls, yaml_path: Path | None = None) -> "MachineLearningConfig":
         """Load configuration parameters from YAML file or return defaults.
 
         Args:
@@ -67,7 +67,7 @@ class MachineLearningConfig(BaseModel):
         """
         if yaml_path and yaml_path.exists():
             try:
-                with open(yaml_path, "r", encoding="utf-8") as f:
+                with open(yaml_path, encoding="utf-8") as f:
                     content = yaml.safe_load(f) or {}
                 logger.info(f"Loaded machine learning config from: {yaml_path}")
                 return cls(**content)

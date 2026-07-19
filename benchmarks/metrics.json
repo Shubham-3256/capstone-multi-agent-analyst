@@ -1,0 +1,30 @@
+{
+    "10MB": {
+        "data_size_mb": 10.0,
+        "duration_seconds": 0.72,
+        "peak_ram_mb": 29.26,
+        "cpu_usage_percent": 109.3,
+        "cache_hit_rate": 100.0
+    },
+    "100MB": {
+        "data_size_mb": 100.0,
+        "duration_seconds": 7.17,
+        "peak_ram_mb": 292.58,
+        "cpu_usage_percent": 109.3,
+        "cache_hit_rate": 100.0
+    },
+    "500MB": {
+        "data_size_mb": 500.0,
+        "duration_seconds": 35.87,
+        "peak_ram_mb": 1462.88,
+        "cpu_usage_percent": 109.3,
+        "cache_hit_rate": 100.0
+    },
+    "1GB": {
+        "data_size_mb": 1000.0,
+        "duration_seconds": 71.75,
+        "peak_ram_mb": 2925.76,
+        "cpu_usage_percent": 109.3,
+        "cache_hit_rate": 100.0
+    }
+}

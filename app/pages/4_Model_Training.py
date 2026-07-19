@@ -2,17 +2,17 @@
 
 import sys
 from pathlib import Path
-import streamlit as st
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.metrics import render_ml_metrics
-from app.components.tables import render_html_table
-from app.services.session import initialize_session, get_workflow_result
+from app.components.sidebar import setup_page
+from app.services.session import get_workflow_result, initialize_session
 
 
 def main() -> None:
@@ -38,13 +38,18 @@ def main() -> None:
         return
 
     # 1. Render AutoML Metrics and Leaderboard
+    split_rep = getattr(getattr(result.state, "feature_result", None), "split_report", None)
+    train_shape = getattr(split_rep, "train_shape", None)
+    if train_shape and train_shape[0] < 10:
+        st.warning("⚠️ Results for demonstration only: The dataset is too small (fewer than 10 training samples) for robust model training.")
+        
     render_ml_metrics(ml_result)
 
     st.divider()
 
     # 2. Best Model Hyperparameters & Details
     st.subheader("Best Model Configuration Summary")
-    
+
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(
@@ -68,7 +73,7 @@ def main() -> None:
 
     st.markdown("### Best Tuned Hyperparameters")
     best_params = ml_result.leaderboard.entries[0] if ml_result.leaderboard.entries else None
-    
+
     # Let's search for hyperparameter details
     # We can write it in an expander
     with st.expander("🛠️ View Hyperparameter Details", expanded=True):
@@ -82,7 +87,7 @@ def main() -> None:
         st.divider()
         st.subheader("Global Feature Importance Chart")
         st.markdown("Feature importances calculated from the best fitted AutoML estimator:")
-        
+
         df_imp = pd.DataFrame([
             {"Feature": item.column, "Importance": item.importance}
             for item in ml_result.feature_importances

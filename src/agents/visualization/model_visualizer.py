@@ -1,16 +1,15 @@
 """Visualizer generating Confusion Matrices, ROC Curves, and Residual Plots."""
 
-from typing import Dict, Any, List, Optional
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-from sklearn.metrics import roc_curve, auc
+from typing import Any
 
-from src.core.logger import get_logger
-from src.agents.visualization.figure_factory import FigureFactory
+import pandas as pd
+import plotly.graph_objects as go
+import seaborn as sns
+from sklearn.metrics import auc, roc_curve
+
 from src.agents.machine_learning.models import FeatureImportance
+from src.agents.visualization.figure_factory import FigureFactory
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -20,10 +19,10 @@ class ModelVisualizer:
 
     @staticmethod
     def generate_confusion_matrix(
-        matrix_data: List[List[int]],
-        classes: List[str],
+        matrix_data: list[list[int]],
+        classes: list[str],
         theme_name: str = "corporate"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate confusion matrix visualizations.
 
         Args:
@@ -74,7 +73,7 @@ class ModelVisualizer:
         X_val: pd.DataFrame,
         y_val: pd.Series,
         theme_name: str = "corporate"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate ROC validation curve plots.
 
         Args:
@@ -87,7 +86,7 @@ class ModelVisualizer:
             Dict[str, Any]: Mapped figures.
         """
         logger.info("ModelVisualizer: Creating ROC validation curve...")
-        
+
         # Clean inputs
         X_clean = X_val.fillna(0.0)
         y_clean = y_val.fillna(0)
@@ -150,7 +149,7 @@ class ModelVisualizer:
         X_val: pd.DataFrame,
         y_val: pd.Series,
         theme_name: str = "corporate"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate residuals vs predictions scatter plots for regression validation diagnostics.
 
         Args:
@@ -163,7 +162,7 @@ class ModelVisualizer:
             Dict[str, Any]: Mapped figures.
         """
         logger.info("ModelVisualizer: Creating residual diagnostic plots...")
-        
+
         # Make predictions
         X_clean = X_val.fillna(0.0)
         y_clean = y_val.fillna(0)
@@ -209,9 +208,9 @@ class ModelVisualizer:
 
     @staticmethod
     def generate_feature_importance_plot(
-        importances: List[FeatureImportance],
+        importances: list[FeatureImportance],
         theme_name: str = "corporate"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate ranked feature importance horizontal bar plots.
 
         Args:
@@ -222,7 +221,7 @@ class ModelVisualizer:
             Dict[str, Any]: Mapped figures.
         """
         logger.info("ModelVisualizer: Creating feature importances chart...")
-        
+
         # Sort and map to DataFrame
         df_imp = pd.DataFrame([
             {"feature": item.column, "importance": item.importance}

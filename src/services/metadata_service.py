@@ -1,16 +1,15 @@
 """Service for extracting semantic schema and structural metadata from datasets."""
 
-from typing import Any, List
 import pandas as pd
 
 from src.core.logger import get_logger
 from src.schemas.dataset import ColumnInfo
 from src.schemas.metadata import DatasetMetadata
 from src.utils.dataframe import (
+    extract_column_statistics,
     get_duplicate_count,
     get_memory_footprint,
     get_missing_summary,
-    extract_column_statistics,
 )
 
 logger = get_logger(__name__)
@@ -44,29 +43,29 @@ class MetadataService:
             DatasetMetadata: Generated data profile schema representation.
         """
         logger.info(f"Extracting detailed metadata schemas for dataset: {filename}")
-        
+
         # 1. Dimensions shape
         rows, cols = df.shape
-        
+
         # 2. DataFrame diagnostics
         mem_usage = get_memory_footprint(df)
         duplicates = get_duplicate_count(df)
         missing_dict = get_missing_summary(df)
         stats_dict = extract_column_statistics(df)
-        
+
         # 3. Create ColumnInfo profile maps
         columns_profile = {}
         for col in df.columns:
             col_name = str(col)
             series = df[col]
-            
+
             # Extract sample values (convert to JSON-serializable types, drop NaNs)
             samples = series.dropna().head(5).tolist()
-            
+
             missing_info = missing_dict["column_missing"].get(col_name, {"count": 0, "percentage": 0.0})
             non_null_count = int(series.notnull().sum())
             unique_count = int(series.nunique())
-            
+
             columns_profile[col_name] = ColumnInfo(
                 name=col_name,
                 dtype=str(series.dtype),
@@ -93,6 +92,6 @@ class MetadataService:
             memory_usage_bytes=mem_usage,
             status=status
         )
-        
+
         logger.info("Metadata extraction completed successfully.")
         return metadata

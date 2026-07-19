@@ -4,9 +4,10 @@ import gzip
 import shutil
 import tempfile
 from pathlib import Path
+
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.core.security import validate_extension, generate_sha256_hash
+from src.core.security import validate_extension
 
 logger = get_logger(__name__)
 
@@ -38,11 +39,11 @@ def calculate_file_sha256(filepath: Path) -> str:
     logger.debug(f"Calculating SHA-256 checksum for: {filepath}")
     if not filepath.exists() or not filepath.is_file():
         raise FileNotFoundError(f"File not found for hashing: {filepath}")
-    
+
     sha = hashlib_sha256 = hashlib_helper = None
     import hashlib
     h = hashlib.sha256()
-    
+
     # Read in 64kb chunks for high performance on large files
     try:
         with open(filepath, "rb") as f:
@@ -67,7 +68,7 @@ def compress_to_gzip(src: Path, dest: Path) -> Path:
     logger.info(f"GZIP compressing: {src} -> {dest}")
     if not src.exists():
         raise FileNotFoundError(f"Source file does not exist: {src}")
-        
+
     try:
         dest.parent.mkdir(parents=True, exist_ok=True)
         with open(src, "rb") as f_in:
@@ -77,7 +78,7 @@ def compress_to_gzip(src: Path, dest: Path) -> Path:
         return dest
     except Exception as e:
         logger.error(f"Failed to compress file: {e}")
-        raise IOError(f"Compression error: {e}") from e
+        raise OSError(f"Compression error: {e}") from e
 
 
 def decompress_from_gzip(src: Path, dest: Path) -> Path:
@@ -93,7 +94,7 @@ def decompress_from_gzip(src: Path, dest: Path) -> Path:
     logger.info(f"GZIP decompressing: {src} -> {dest}")
     if not src.exists():
         raise FileNotFoundError(f"Source file does not exist: {src}")
-        
+
     try:
         dest.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(src, "rb") as f_in:
@@ -103,7 +104,7 @@ def decompress_from_gzip(src: Path, dest: Path) -> Path:
         return dest
     except Exception as e:
         logger.error(f"Failed to decompress file: {e}")
-        raise IOError(f"Decompression error: {e}") from e
+        raise OSError(f"Decompression error: {e}") from e
 
 
 def create_workspace_temp_dir(prefix: str = "temp_") -> Path:
@@ -117,7 +118,7 @@ def create_workspace_temp_dir(prefix: str = "temp_") -> Path:
     """
     temp_root = Paths.WORKSPACE_DIR / "temp"
     temp_root.mkdir(parents=True, exist_ok=True)
-    
+
     temp_path = Path(tempfile.mkdtemp(prefix=prefix, dir=str(temp_root)))
     logger.debug(f"Temporary directory initialized at: {temp_path}")
     return temp_path

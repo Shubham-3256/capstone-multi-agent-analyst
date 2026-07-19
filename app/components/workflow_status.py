@@ -1,6 +1,7 @@
 """Workflow status and execution timeline renderer."""
 
 from typing import Any
+
 import streamlit as st
 
 
@@ -15,7 +16,7 @@ class LiveProgressViewer:
         """Process a workflow event and re-render the progress timeline."""
         self.events.append(event)
         node_title = event.node_name.replace("_", " ").title() if event.node_name else ""
-        
+
         with self.placeholder.container():
             status_text = "Processing..."
             if event.event_type == "workflow_started":
@@ -40,7 +41,7 @@ class LiveProgressViewer:
                         st.markdown(f"✅ **Completed** `{ev_node}`")
                     elif ev.event_type == "node_failed":
                         st.markdown(f"❌ **Failed** `{ev_node}`: {ev.payload.get('error', 'Unknown Error')}")
-                
+
                 if event.event_type == "workflow_completed":
                     if event.payload.get("success"):
                         status_box.update(label="🎉 **Workflow Completed Successfully!**", state="complete")
@@ -55,7 +56,7 @@ def render_workflow_status(result: Any) -> None:
         return
 
     st.subheader("Workflow Execution Audit Timeline")
-    
+
     all_possible_nodes = [
         "load_dataset",
         "data_intelligence",
@@ -65,11 +66,11 @@ def render_workflow_status(result: Any) -> None:
         "business_insights",
         "report_generation"
     ]
-    
+
     state = getattr(result, "state", None)
     history = getattr(state, "execution_history", []) if state else []
     executed_nodes = {item.node_name: item for item in history}
-    
+
     # Render nodes in order
     for idx, node in enumerate(all_possible_nodes, 1):
         node_title = f"{idx}. {node.replace('_', ' ').title()}"
@@ -84,7 +85,7 @@ def render_workflow_status(result: Any) -> None:
             # A node is skipped if data_intelligence succeeded, but target_column is not set (skipping feature_engineering and machine_learning)
             target_col = getattr(getattr(state, "metadata", None), "target_column", None)
             is_ml_or_fe = node in ["feature_engineering", "machine_learning"]
-            
+
             if is_ml_or_fe and not target_col:
                 st.warning(f"⏭️ **{node_title}** — Skipped (No target column selected)")
             else:
@@ -94,7 +95,7 @@ def render_workflow_status(result: Any) -> None:
         with st.expander("⚠️ Pipeline Warnings", expanded=False):
             for warning in state.warnings:
                 st.warning(warning)
-                
+
     if state and state.errors:
         with st.expander("❌ Pipeline Errors", expanded=True):
             for error in state.errors:

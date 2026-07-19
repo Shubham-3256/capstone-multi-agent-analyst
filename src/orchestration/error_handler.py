@@ -1,7 +1,8 @@
 """Retry and graceful-degradation wrapper for graph nodes."""
 
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from src.orchestration.events import EventBus, WorkflowEvent
 from src.orchestration.state import NodeExecution, WorkflowState

@@ -1,13 +1,11 @@
 """Manifest generator creating structured report_manifest.json catalog files."""
 
-import json
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
-import uuid
 
-from src.core.logger import get_logger
 from src.agents.report_generation.models import ReportManifest
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -18,8 +16,8 @@ class ManifestGenerator:
     @staticmethod
     def generate_manifest(
         dataset_hash: str,
-        charts_included: List[str],
-        sections: List[str],
+        charts_included: list[str],
+        sections: list[str],
         target_dir: Path
     ) -> ReportManifest:
         """Compile a ReportManifest metadata schema and write it to target_dir.

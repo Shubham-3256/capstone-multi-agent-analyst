@@ -2,13 +2,13 @@
 
 from src.agents.business_insights.agent import BusinessInsightAgent
 from src.agents.business_insights.models import (
-    ExecutiveSummary,
+    BusinessInsightResult,
+    ConfidenceReport,
     DatasetInsight,
+    ExecutiveSummary,
     ModelInsight,
     Recommendation,
     RiskItem,
-    ConfidenceReport,
-    BusinessInsightResult,
 )
 
 __all__ = [

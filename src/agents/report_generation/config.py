@@ -1,7 +1,7 @@
 """YAML-driven configuration parser for Report Generation paths and theme choices."""
 
-from typing import Optional
 from pathlib import Path
+
 import yaml
 from pydantic import BaseModel, Field
 
@@ -23,7 +23,7 @@ class ReportConfig(BaseModel):
     auto_resize_assets: bool = Field(default=True, description="Enable automatic graph image scaling")
 
     @classmethod
-    def load_from_yaml(cls, yaml_path: Optional[Path] = None) -> "ReportConfig":
+    def load_from_yaml(cls, yaml_path: Path | None = None) -> "ReportConfig":
         """Load document settings from YAML file or return defaults.
 
         Args:
@@ -34,7 +34,7 @@ class ReportConfig(BaseModel):
         """
         if yaml_path and yaml_path.exists():
             try:
-                with open(yaml_path, "r", encoding="utf-8") as f:
+                with open(yaml_path, encoding="utf-8") as f:
                     content = yaml.safe_load(f) or {}
                 # Resolve report subset block if present
                 report_content = content.get("report", content)

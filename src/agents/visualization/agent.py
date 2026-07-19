@@ -2,33 +2,32 @@
 
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
+from src.agents.feature_engineering.models import FeatureEngineeringResult
+from src.agents.machine_learning.models import MachineLearningResult
+from src.agents.visualization.caption_generator import CaptionGenerator
+from src.agents.visualization.config import VisualizationConfig
+from src.agents.visualization.dashboard_visualizer import DashboardVisualizer
+from src.agents.visualization.dataset_visualizer import DatasetVisualizer
+from src.agents.visualization.exporter import Exporter
+from src.agents.visualization.model_visualizer import ModelVisualizer
+from src.agents.visualization.models import (
+    ChartCaption,
+    ChartMetadata,
+    VisualizationMetadata,
+    VisualizationReport,
+    VisualizationResult,
+)
+from src.core.exceptions import DatasetException
 from src.core.logger import get_logger
 from src.core.paths import Paths
-from src.core.exceptions import DatasetException
-from src.database.database import DatabaseManager
-from src.database.models import ExecutionLog, DatasetRecord
-from src.repositories.log_repository import ExecutionLogRepository
+from src.database.models import ExecutionLog
 from src.repositories.dataset_repository import DatasetRepository
+from src.repositories.log_repository import ExecutionLogRepository
 from src.utils.serialization import deserialize_dataframe
-from src.agents.feature_engineering.models import FeatureEngineeringResult
-from src.agents.machine_learning.models import MachineLearningResult, FeatureImportance
-from src.agents.visualization.config import VisualizationConfig
-from src.agents.visualization.dataset_visualizer import DatasetVisualizer
-from src.agents.visualization.model_visualizer import ModelVisualizer
-from src.agents.visualization.dashboard_visualizer import DashboardVisualizer
-from src.agents.visualization.caption_generator import CaptionGenerator
-from src.agents.visualization.exporter import Exporter
-from src.agents.visualization.models import (
-    VisualizationResult,
-    VisualizationReport,
-    VisualizationMetadata,
-    ChartMetadata,
-    ChartCaption
-)
 
 logger = get_logger(__name__)
 
@@ -48,10 +47,11 @@ class VisualizationAgent:
 
     def run(
         self,
-        dataset_profile: Union[pd.DataFrame, str, int],
-        feature_result: Optional[FeatureEngineeringResult] = None,
-        ml_result: Optional[MachineLearningResult] = None,
-        config_path: Optional[Path] = None
+        dataset_profile: pd.DataFrame | str | int,
+        feature_result: FeatureEngineeringResult | None = None,
+        ml_result: MachineLearningResult | None = None,
+        config_path: Path | None = None,
+        target_column: str | None = None
     ) -> VisualizationResult:
         """Orchestrate and compile Matplotlib and Plotly figures, exporting static and interactive plots.
 
@@ -60,6 +60,7 @@ class VisualizationAgent:
             feature_result: Results context from Feature Engineering phase.
             ml_result: Results context from Machine Learning phase.
             config_path: Optional path to YAML configuration settings.
+            target_column: Optional target modeling label column override.
 
         Returns:
             VisualizationResult: Mapped locations, reports, and success status indicators.
@@ -86,9 +87,9 @@ class VisualizationAgent:
 
         try:
             # 1. Resolve and Load the DataFrame
-            df: Optional[pd.DataFrame] = None
-            dataset_hash: Optional[str] = None
-            
+            df: pd.DataFrame | None = None
+            dataset_hash: str | None = None
+
             if isinstance(dataset_profile, pd.DataFrame):
                 df = dataset_profile
             elif isinstance(dataset_profile, (str, int)):
@@ -107,29 +108,40 @@ class VisualizationAgent:
                 raise DatasetException("Could not load input dataset DataFrame for plotting visual heatmaps.")
 
             # Identify target column context
-            target_col = "target"
-            if ml_result and ml_result.task_report:
-                # Fallback target column reference
-                pass
-            
+            target_col = target_column or "target"
+
             # Setup output root directory
             base_dir = Paths.WORKSPACE_DIR / "artifacts"
             base_dir.mkdir(parents=True, exist_ok=True)
-            
-            chart_metadata_list: List[ChartMetadata] = []
+
+            chart_metadata_list: list[ChartMetadata] = []
 
             # 2. Dataset Visualizations
             # A. Missingness Heatmap
-            missing_figs = DatasetVisualizer.generate_missing_heatmap(df, theme)
-            missing_caption = CaptionGenerator.generate_missing_heatmap_caption(df)
-            missing_meta = Exporter.export_chart(
-                chart_id="missing_heatmap",
-                title="Missing Value Matrix Heatmap",
-                chart_type="heatmap",
-                figures=missing_figs,
-                caption=missing_caption,
-                base_dir=base_dir
-            )
+            total_missing = int(df.isna().sum().sum())
+            if total_missing == 0:
+                missing_meta = ChartMetadata(
+                    chart_id="missing_heatmap",
+                    title="Missing Value Matrix Heatmap",
+                    chart_type="heatmap",
+                    file_path="",
+                    html_path=None,
+                    caption=ChartCaption(
+                        summary="No missing values detected.",
+                        details="The dataset contains zero null cells; it is 100% complete and verified."
+                    )
+                )
+            else:
+                missing_figs = DatasetVisualizer.generate_missing_heatmap(df, theme)
+                missing_caption = CaptionGenerator.generate_missing_heatmap_caption(df)
+                missing_meta = Exporter.export_chart(
+                    chart_id="missing_heatmap",
+                    title="Missing Value Matrix Heatmap",
+                    chart_type="heatmap",
+                    figures=missing_figs,
+                    caption=missing_caption,
+                    base_dir=base_dir
+                )
             chart_metadata_list.append(missing_meta)
 
             # B. Correlation Heatmap
@@ -145,9 +157,11 @@ class VisualizationAgent:
             )
             chart_metadata_list.append(corr_meta)
 
-            # C. Single Variable Distribution (select numeric if possible)
-            numeric_cols = list(df.select_dtypes(include=["number"]).columns)
-            dist_col = numeric_cols[0] if numeric_cols else df.columns[0]
+            # C. Single Variable Distribution (select numeric if possible, skipping ID/constant/empty)
+            valid_cols = DatasetVisualizer.get_valid_columns(df)
+            valid_df = df[valid_cols] if valid_cols else df
+            numeric_cols = list(valid_df.select_dtypes(include=["number"]).columns)
+            dist_col = numeric_cols[0] if numeric_cols else (valid_cols[0] if valid_cols else df.columns[0])
             dist_figs = DatasetVisualizer.generate_distribution_plot(df, dist_col, theme)
             dist_caption = CaptionGenerator.generate_distribution_caption(df, dist_col)
             dist_meta = Exporter.export_chart(
@@ -165,13 +179,13 @@ class VisualizationAgent:
             if ml_result:
                 best_model_name = ml_result.best_model_name
                 task_type = ml_result.task_report.task_type
-                
+
                 # Retrieve fitted best model
                 best_model_path = Path(ml_result.best_model_path)
                 if best_model_path.exists():
                     import joblib
                     best_model = joblib.load(str(best_model_path))
-                    
+
                     # Resolve validation data splits context
                     # If feature engineering saved splits in default folder, reload them
                     val_filepath = Paths.PROCESSED_DIR / "val.csv"
@@ -179,14 +193,16 @@ class VisualizationAgent:
                         val_df = pd.read_csv(val_filepath)
                         # Extract target target vector
                         # Find overlapping label
-                        common_target = None
-                        if ml_result.task_report.classes:
-                            # Search target names in columns
-                            for c in val_df.columns:
-                                if c in ["target", "churn", "label", "class"]:
-                                    common_target = c
-                                    break
-                        
+                        common_target = target_column
+                        if not common_target or common_target not in val_df.columns:
+                            common_target = None
+                            if ml_result.task_report.classes:
+                                # Search target names in columns
+                                for c in val_df.columns:
+                                    if c in ["target", "churn", "label", "class"]:
+                                        common_target = c
+                                        break
+
                         if not common_target:
                             common_target = val_df.columns[-1]
 

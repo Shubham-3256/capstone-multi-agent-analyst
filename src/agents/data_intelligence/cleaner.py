@@ -2,12 +2,12 @@
 
 import re
 import time
-from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 
-from src.core.logger import get_logger
 from src.agents.data_intelligence.models import CleaningAction, CleaningReport
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -18,11 +18,11 @@ class Cleaner:
     @staticmethod
     def clean(
         df: pd.DataFrame,
-        imputation_strategies: Optional[Dict[str, str]] = None,
-        outlier_strategies: Optional[Dict[str, str]] = None,  # col -> strategy (e.g. 'iqr_cap', 'zscore_cap', 'drop')
-        datatype_conversions: Optional[Dict[str, str]] = None,
+        imputation_strategies: dict[str, str] | None = None,
+        outlier_strategies: dict[str, str] | None = None,  # col -> strategy (e.g. 'iqr_cap', 'zscore_cap', 'drop')
+        datatype_conversions: dict[str, str] | None = None,
         drop_empty_cols: bool = True
-    ) -> Tuple[pd.DataFrame, CleaningReport]:
+    ) -> tuple[pd.DataFrame, CleaningReport]:
         """Perform unified data cleaning actions on a Pandas DataFrame.
 
         Args:
@@ -40,11 +40,11 @@ class Cleaner:
         """
         logger.info("Cleaner: Starting dataset cleaning process...")
         start_time = time.time()
-        
+
         # Deep copy to prevent original dataframe mutations
         working_df = df.copy()
         initial_shape = list(working_df.shape)
-        transformations: List[CleaningAction] = []
+        transformations: list[CleaningAction] = []
 
         # 1. Convert/Resolve duplicate column names
         cols = list(working_df.columns)
@@ -73,7 +73,7 @@ class Cleaner:
             col_str = str(col).strip().lower().replace(" ", "_")
             col_str = re.sub(r"[^\w\-]", "", col_str)  # Keep alphanumeric, underscores, hyphens
             normalized_cols.append(col_str)
-        
+
         if old_cols != normalized_cols:
             working_df.columns = normalized_cols
             transformations.append(CleaningAction(
@@ -215,12 +215,12 @@ class Cleaner:
                 iqr = q3 - q1
                 lower = q1 - 1.5 * iqr
                 upper = q3 + 1.5 * iqr
-                
+
                 # Cap values
                 outliers_low = (series < lower).sum()
                 outliers_high = (series > upper).sum()
                 total_outliers = int(outliers_low + outliers_high)
-                
+
                 if total_outliers > 0:
                     working_df[col] = np.clip(series, lower, upper)
                     transformations.append(CleaningAction(
@@ -234,11 +234,11 @@ class Cleaner:
                 if std_val > 0:
                     lower = mean_val - 3 * std_val
                     upper = mean_val + 3 * std_val
-                    
+
                     outliers_low = (series < lower).sum()
                     outliers_high = (series > upper).sum()
                     total_outliers = int(outliers_low + outliers_high)
-                    
+
                     if total_outliers > 0:
                         working_df[col] = np.clip(series, lower, upper)
                         transformations.append(CleaningAction(
@@ -252,7 +252,7 @@ class Cleaner:
                 iqr = q3 - q1
                 lower = q1 - 1.5 * iqr
                 upper = q3 + 1.5 * iqr
-                
+
                 outliers_mask = (series < lower) | (series > upper)
                 outliers_count = int(outliers_mask.sum())
                 if outliers_count > 0:
@@ -268,7 +268,7 @@ class Cleaner:
         for col, target_type in conv_strategies.items():
             if col not in working_df.columns:
                 continue
-            
+
             try:
                 if target_type == "datetime":
                     working_df[col] = pd.to_datetime(working_df[col], errors="coerce")
@@ -319,7 +319,7 @@ class Cleaner:
         # Finish summary parameters
         duration = time.time() - start_time
         final_shape = list(working_df.shape)
-        
+
         report = CleaningReport(
             transformations=transformations,
             initial_shape=initial_shape,

@@ -1,8 +1,10 @@
 """Parallel processing executors for ML training and independent pipeline calculations."""
 
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import os
-from typing import Callable, List, TypeVar
+from collections.abc import Callable
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from typing import TypeVar
+
 from src.core.logger import get_logger
 from src.optimization.config import OptimizationConfig
 
@@ -14,10 +16,10 @@ R = TypeVar("R")
 
 def parallel_map(
     func: Callable[[T], R],
-    items: List[T],
+    items: list[T],
     max_workers: int = OptimizationConfig.PARALLEL_JOBS,
     use_processes: bool = False
-) -> List[R]:
+) -> list[R]:
     """Execute a mapping function over a collection of items in parallel.
 
     Args:
@@ -43,13 +45,13 @@ def parallel_map(
         return [func(item) for item in items]
 
     logger.info(f"Parallel Execution: Processing {len(items)} items using {workers} workers (mode={'processes' if use_processes else 'threads'})")
-    
-    results: List[R] = []
+
+    results: list[R] = []
     if use_processes:
         with ProcessPoolExecutor(max_workers=workers) as executor:
             results = list(executor.map(func, items))
     else:
         with ThreadPoolExecutor(max_workers=workers) as executor:
             results = list(executor.map(func, items))
-            
+
     return results

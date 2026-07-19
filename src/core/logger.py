@@ -7,7 +7,9 @@ coloring and daily rotating log files for trace retention.
 import logging
 import sys
 from logging.handlers import TimedRotatingFileHandler
+
 from rich.logging import RichHandler
+
 from src.core.paths import Paths
 from src.core.settings import settings
 

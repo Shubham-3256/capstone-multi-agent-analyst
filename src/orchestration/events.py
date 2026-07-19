@@ -1,8 +1,9 @@
 """Small in-process event system for workflow lifecycle notifications."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -12,7 +13,7 @@ class WorkflowEvent:
     event_type: str
     workflow_id: str
     node_name: str | None = None
-    payload: Dict[str, Any] = field(default_factory=dict)
+    payload: dict[str, Any] = field(default_factory=dict)
     occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -20,7 +21,7 @@ class EventBus:
     """Publishes workflow events to locally registered subscribers."""
 
     def __init__(self) -> None:
-        self._subscribers: List[Callable[[WorkflowEvent], None]] = []
+        self._subscribers: list[Callable[[WorkflowEvent], None]] = []
 
     def subscribe(self, callback: Callable[[WorkflowEvent], None]) -> None:
         """Register a lifecycle event subscriber."""

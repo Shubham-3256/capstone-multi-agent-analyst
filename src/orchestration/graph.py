@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 from langgraph.graph import END, START, StateGraph
 
@@ -16,7 +17,7 @@ from src.agents.feature_engineering.agent import FeatureEngineeringAgent
 from src.agents.machine_learning.agent import MachineLearningAgent
 from src.agents.report_generation.agent import ReportGenerationAgent
 from src.agents.visualization.agent import VisualizationAgent
-from src.database.database import DatabaseManager, SessionLocal, init_db
+from src.database.database import SessionLocal, init_db
 from src.database.models import WorkflowExecution
 from src.orchestration.checkpoint import FileCheckpointStore, memory_checkpointer
 from src.orchestration.config import WorkflowConfig
@@ -27,10 +28,11 @@ from src.orchestration.router import WorkflowRouter
 from src.orchestration.state import WorkflowMetadata, WorkflowResult, WorkflowState
 
 
-def serialize_state(state: WorkflowState) -> Dict[str, Any]:
+def serialize_state(state: WorkflowState) -> dict[str, Any]:
     """Safely serialize state to a JSON-compatible dictionary, converting SimpleNamespace and numpy types."""
-    import numpy as np
     from types import SimpleNamespace
+
+    import numpy as np
 
     def fallback(v: Any) -> Any:
         if isinstance(v, SimpleNamespace):
@@ -55,9 +57,9 @@ class WorkflowGraph:
 
     def __init__(
         self,
-        config: Optional[WorkflowConfig] = None,
-        callbacks: Optional[Dict[str, Callable[..., Any]]] = None,
-        event_bus: Optional[EventBus] = None,
+        config: WorkflowConfig | None = None,
+        callbacks: dict[str, Callable[..., Any]] | None = None,
+        event_bus: EventBus | None = None,
     ) -> None:
         """Create a graph with optional injected callbacks for tests or alternate agents."""
         self.config = config or WorkflowConfig()
@@ -69,25 +71,25 @@ class WorkflowGraph:
         self.nodes = WorkflowNodes(NodeExecutor(self.config.max_retries, self.events), self.callbacks)
         self.graph = self._compile()
 
-    def _default_callbacks(self) -> Dict[str, Callable[..., Any]]:
+    def _default_callbacks(self) -> dict[str, Callable[..., Any]]:
         """Adapt existing agent methods to the graph callback interface."""
         return {
             "data_intelligence": lambda path, target: DataIntelligenceAgent(self.db).run(path, target),
             "feature_engineering": lambda dataframe, target: FeatureEngineeringAgent(self.db).run(dataframe, target),
             "machine_learning": lambda train, target, valid, valid_target: MachineLearningAgent(self.db).run(train, target, valid, valid_target),
-            "visualization": lambda profile, feature, ml: VisualizationAgent(self.db).run(profile, feature, ml),
+            "visualization": lambda profile, feature, ml, target: VisualizationAgent(self.db).run(profile, feature, ml, target_column=target),
             "business_insights": lambda profile, feature, ml, viz: BusinessInsightAgent(self.db).run(profile, feature, ml, viz),
             "report_generation": lambda profile, feature, ml, viz, business, template: ReportGenerationAgent(self.db).run(profile, feature, ml, viz, business, template),
         }
 
     @staticmethod
-    def _state(raw: Dict[str, Any]) -> WorkflowState:
+    def _state(raw: dict[str, Any]) -> WorkflowState:
         """Convert LangGraph's dictionary state to the canonical Pydantic model."""
         return WorkflowState.model_validate(raw)
 
-    def _wrap(self, callback: Callable[[WorkflowState], Dict[str, Any]]) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
+    def _wrap(self, callback: Callable[[WorkflowState], dict[str, Any]]) -> Callable[[dict[str, Any]], dict[str, Any]]:
         """Adapt typed node callbacks to the dictionary protocol used by StateGraph."""
-        def node(raw: Dict[str, Any]) -> Dict[str, Any]:
+        def node(raw: dict[str, Any]) -> dict[str, Any]:
             state = self._state(raw)
             updates = callback(state)
             for key, value in updates.items():
@@ -95,11 +97,11 @@ class WorkflowGraph:
             return serialize_state(state)
         return node
 
-    def _route_data(self, raw: Dict[str, Any]) -> str:
+    def _route_data(self, raw: dict[str, Any]) -> str:
         """Return the next node after the data intelligence decision."""
         return WorkflowRouter.after_data_intelligence(self._state(raw))
 
-    def _route_feature(self, raw: Dict[str, Any]) -> str:
+    def _route_feature(self, raw: dict[str, Any]) -> str:
         """Return the next node after feature engineering."""
         return WorkflowRouter.after_feature_engineering(self._state(raw))
 
@@ -125,16 +127,23 @@ class WorkflowGraph:
         builder.add_edge("finalize", END)
         return builder.compile(checkpointer=memory_checkpointer() if self.config.checkpoint_mode == "memory" else None)
 
-    def run(self, dataset_path: str, target_column: Optional[str] = None, workflow_id: Optional[str] = None) -> WorkflowResult:
+    def run(self, dataset_path: str, target_column: str | None = None, workflow_id: str | None = None) -> WorkflowResult:
         """Execute the graph and return a typed result, including graceful skips/errors."""
         identifier = workflow_id or str(uuid.uuid4())
         if self.config.checkpoint_mode == "file" and workflow_id:
             restored = self.file_checkpoints.load(workflow_id)
             if restored:
                 return WorkflowResult(is_success=not restored.errors, state=restored, output_paths=self._paths(restored))
+        
+        norm_target = None
+        if target_column:
+            import re
+            norm_target = str(target_column).strip().lower().replace(" ", "_")
+            norm_target = re.sub(r"[^\w\-]", "", norm_target)
+            
         state = WorkflowState(
             dataset_path=str(Path(dataset_path)),
-            metadata=WorkflowMetadata(workflow_id=identifier, target_column=target_column, template_type=self.config.template_type),
+            metadata=WorkflowMetadata(workflow_id=identifier, target_column=norm_target, template_type=self.config.template_type),
         )
         self.events.publish(WorkflowEvent("workflow_started", identifier))
         invoke_config = {"configurable": {"thread_id": identifier}} if self.config.checkpoint_mode == "memory" else {}
@@ -149,7 +158,7 @@ class WorkflowGraph:
         return result
 
     @staticmethod
-    def _paths(state: WorkflowState) -> Dict[str, str]:
+    def _paths(state: WorkflowState) -> dict[str, str]:
         """Extract report output paths without coupling orchestration to report internals."""
         res = state.report_result
         if res is None:
@@ -162,12 +171,20 @@ class WorkflowGraph:
         """Persist workflow history, durations, errors, and output summary."""
         if not self.config.persist_execution:
             return
-        record = WorkflowExecution(
-            workflow_id=result.state.metadata.workflow_id,
-            status="completed" if result.is_success else "degraded",
-            history_json=json.dumps([item.model_dump(mode="json") for item in result.state.execution_history]),
-            errors_json=json.dumps(result.state.errors),
-            timing_json=json.dumps(result.state.timing),
-        )
-        self.db.add(record)
+        
+        existing = self.db.query(WorkflowExecution).filter_by(workflow_id=result.state.metadata.workflow_id).first()
+        if existing:
+            existing.status = "completed" if result.is_success else "degraded"
+            existing.history_json = json.dumps([item.model_dump(mode="json") for item in result.state.execution_history])
+            existing.errors_json = json.dumps(result.state.errors)
+            existing.timing_json = json.dumps(result.state.timing)
+        else:
+            record = WorkflowExecution(
+                workflow_id=result.state.metadata.workflow_id,
+                status="completed" if result.is_success else "degraded",
+                history_json=json.dumps([item.model_dump(mode="json") for item in result.state.execution_history]),
+                errors_json=json.dumps(result.state.errors),
+                timing_json=json.dumps(result.state.timing),
+            )
+            self.db.add(record)
         self.db.commit()

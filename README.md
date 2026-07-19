@@ -1,141 +1,157 @@
-# Capstone: Multi-Agent AI Data Analyst (capstone-multi-agent-analyst)
+# Multi-Agent AI Data Analyst
 
-[![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
+[![CI](https://github.com/example/capstone-multi-agent-analyst/actions/workflows/ci.yml/badge.svg)](https://github.com/example/capstone-multi-agent-analyst/actions)
 
-A production-ready, highly scalable multi-agent artificial intelligence framework designed to ingest, clean, explore, model, and visualize dataset operations automatically. 
+An enterprise-grade, fully reproducible **Multi-Agent AI Data Analyst** platform. It automates end-to-end data analysis workflows: from raw dataset cleaning, schema validation, feature engineering, and model training (regression, classification, multiclass) to generating visualizations, business insights, and compiled PDF/DOCX executive reports.
 
----
-
-## Project Overview
-
-The **Multi-Agent AI Data Analyst** is an advanced, production-grade artificial intelligence platform that orchestrates specialized AI agents to automate end-to-end data science workflows. By utilizing a modular cyclic state graph topology coordinated via LangGraph, the system processes structured datasets, performs exploratory statistical profile analysis, runs feature engineering operations, trains and optimizes machine learning models (AutoML), generates rich visualization panels, and compiles human-grade executive reports in PDF, DOCX, HTML, and Markdown formats.
+Structured around a directed acyclic execution graph powered by **LangGraph**, the system utilizes specialized AI agents at each lifecycle node, persisting execution checkpoints to an SQLite database for seamless workflow recovery, pausing, and resuming.
 
 ---
 
-## Key System Features (Completed Phases 1–12)
+## 🚀 Key Features
 
-*   **State-Coordinated Orchestration**: A cyclic, fault-tolerant state-machine pipeline built on LangGraph that manages checkpointing, rollback recovery, and audit tracking.
-*   **Intelligent Data Ingestion & Profiling**: Automated schema inference, missingness profiles, outlier checks, constant columns detection, and class distribution profiling.
-*   **Feature Engineering Pipeline**: Dynamic target leakage detection, automatic encoding of categoricals, standard scaling, and feature selection.
-*   **AutoML Engine**: Parallel model search with parameter tuning across estimators (Gradient Boosting, Random Forest, Logistic Regression, Gaussian NB, Decision Trees, K-Neighbors). Includes automated leave-one-out and stratified cross-validation for small datasets.
-*   **Dynamic Visualizations**: Multi-chart visualization agent compiling missing value heatmaps, correlation grids, distributions, ROC/PR curves, and feature importance bar plots.
-*   **Traceable Business Insights**: Grounded, dynamic LLM generation of executive summaries, takeaways, strategic recommendations, operational risk profiles, and confidence ratings, completely free of hardcoded domain assumptions.
-*   **Professional Document Compilation**: Programmatic compilers transforming analysis summaries and assets into PDF, DOCX, HTML, and Markdown reports, with full structural verification audits.
-*   **Interactive Dashboard UI**: A premium, dark-mode optimized Streamlit interface with step-by-step page routing, workflow history tracking, and interactive analysis controls.
+*   **Robust Ingestion & Schema Auditing**: Checks uploads for file structures, null counts, cardinalities, and identifies anomalies.
+*   **Automatic Cleaning & Optimization**: Implements dataset-driven column filters, handles missing values, and optimizes memory usage.
+*   **Production-Grade Feature Engineering**: Automates scaling, encoding, and target-correlated feature selection.
+*   **Automated Machine Learning (AutoML)**: Sweeps algorithms (XGBoost, LightGBM, CatBoost, Scikit-Learn) with cross-validation and Leave-One-Out fallbacks for small samples.
+*   **Visualizations Suite**: Generates correlation matrices, distribution plots, and missingness heatmaps.
+*   **GenAI Business Insights**: Utilizes LLMs (OpenAI, Gemini, Anthropic) to produce executive findings and text-based summaries.
+*   **Executive Report Compilation**: Compiles Markdown, assets, and charts into PDF, DOCX, and HTML reports via WeasyPrint.
+*   **Durable State Checkpointing**: Supports saving and resuming workflows using DB-backed checkpoint stores.
 
 ---
 
-## Architectural Overview
+## 🏛️ System Architecture
 
-Below is the conceptual execution flow of the LangGraph state machine orchestrating the specialized agent modules:
+The following diagram illustrates the flow of a dataset through the execution graph:
 
 ```mermaid
 graph TD
-    User([User Client]) -->|Upload Dataset & Select Target| UploadPage[Streamlit Upload Screen]
-    UploadPage -->|Trigger Run| Orchestrator[Orchestration Engine: LangGraph Coordinator]
+    A[Raw Dataset Upload] --> B[Data Ingestion & Validation]
+    B --> C[Dataset Cleaning & Optimization]
+    C --> D[Data Intelligence Profiler]
+    D --> E[Feature Engineering Pipeline]
+    E --> F[Automated Model Training & Tuning]
+    F --> G[Visualization Suite Generation]
+    G --> H[LLM-Powered Business Insights]
+    H --> I[Executive Report Compilation]
+    I --> J[Production-Ready Artifacts]
     
-    subgraph Orchestrator Pipeline
-        Orchestrator --> NodeLoad[1. Load & Validate Dataset]
-        NodeLoad --> NodeEDA[2. Data Intelligence Agent]
-        NodeEDA --> NodeFE[3. Feature Engineering Agent]
-        NodeFE --> NodeML[4. AutoML Estimator search]
-        NodeML --> NodeViz[5. Visualization Agent]
-        NodeViz --> NodeInsights[6. Business Insights Agent]
-        NodeInsights --> NodeReport[7. Report Generation Agent]
+    subgraph Storage & Checkpoints
+        K[(SQLite database)] <--> B
+        K <--> F
+        K <--> I
     end
-    
-    subgraph Persistence Layer
-        Orchestrator <--> Checkpoints[(File / DB State Checkpoints)]
-        NodeLoad <--> SQLite[(SQLite Database Execution Logs)]
-    end
-
-    NodeReport -->|Export Formats| Output[PDF, HTML, DOCX, MD Reports]
-    Output -->|Serve Dashboard downloads| User
 ```
 
 ---
 
-## Folders & Core Modules
+## 🛠️ Quick Start
 
-```
-capstone-multi-agent-analyst/
-├── app/                        # User interface layer (Streamlit Front-End)
-│   ├── Home.py                 # Landing page & Pipeline flowcharts
-│   ├── components/             # Reusable UI elements (Uploaders, Tables, Charts)
-│   ├── services/               # UI Services (Session state, configuration)
-│   └── pages/                  # Multipage dashboard application screens
-├── src/                        # Core agentic and execution logic (Back-End)
-│   ├── agents/                 # Specialized agent classes (ML, EDA, Insights, Reports)
-│   ├── core/                   # Core modules (LLM clients, custom loggers, path constants)
-│   ├── database/               # Database models and session managers (SQLite/SQLAlchemy)
-│   ├── optimization/           # Performance layer (Lazy loaders, benchmarking, caching)
-│   ├── orchestration/          # LangGraph state machine, nodes, and routers
-│   ├── repositories/           # Database entity access repositories
-│   └── schemas/                # Strict Pydantic API and data validation models
-├── workspace/                  # Dynamic local database and reports folder (Git ignored)
-├── tests/                      # Pytest automated test scripts
-└── pyproject.toml              # Project dependencies, packaging, and lint configs
-```
+### 1. Prerequisites
+Ensure you have the following installed:
+*   [Python 3.12](https://www.python.org/downloads/)
+*   [Docker & Docker Compose](https://www.docker.com/)
 
----
-
-## Installation & Running Instructions
-
-### 1. Environment Setup
-
+### 2. Running Locally
+Clone the repository and prepare the workspace:
 ```bash
 # Clone the repository
-git clone <repository_url>
+git clone https://github.com/example/capstone-multi-agent-analyst.git
 cd capstone-multi-agent-analyst
 
-# Create the virtual environment
+# Copy the environment template
+cp .env.example .env
+
+# Create and activate virtual environment
 python -m venv .venv
-# Activate (Windows PowerShell):
-.venv\Scripts\Activate.ps1
-# Activate (macOS/Linux):
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install requirements
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2. Launch the Streamlit Dashboard
-
-Start the application dashboard locally:
+Start the Streamlit dashboard:
 ```bash
 streamlit run app/Home.py
 ```
-Open your browser and navigate to: **`http://localhost:8501`**
 
-### 3. Run Automated Tests
+---
 
-To verify code correctness, run the test suite containing **103 unit and integration tests**:
+## 🐳 Docker Deployment
+
+The platform is containerized using Docker and orchestrated with Docker Compose.
+
+### Local Development (Hot Reloading)
+To run the local developer container with code volume mapping and automatic hot-reloading:
 ```bash
+docker compose up --build
+```
+Access the dashboard at [http://localhost:8501](http://localhost:8501).
+
+### Production Deployment (Nginx Reverse Proxy)
+To launch the production candidate secure stack containing Nginx proxying to the Streamlit app:
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+```
+Access the gateway on standard HTTP port 80: [http://localhost](http://localhost).
+
+---
+
+## ⚙️ Configuration Setup
+
+Configure runtime parameters in the local `.env` file:
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `OPENAI_API_KEY` | OpenAI API Authentication Token | *Required for OpenAI models* |
+| `GEMINI_API_KEY` | Gemini API Authentication Token | *Optional* |
+| `ANTHROPIC_API_KEY`| Anthropic API Authentication Token | *Optional* |
+| `DATABASE_URL` | SQLite Connection URI | `sqlite:///./workspace/data.db` |
+| `WORKSPACE_DIR` | Base workspace output folder | `./workspace` |
+| `LOG_LEVEL` | Application logging granularity | `INFO` |
+
+---
+
+## 🧪 Verification & Testing
+
+Verify system integrity using the Pytest suite (includes E2E, integration, and performance profiles):
+```bash
+# Run the complete test suite (127 checks)
 python -m pytest
+
+# Run with test coverage
+python -m pytest --cov=src --cov-report=term-missing
 ```
 
 ---
 
-## Static Code Audits & Coding Standards
+## 📂 Project Structure
 
-To enforce code quality, run Black, Ruff, and MyPy checkers:
-
-```bash
-# Run Ruff linting check
-ruff check .
-
-# Apply automatic formatting using Black
-black .
-
-# Run static type checks
-mypy .
+```
+├── .github/workflows/      # CI/CD automated actions
+├── app/                    # Streamlit pages and UI components
+├── benchmarks/             # Scalability performance tests & runs
+├── docs/                   # Full documentation manuals
+├── logs/                   # System runtime logs (with daily rotations)
+├── portfolio/              # Interview preparation and highlights
+├── src/                    # Primary application packages (orchestration, agents, core)
+├── workspace/              # Dynamic data outputs, caches, and reports
+├── .env.example            # Environment variables configuration template
+├── docker-compose.yml      # Local Compose definition
+├── docker-compose.prod.yml # Production Compose reverse-proxy definition
+├── Dockerfile              # Multi-stage production container setup
+├── Dockerfile.dev          # Lightweight developer container setup
+├── nginx.conf              # Reverse proxy gateway routing
+└── pyproject.toml          # Tooling, Ruff, Black, and package metadata
 ```
 
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

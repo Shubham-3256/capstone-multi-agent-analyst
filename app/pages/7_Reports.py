@@ -2,18 +2,18 @@
 
 import sys
 from pathlib import Path
-from typing import Optional
+
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.cards import info_card
-from app.services.session import initialize_session, get_workflow_result
+from app.components.sidebar import setup_page
+from app.services.session import get_workflow_result, initialize_session
 
 
-def resolve_path(p: str) -> Optional[Path]:
+def resolve_path(p: str) -> Path | None:
     """Resolve workspace file paths robustly."""
     if not p:
         return None
@@ -72,7 +72,7 @@ def main() -> None:
 
     # 2. File Download Panel
     st.subheader("💾 Download Formats")
-    
+
     col_dl1, col_dl2, col_dl3, col_dl4 = st.columns(4)
     formats = [
         ("pdf", "📕 Export PDF Document", "application/pdf", col_dl1),
@@ -109,7 +109,7 @@ def main() -> None:
     if md_path and md_path.exists():
         st.subheader("📝 Report Content Preview")
         try:
-            with open(md_path, "r", encoding="utf-8") as f:
+            with open(md_path, encoding="utf-8") as f:
                 md_content = f.read()
             with st.container(border=True):
                 st.markdown(md_content)

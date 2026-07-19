@@ -1,7 +1,8 @@
 """Schemas representing column profiles and dataset summaries."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -38,12 +39,12 @@ class ColumnInfo(BaseModel):
         description="Number of distinct unique values in the column",
         examples=[45]
     )
-    sample_values: List[Any] = Field(
+    sample_values: list[Any] = Field(
         default=[],
         description="Small list of representative sample values from the column",
         examples=[[25, 42, 19, 64]]
     )
-    statistics: Dict[str, Any] = Field(
+    statistics: dict[str, Any] = Field(
         default={},
         description="Descriptive statistics calculated for the column (e.g. mean, std, min, max, etc.)",
         examples=[{"mean": 38.5, "min": 18, "max": 90}]
@@ -63,12 +64,12 @@ class TargetInfo(BaseModel):
         description="Inferred modeling task type (e.g. classification, regression)",
         examples=["classification"]
     )
-    classes: Optional[List[Any]] = Field(
+    classes: list[Any] | None = Field(
         default=None,
         description="List of distinct classes for classification tasks",
         examples=[[0, 1]]
     )
-    class_distribution: Optional[Dict[str, float]] = Field(
+    class_distribution: dict[str, float] | None = Field(
         default=None,
         description="Ratio details of target values (e.g. class proportions)",
         examples=[{"0": 0.82, "1": 0.18}]
@@ -98,7 +99,7 @@ class DatasetSummary(BaseModel):
         description="Physical file size in bytes",
         examples=[1048576]
     )
-    columns: List[ColumnInfo] = Field(
+    columns: list[ColumnInfo] = Field(
         ...,
         description="Detailed profiling metrics for each column",
     )

@@ -2,16 +2,17 @@
 
 import sys
 from pathlib import Path
+
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.components.sidebar import setup_page
 from app.components.cards import info_card
+from app.components.sidebar import setup_page
 from app.components.tables import render_html_table
-from app.services.session import initialize_session
 from app.services.history_service import HistoryService
+from app.services.session import initialize_session
 
 
 def render_mermaid() -> None:
@@ -63,7 +64,7 @@ def main() -> None:
         autonomous AI agents to ingest, clean, explore, model, and compile PDF reports for your datasets automatically.
         """
     )
-    
+
     st.divider()
 
     # 1. Quick Statistics

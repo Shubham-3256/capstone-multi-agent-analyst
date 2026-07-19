@@ -1,15 +1,14 @@
 """Unified LLM client interface managing caching, retries, cost tracking and billing."""
 
-from typing import Dict, Any, Optional
 import time
 
-from src.core.logger import get_logger
+from src.core.llm.cache import LLMCache
 from src.core.llm.config import LLMConfig
+from src.core.llm.cost_tracker import CostTracker
+from src.core.llm.provider import LLMProvider
 from src.core.llm.retry import retry_with_backoff
 from src.core.llm.tokenizer import Tokenizer
-from src.core.llm.cost_tracker import CostTracker
-from src.core.llm.cache import LLMCache
-from src.core.llm.provider import LLMProvider
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -17,7 +16,7 @@ logger = get_logger(__name__)
 class LLMClient:
     """Enterprise client managing connection profiles, caches, costs and retries."""
 
-    def __init__(self, config: Optional[LLMConfig] = None) -> None:
+    def __init__(self, config: LLMConfig | None = None) -> None:
         """Initialize LLMClient.
 
         Args:
@@ -56,7 +55,7 @@ class LLMClient:
 
         logger.info("LLMClient: Calling LLM provider...")
         response = _execute_call()
-        
+
         # 4. Count completion output tokens
         output_tokens = Tokenizer.count_tokens(response, self.config.model)
 

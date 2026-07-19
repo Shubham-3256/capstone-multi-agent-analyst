@@ -1,24 +1,25 @@
 """Metrics evaluation engine for classification and regression models."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
     balanced_accuracy_score,
     confusion_matrix,
+    f1_score,
     mean_absolute_error,
-    mean_squared_error,
     mean_absolute_percentage_error,
+    mean_squared_error,
+    precision_score,
     r2_score,
+    recall_score,
+    roc_auc_score,
 )
 
-from src.core.logger import get_logger
 from src.agents.machine_learning.models import EvaluationReport
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -32,7 +33,7 @@ class Evaluator:
         X_test: pd.DataFrame,
         y_test: pd.Series,
         task_type: str,
-        is_binary: Optional[bool] = None
+        is_binary: bool | None = None
     ) -> EvaluationReport:
         """Calculate performance metrics on validation data.
 
@@ -47,7 +48,7 @@ class Evaluator:
             EvaluationReport: Mapped metrics profile.
         """
         logger.info("Evaluator: Computing validation metrics...")
-        
+
         # Clean inputs
         X_clean = X_test.fillna(0.0)
         y_clean = y_test.fillna(0)
@@ -55,9 +56,9 @@ class Evaluator:
         # Make predictions
         y_pred = model.predict(X_clean)
 
-        metrics: Dict[str, float] = {}
-        conf_matrix: Optional[List[List[int]]] = None
-        residuals_summary: Optional[Dict[str, float]] = None
+        metrics: dict[str, float] = {}
+        conf_matrix: list[list[int]] | None = None
+        residuals_summary: dict[str, float] | None = None
 
         if task_type == "classification":
             # 1. Classification Metrics
@@ -109,7 +110,7 @@ class Evaluator:
         # Round metrics for readability
         metrics = {k: round(v, 4) for k, v in metrics.items()}
         logger.info(f"Evaluator: Performance metrics calculated: {metrics}")
-        
+
         return EvaluationReport(
             metrics=metrics,
             confusion_matrix=conf_matrix,

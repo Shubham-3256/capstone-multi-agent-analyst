@@ -1,11 +1,11 @@
 """Centralized providers factory routing calls to OpenAI, Gemini, Anthropic, and Mock engines."""
 
 import json
-from typing import Dict, Any, Optional
+
 import requests
 
-from src.core.logger import get_logger
 from src.core.llm.config import LLMConfig
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -24,7 +24,7 @@ class LLMProvider:
             str: JSON-like template matching output requirements.
         """
         logger.info("LLMProvider: Executing Mock LLM generator...")
-        
+
         prompt_lower = prompt.lower()
         import re
 
@@ -55,7 +55,7 @@ class LLMProvider:
         for k, v in matches:
             if k not in ["confidence_score", "completeness_score", "f1", "accuracy", "roc_auc", "recall", "precision", "score", "total_issues", "warnings", "errors", "total"]:
                 feature_weights[k] = float(v)
-        
+
         features = list(feature_weights.keys())
         if not features:
             exclude_words = {"model", "estimator", "rank", "score", "metrics", "target", "accuracy", "f1", "precision", "recall", "balanced_accuracy", "roc_auc", "cv", "validation", "dataset", "features", "columns", "summary", "profile", "headline", "takeaways", "impact", "severity", "probability", "reliability", "justification", "none", "true", "false", "null", "completeness", "anomalies", "recommendation", "insight", "conclusion", "algorithm", "weights", "logistic", "regression", "decision", "tree", "random", "forest", "gradient", "boosting", "neighbors", "gaussian", "nb"}
@@ -65,10 +65,10 @@ class LLMProvider:
                 if w_lower not in exclude_words and len(w) > 2 and not w.isdigit():
                     if w not in features:
                         features.append(w)
-        
+
         if not features:
             features = ["feature_1", "feature_2", "feature_3"]
-            
+
         if not feature_weights:
             feature_weights = {f: round(0.5 / (i + 1), 2) for i, f in enumerate(features[:3])}
 
@@ -85,7 +85,7 @@ class LLMProvider:
                 "key_takeaways": takeaways,
                 "impact_statement": f"Optimization of target variable '{target}' can be achieved by prioritizing feature adjustments on {feat_display[0]}."
             })
-            
+
         elif "completeness_score" in prompt_lower:
             return json.dumps({
                 "completeness_score": 1.0,
@@ -94,7 +94,7 @@ class LLMProvider:
                 ],
                 "recommendation": f"Monitor variance thresholds for feature inputs: {', '.join(feat_display)}."
             })
-            
+
         elif "algorithm_name" in prompt_lower:
             return json.dumps({
                 "algorithm_name": best_model,
@@ -103,21 +103,21 @@ class LLMProvider:
                 "feature_weights": feature_weights,
                 "conclusion": f"The {best_model} model successfully resolved target boundaries with high stability."
             })
-            
+
         elif "actionability" in prompt_lower:
             return json.dumps({
                 "title": f"Optimize feature engineering for {feat_display[0]}",
                 "description": f"Refine scaling, imputation, or binning parameters for {feat_display[0]} to improve predictions of target '{target}'.",
                 "actionability": "High"
             })
-            
+
         elif "probability" in prompt_lower:
             return json.dumps({
                 "severity": "Medium",
                 "probability": "Low",
                 "description": f"Potential risk of overfitting or data drift on feature '{feat_display[0]}' under smaller test splits."
             })
-            
+
         elif "confidence_score" in prompt_lower:
             return json.dumps({
                 "confidence_score": 0.90,
@@ -162,7 +162,7 @@ class LLMProvider:
         logger.info(f"LLMProvider: Directing call to OpenAI endpoint: {url}")
         response = requests.post(url, headers=headers, json=payload, timeout=config.timeout_seconds)
         response.raise_for_status()
-        
+
         data = response.json()
         return data["choices"][0]["message"]["content"]
 

@@ -1,11 +1,10 @@
 """Figure creation factory constructing styled Matplotlib and Plotly canvas wrappers."""
 
-from typing import Tuple, Dict, Any, Optional
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
+from src.agents.visualization.themes import ThemeManager
 from src.core.logger import get_logger
-from src.agents.visualization.themes import ThemeManager, Theme
 
 logger = get_logger(__name__)
 
@@ -16,12 +15,12 @@ class FigureFactory:
     @staticmethod
     def create_matplotlib_figure(
         title: str,
-        subtitle: Optional[str] = None,
-        xlabel: Optional[str] = None,
-        ylabel: Optional[str] = None,
+        subtitle: str | None = None,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
         theme_name: str = "corporate",
-        figsize: Tuple[float, float] = (10.0, 6.0)
-    ) -> Tuple[plt.Figure, plt.Axes]:
+        figsize: tuple[float, float] = (10.0, 6.0)
+    ) -> tuple[plt.Figure, plt.Axes]:
         """Instantiate and style a Matplotlib canvas.
 
         Args:
@@ -37,9 +36,9 @@ class FigureFactory:
         """
         # Apply theme
         ThemeManager.apply_matplotlib_theme(theme_name)
-        
+
         fig, ax = plt.subplots(figsize=figsize)
-        
+
         # Add labels
         if xlabel:
             ax.set_xlabel(xlabel)
@@ -62,9 +61,9 @@ class FigureFactory:
     @staticmethod
     def create_plotly_figure(
         title: str,
-        subtitle: Optional[str] = None,
-        xlabel: Optional[str] = None,
-        ylabel: Optional[str] = None,
+        subtitle: str | None = None,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
         theme_name: str = "corporate"
     ) -> go.Figure:
         """Instantiate and style an interactive Plotly graph figure.
@@ -80,14 +79,14 @@ class FigureFactory:
             go.Figure: Styled Plotly Figure object.
         """
         layout_params = ThemeManager.get_plotly_layout(theme_name)
-        
+
         # Assemble title HTML representation
         title_text = f"<b>{title}</b>"
         if subtitle:
             title_text += f"<br><sup><i>{subtitle}</i></sup>"
 
         fig = go.Figure()
-        
+
         # Apply layouts
         fig.update_layout(
             title={"text": title_text, "x": 0.05, "y": 0.95},
@@ -96,5 +95,5 @@ class FigureFactory:
             margin={"t": 80, "b": 50, "l": 50, "r": 50},
             **layout_params
         )
-        
+
         return fig

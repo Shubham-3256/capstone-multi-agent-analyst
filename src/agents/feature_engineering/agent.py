@@ -2,31 +2,29 @@
 
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
-from src.core.logger import get_logger
-from src.core.paths import Paths
-from src.core.exceptions import DatasetException
-from src.database.database import DatabaseManager
-from src.database.models import DatasetRecord, ExecutionLog
-from src.repositories.log_repository import ExecutionLogRepository
-from src.repositories.dataset_repository import DatasetRepository
-from src.services.dataset_service import DatasetService
-from src.utils.serialization import serialize_dataframe
 from src.agents.feature_engineering.config import FeatureEngineeringConfig
 from src.agents.feature_engineering.detector import FeatureDetector
-from src.agents.feature_engineering.validators import LeakageDetector
-from src.agents.feature_engineering.splitter import TrainValidationSplitter
-from src.agents.feature_engineering.pipeline import PipelineBuilder
 from src.agents.feature_engineering.models import (
-    FeatureEngineeringResult,
     EncodingReport,
+    FeatureEngineeringResult,
     ScalingReport,
     SelectionReport,
-    PipelineReport
 )
+from src.agents.feature_engineering.pipeline import PipelineBuilder
+from src.agents.feature_engineering.splitter import TrainValidationSplitter
+from src.agents.feature_engineering.validators import LeakageDetector
+from src.core.exceptions import DatasetException
+from src.core.logger import get_logger
+from src.core.paths import Paths
+from src.database.models import DatasetRecord, ExecutionLog
+from src.repositories.dataset_repository import DatasetRepository
+from src.repositories.log_repository import ExecutionLogRepository
+from src.services.dataset_service import DatasetService
+from src.utils.serialization import serialize_dataframe
 
 logger = get_logger(__name__)
 
@@ -49,7 +47,7 @@ class FeatureEngineeringAgent:
         self,
         dataframe: pd.DataFrame,
         target_column: str,
-        config_path: Optional[Path] = None
+        config_path: Path | None = None
     ) -> FeatureEngineeringResult:
         """Execute feature engineering pipeline: Detect -> Generate -> Encode -> Scale -> Select -> Split -> Save Pipeline.
 
@@ -130,7 +128,7 @@ class FeatureEngineeringAgent:
 
             # 6. Save transformed dataset splits to Paths.PROCESSED_DIR
             Paths.PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-            
+
             train_filepath = Paths.PROCESSED_DIR / "train.csv"
             val_filepath = Paths.PROCESSED_DIR / "val.csv"
             test_filepath = Paths.PROCESSED_DIR / "test.csv"
@@ -167,12 +165,12 @@ class FeatureEngineeringAgent:
 
             # 8. Register split files in database DatasetRecords
             logger.info("Registering train/val/test data splits inside SQL database...")
-            
+
             # Helper to calculate and persist DatasetRecord
             def register_split(filepath: Path, status_label: str, rows: int, cols: int):
                 file_size = filepath.stat().st_size
                 file_hash = self.dataset_service.calculate_checksum(filepath)
-                
+
                 record = self.dataset_repo.get_by_hash(file_hash)
                 if not record:
                     record = DatasetRecord(

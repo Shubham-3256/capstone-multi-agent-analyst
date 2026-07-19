@@ -1,12 +1,13 @@
 """Explainability engine compiling model coefficients and permutation feature importances."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from sklearn.inspection import permutation_importance
 
-from src.core.logger import get_logger
 from src.agents.machine_learning.models import FeatureImportance
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -20,7 +21,7 @@ class Explainer:
         X_val: pd.DataFrame,
         y_val: pd.Series,
         task_type: str
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Generate ranked feature importance metrics for the model.
 
         Args:
@@ -34,7 +35,7 @@ class Explainer:
         """
         logger.info("Explainer: Generating feature importances...")
         columns = list(X_val.columns)
-        importances: Dict[str, float] = {}
+        importances: dict[str, float] = {}
 
         X_clean = X_val.fillna(0.0)
         y_clean = y_val.fillna(0)
@@ -78,7 +79,7 @@ class Explainer:
                     random_state=42,
                     n_jobs=-1
                 )
-                
+
                 # Use raw mean values, taking absolute to show scale of importance
                 p_importances = np.abs(result.importances_mean)
                 sum_p = np.sum(p_importances)

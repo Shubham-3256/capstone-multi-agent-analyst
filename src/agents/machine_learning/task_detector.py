@@ -1,11 +1,9 @@
 """Task detection engine to classify target labels as classification or regression."""
 
-from typing import Any, List, Optional
-import numpy as np
 import pandas as pd
 
-from src.core.logger import get_logger
 from src.agents.machine_learning.models import TaskReport
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -24,7 +22,7 @@ class TaskDetector:
             TaskReport: Inferred task report.
         """
         logger.info("TaskDetector: Analyzing target variable properties...")
-        
+
         # Drop missing values for analysis
         y_clean = y.dropna()
         unique_vals = list(y_clean.unique())

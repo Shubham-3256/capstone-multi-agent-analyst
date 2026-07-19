@@ -1,12 +1,12 @@
 """Presentation-facing service delegating dataset execution to WorkflowGraph."""
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Optional
-
-from src.orchestration.events import EventBus, WorkflowEvent
-from src.orchestration.graph import WorkflowGraph
+from typing import Any
 
 from app.services.config import SUPPORTED_EXTENSIONS, UPLOAD_DIR
+from src.orchestration.events import EventBus, WorkflowEvent
+from src.orchestration.graph import WorkflowGraph
 
 
 class WorkflowService:
@@ -26,7 +26,7 @@ class WorkflowService:
         destination.write_bytes(upload.getbuffer())
         return destination
 
-    def run(self, dataset_path: str, target_column: Optional[str] = None, on_event: Optional[Callable[[WorkflowEvent], None]] = None) -> Any:
+    def run(self, dataset_path: str, target_column: str | None = None, on_event: Callable[[WorkflowEvent], None] | None = None) -> Any:
         """Run WorkflowGraph and optionally forward lifecycle events to the UI."""
         events = EventBus()
         if on_event:

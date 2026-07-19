@@ -2,13 +2,13 @@
 
 import re
 from pathlib import Path
-from typing import Optional
+
 import numpy as np
 import pandas as pd
 
-from src.core.logger import get_logger
-from src.core.constants import SUPPORTED_DATASET_EXTENSIONS
 from src.agents.data_intelligence.models import ValidationIssue, ValidationReport
+from src.core.constants import SUPPORTED_DATASET_EXTENSIONS
+from src.core.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -17,7 +17,7 @@ class Validator:
     """Validator class to evaluate dataset dimensions, structures, types, and quality issues."""
 
     @staticmethod
-    def validate(df: pd.DataFrame, file_path: Path, target_column: Optional[str] = None) -> ValidationReport:
+    def validate(df: pd.DataFrame, file_path: Path, target_column: str | None = None) -> ValidationReport:
         """Run structural and quality checks on a Pandas DataFrame dataset.
 
         Args:
@@ -76,7 +76,15 @@ class Validator:
 
         # 5. Target column existence
         if target_column:
-            if target_column not in df.columns:
+            norm_target_col = str(target_column).strip().lower().replace(" ", "_")
+            norm_target_col = re.sub(r"[^\w\-]", "", norm_target_col)
+            normalized_df_cols = []
+            for c in df.columns:
+                c_norm = str(c).strip().lower().replace(" ", "_")
+                c_norm = re.sub(r"[^\w\-]", "", c_norm)
+                normalized_df_cols.append(c_norm)
+                
+            if norm_target_col not in normalized_df_cols:
                 is_valid = False
                 issues.append(ValidationIssue(
                     check_name="target_existence",
@@ -204,7 +212,7 @@ class Validator:
         # Check total errors
         errors = sum(1 for issue in issues if issue.severity == "error")
         warnings = sum(1 for issue in issues if issue.severity == "warning")
-        
+
         summary = {
             "total_issues": len(issues),
             "errors": errors,
