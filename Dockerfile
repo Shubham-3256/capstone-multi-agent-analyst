@@ -57,6 +57,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     fonts-liberation \
     git \
     curl \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
