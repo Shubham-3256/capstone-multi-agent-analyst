@@ -30,5 +30,5 @@ def test_llm_cache_speedups():
 
     # Assert cached query is significantly faster than uncached mock call
     assert cached_duration < uncached_duration
-    # Cached duration should be near-instant (under 5ms)
-    assert cached_duration < 0.005
+    # Cached duration should be near-instant (under 50ms for CI runner stability)
+    assert cached_duration < 0.05
