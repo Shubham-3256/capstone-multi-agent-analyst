@@ -33,7 +33,18 @@ class DataLoader:
         """
         logger.info(f"DataLoader: Ingesting file from: {filepath}")
         if not filepath.exists() or not filepath.is_file():
-            raise DatasetException(f"Target dataset file does not exist: {filepath}")
+            from src.core.paths import Paths
+
+            fallback = Paths.UPLOAD_DIR / filepath.name
+            if fallback.exists() and fallback.is_file():
+                logger.info(
+                    f"DataLoader: Resolved missing path '{filepath}' to fallback '{fallback}'"
+                )
+                filepath = fallback
+            else:
+                raise DatasetException(
+                    f"Target dataset file does not exist: {filepath}"
+                )
 
         suffix = filepath.suffix.lower()
 

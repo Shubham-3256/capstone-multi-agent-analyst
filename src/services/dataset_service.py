@@ -30,6 +30,32 @@ class DatasetService:
         self.repo = DatasetRepository(db_session)
         self.file_service = FileService(Paths.WORKSPACE_DIR)
 
+    @staticmethod
+    def _resolve_path(raw_path_str: str) -> Path:
+        """Resolve a stored filepath string to an existing Path object on the current environment.
+
+        Handles cross-OS and container path resolution (e.g., Windows paths stored in DB running in Docker/Render).
+        """
+        p = Path(raw_path_str)
+        if p.exists():
+            return p
+
+        candidate_filename = p.name
+        candidates = [
+            Paths.UPLOAD_DIR / candidate_filename,
+            Paths.WORKSPACE_DIR / candidate_filename,
+            Paths.CLEANED_DIR / candidate_filename,
+            Paths.PROCESSED_DIR / candidate_filename,
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                logger.info(
+                    f"DatasetService: Resolved dataset path '{raw_path_str}' -> '{candidate}'"
+                )
+                return candidate
+
+        return p
+
     def calculate_checksum(self, filepath: Path) -> str:
         """Calculate the SHA-256 checksum string for a file.
 
@@ -75,6 +101,22 @@ class DatasetService:
                 logger.info(
                     f"Dataset already registered with checksum: {checksum}. ID: {existing_record.id}"
                 )
+                existing_path = self._resolve_path(str(existing_record.filepath))
+                if existing_path.exists():
+                    if str(existing_path) != str(existing_record.filepath):
+                        existing_record.filepath = str(existing_path)
+                        self.db.commit()
+                    return existing_record
+
+                target_path = Paths.UPLOAD_DIR / filename
+                if file_path.exists() and file_path.resolve() != target_path.resolve():
+                    final_path = self.file_service.move_file(file_path, target_path)
+                else:
+                    final_path = target_path
+
+                existing_record.filepath = str(final_path)
+                existing_record.filename = filename
+                self.db.commit()
                 return existing_record
 
             # 2. Determine file properties
@@ -127,7 +169,14 @@ class DatasetService:
         if not record:
             raise DatasetException(f"Dataset record not found in database: {record_id}")
 
-        file_path = Path(record.filepath)
+        file_path = self._resolve_path(str(record.filepath))
+        if not file_path.exists():
+            raise DatasetException(f"Target dataset file does not exist: {file_path}")
+
+        if str(file_path) != str(record.filepath):
+            record.filepath = str(file_path)
+            self.db.commit()
+
         logger.info(f"Loading dataset into DataFrame: {file_path}")
         return DataLoader.load_file(file_path)
 
@@ -167,8 +216,9 @@ class DatasetService:
 
         try:
             # 1. Delete workspace physical file
-            file_path = Path(record.filepath)
-            self.file_service.delete_file(file_path)
+            file_path = self._resolve_path(str(record.filepath))
+            if file_path.exists():
+                self.file_service.delete_file(file_path)
 
             # 2. Clear SQL persistence entries
             success = self.repo.delete(record_id)

@@ -118,6 +118,7 @@ ignore_missing_imports = true
 module = [
     "src.orchestration.graph",
     "src.repositories.*",
+    "src.services.*",
     "src.agents.*",
     "app.components.*",
 ]
