@@ -23,6 +23,6 @@ class WorkflowRouter:
         )
 
     @staticmethod
-    def after_machine_learning(state: WorkflowState) -> str:
+    def after_machine_learning(_state: WorkflowState) -> str:
         """Continue with visualizations even when no trainable model was produced."""
         return "visualization"

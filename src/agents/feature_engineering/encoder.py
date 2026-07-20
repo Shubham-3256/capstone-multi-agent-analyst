@@ -39,7 +39,7 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
         self.ordinal_transformers_: dict[str, SKOrdinalEncoder] = {}
         self.frequency_mappings_: dict[str, dict[str, float]] = {}
 
-    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "CategoricalEncoder":
+    def fit(self, X: pd.DataFrame, _y: pd.Series | None = None) -> "CategoricalEncoder":
         """Fit encoders for each categorical column based on cardinality metrics.
 
         Args:

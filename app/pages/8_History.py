@@ -51,7 +51,7 @@ def main() -> None:
 
     st.title("📜 Execution History & Audit Logs")
     st.markdown("""
-        Audit prior analytics runs, inspect error details, compare execution durations, 
+        Audit prior analytics runs, inspect error details, compare execution durations,
         and reload prior workflows back into the active presentation workspace to browse their charts and findings.
         """)
     st.divider()

@@ -2,6 +2,7 @@
 
 import re
 import time
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -50,7 +51,7 @@ class Cleaner:
 
         # 1. Convert/Resolve duplicate column names
         cols = list(working_df.columns)
-        seen_cols = {}
+        seen_cols: dict[str, int] = {}
         dup_renamed = False
         for idx, col in enumerate(cols):
             col_str = str(col)
@@ -85,7 +86,7 @@ class Cleaner:
             transformations.append(
                 CleaningAction(
                     action_type="normalize_column_names",
-                    details=f"Normalized column names to snake_case. Mapping: {dict(zip(old_cols, normalized_cols))}",
+                    details=f"Normalized column names to snake_case. Mapping: {dict(zip(old_cols, normalized_cols, strict=False))}",
                 )
             )
 
@@ -225,17 +226,18 @@ class Cleaner:
                         if strategy.startswith("const_")
                         else "missing"
                     )
+                    fill_val: Any = const_val
                     # Attempt type conversion for constant if column is numeric
                     if pd.api.types.is_numeric_dtype(working_df[col]):
                         try:
-                            const_val = (
+                            fill_val = (
                                 float(const_val)
                                 if "." in str(const_val)
                                 else int(const_val)
                             )
                         except ValueError:
                             pass
-                    working_df[col] = working_df[col].fillna(const_val)
+                    working_df[col] = working_df[col].fillna(fill_val)
                     transformations.append(
                         CleaningAction(
                             column=col,

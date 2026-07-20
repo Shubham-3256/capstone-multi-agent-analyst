@@ -7,6 +7,13 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from src.agents.business_insights.models import BusinessInsightResult
+from src.agents.data_intelligence.models import DataIntelligenceResult, DatasetProfile
+from src.agents.feature_engineering.models import FeatureEngineeringResult
+from src.agents.machine_learning.models import MachineLearningResult
+from src.agents.report_generation.models import ReportResult
+from src.agents.visualization.models import VisualizationResult
+
 
 class NodeExecution(BaseModel):
     """Audit record for one graph node execution."""
@@ -27,14 +34,6 @@ class WorkflowMetadata(BaseModel):
     completed_at: datetime | None = None
     target_column: str | None = None
     template_type: str = "executive"
-
-
-from src.agents.business_insights.models import BusinessInsightResult
-from src.agents.data_intelligence.models import DataIntelligenceResult, DatasetProfile
-from src.agents.feature_engineering.models import FeatureEngineeringResult
-from src.agents.machine_learning.models import MachineLearningResult
-from src.agents.report_generation.models import ReportResult
-from src.agents.visualization.models import VisualizationResult
 
 
 class WorkflowState(BaseModel):

@@ -11,8 +11,8 @@ class MockSessionState(dict):
     def __getattr__(self, key):
         try:
             return self[key]
-        except KeyError:
-            raise AttributeError(key)
+        except KeyError as err:
+            raise AttributeError(key) from err
 
     def __setattr__(self, key, value):
         self[key] = value

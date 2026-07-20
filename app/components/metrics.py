@@ -91,5 +91,5 @@ def render_timing_metrics(result: Any) -> None:
         color_continuous_scale="Viridis",
         title="Time Spent per Pipeline Step",
     )
-    fig.update_layout(height=300, margin=dict(l=20, r=20, t=40, b=20))
+    fig.update_layout(height=300, margin={"l": 20, "r": 20, "t": 40, "b": 20})
     st.plotly_chart(fig, width="stretch")

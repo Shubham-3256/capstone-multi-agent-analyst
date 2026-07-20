@@ -111,7 +111,6 @@ class VisualizationAgent:
                 )
 
             # Identify target column context
-            target_col = target_column or "target"
 
             # Setup output root directory
             base_dir = Paths.WORKSPACE_DIR / "artifacts"

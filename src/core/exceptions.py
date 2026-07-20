@@ -7,7 +7,7 @@ propagation, handling, and debugging across all system layers.
 from typing import Any
 
 
-class ProjectException(Exception):
+class ProjectError(Exception):
     """Base exception class for all errors originating from the project.
 
     All custom errors in the application inherit from this class.
@@ -16,7 +16,7 @@ class ProjectException(Exception):
     def __init__(
         self, message: str, code: str | None = None, details: Any | None = None
     ) -> None:
-        """Initialize ProjectException with messaging, diagnostic codes, and context.
+        """Initialize ProjectError with messaging, diagnostic codes, and context.
 
         Args:
             message: Descriptive error message.
@@ -34,6 +34,9 @@ class ProjectException(Exception):
         if self.details:
             base += f" | Details: {self.details}"
         return base
+
+
+ProjectException = ProjectError
 
 
 class ValidationException(ProjectException):

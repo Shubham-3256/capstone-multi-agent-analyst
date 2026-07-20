@@ -55,7 +55,7 @@ class FeatureDetector:
 
             series = df[col]
             unique_count = int(series.nunique(dropna=True))
-            null_count = int(series.isnull().sum())
+            int(series.isnull().sum())
 
             # A. Constant check
             if unique_count <= 1:

@@ -165,4 +165,4 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
         """
         # Note: In standard sklearn pipelines, X column length during transform matches fit.
         # This mask indicates support if used in an sklearn selector sequence.
-        pass
+        return np.zeros(len(self.columns_to_keep_), dtype=bool)

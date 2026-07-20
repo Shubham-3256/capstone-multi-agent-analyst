@@ -4,7 +4,7 @@ This module stores global read-only variables, model selections, design layouts,
 and execution limits to prevent magic strings and values in downstream modules.
 """
 
-from enum import Enum
+from enum import StrEnum
 from typing import Final
 
 # --- Application Meta Information ---
@@ -24,7 +24,7 @@ DEFAULT_TEST_SIZE_FRACTION: Final[float] = 0.2
 
 
 # --- Supported Large Language Models ---
-class ModelName(str, Enum):
+class ModelName(StrEnum):
     """Supported OpenAI and fallback LLM models."""
 
     GPT_4O = "gpt-4o"

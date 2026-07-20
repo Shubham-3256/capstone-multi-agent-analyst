@@ -35,11 +35,11 @@ def test_peak_memory_and_compress():
     # 2. Trace memory allocation during data cleaning
     from src.agents.data_intelligence.cleaner import Cleaner
 
-    snapshot1 = tracemalloc.take_snapshot()
+    tracemalloc.take_snapshot()
 
     cleaned_df, _ = Cleaner.clean(df)
 
-    snapshot2 = tracemalloc.take_snapshot()
+    tracemalloc.take_snapshot()
 
     # Stop memory tracking
     current, peak = tracemalloc.get_traced_memory()

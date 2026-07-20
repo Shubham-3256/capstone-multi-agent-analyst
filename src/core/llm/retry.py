@@ -15,7 +15,7 @@ def retry_with_backoff(
     max_retries: int = 3,
     initial_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions_to_retry: list[type[Exception]] = None,
+    exceptions_to_retry: list[type[Exception]] | None = None,
 ) -> Callable:
     """Decorator retrying execution with exponential backoff and random jitter.
 

@@ -37,7 +37,7 @@ def render_mermaid() -> None:
                 H --> I[report_generation Node]
                 I --> J[finalize Node]
                 J --> K((Workflow End))
-                
+
                 style A fill:#1e3c72,stroke:#fff,stroke-width:1px
                 style C fill:#2a5298,stroke:#fff,stroke-width:1px
                 style F fill:#11998e,stroke:#fff,stroke-width:1px
@@ -60,7 +60,7 @@ def main() -> None:
 
     st.title("🤖 Multi-Agent AI Data Analyst")
     st.markdown("""
-        Welcome to the **Multi-Agent AI Data Analyst** platform. This system orchestrates specialized 
+        Welcome to the **Multi-Agent AI Data Analyst** platform. This system orchestrates specialized
         autonomous AI agents to ingest, clean, explore, model, and compile PDF reports for your datasets automatically.
         """)
 

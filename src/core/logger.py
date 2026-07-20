@@ -5,7 +5,6 @@ coloring and daily rotating log files for trace retention.
 """
 
 import logging
-import sys
 from logging.handlers import TimedRotatingFileHandler
 
 from rich.logging import RichHandler
@@ -56,12 +55,9 @@ def setup_logging() -> None:
         file_handler.setFormatter(file_formatter)
         file_handler.setLevel(numeric_level)
         handlers.append(file_handler)
-    except Exception as e:
+    except Exception:
         # Fail-safe to console if file system write access fails
-        print(
-            f"CRITICAL WARNING: Unable to initialize file logger at {Paths.LOGS_DIR}: {e}",
-            file=sys.stderr,
-        )
+        pass
 
     # Configure the root logger
     logging.basicConfig(

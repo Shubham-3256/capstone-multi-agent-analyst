@@ -29,8 +29,8 @@ def main() -> None:
 
     st.title("📂 Ingestion & Execution Panel")
     st.markdown("""
-        Upload your structured dataset (CSV, Excel, or Parquet) and select the target variable. 
-        If you select a target, the workflow will run automated feature engineering and model training. 
+        Upload your structured dataset (CSV, Excel, or Parquet) and select the target variable.
+        If you select a target, the workflow will run automated feature engineering and model training.
         If left blank, the pipeline will skip modeling and jump to visualizations and insights.
         """)
     st.divider()

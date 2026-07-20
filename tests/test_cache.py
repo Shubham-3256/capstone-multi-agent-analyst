@@ -48,14 +48,14 @@ def test_prompt_response_caching() -> None:
 def test_compress_prompt_context() -> None:
     """Test prompt whitespace and duplicate line reduction."""
     raw_prompt = """
-    
+
     System Instructions:
-    
+
     Analyze Churn
-    
-    
+
+
     Output results.
-    
+
     """
     compressed = compress_prompt_context(raw_prompt)
     expected = "System Instructions:\nAnalyze Churn\nOutput results."

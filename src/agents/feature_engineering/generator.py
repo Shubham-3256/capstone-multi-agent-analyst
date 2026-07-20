@@ -47,7 +47,7 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
         self.fitted_numeric_cols_: list[str] = []
         self.fitted_datetime_cols_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "FeatureGenerator":
+    def fit(self, X: pd.DataFrame, _y: pd.Series | None = None) -> "FeatureGenerator":
         """Determine columns to transform, pairs to interact, and skewness metrics.
 
         Args:

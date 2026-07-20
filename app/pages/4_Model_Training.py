@@ -63,8 +63,8 @@ def main() -> None:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"""
-            **Estimator Model:** `{ml_result.best_model_name}`  
-            **Saved Artifact Path:** `{ml_result.best_model_path}`  
+            **Estimator Model:** `{ml_result.best_model_name}`
+            **Saved Artifact Path:** `{ml_result.best_model_path}`
             **Tuning Time:** {ml_result.duration_seconds:.2f} seconds
             """)
     with col2:
@@ -72,15 +72,13 @@ def main() -> None:
         task_type = ml_result.task_report.task_type.title()
         classes_str = ", ".join(map(str, ml_result.task_report.classes or []))
         st.markdown(f"""
-            **ML Task Category:** `{task_type}`  
-            **Unique Labels:** `{classes_str or "None (Continuous)"}`  
+            **ML Task Category:** `{task_type}`
+            **Unique Labels:** `{classes_str or "None (Continuous)"}`
             **Binary Classification:** `{ml_result.task_report.is_binary}`
             """)
 
     st.markdown("### Best Tuned Hyperparameters")
-    best_params = (
-        ml_result.leaderboard.entries[0] if ml_result.leaderboard.entries else None
-    )
+    (ml_result.leaderboard.entries[0] if ml_result.leaderboard.entries else None)
 
     # Let's search for hyperparameter details
     # We can write it in an expander

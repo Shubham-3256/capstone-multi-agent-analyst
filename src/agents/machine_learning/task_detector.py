@@ -43,7 +43,7 @@ class TaskDetector:
             is_binary = None
         else:
             task_type = "classification"
-            classes = [val for val in unique_vals]
+            classes = list(unique_vals)
             is_binary = unique_count == 2
 
         logger.info(

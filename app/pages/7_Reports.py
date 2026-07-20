@@ -41,7 +41,7 @@ def main() -> None:
 
     st.title("📄 Export & Report Center")
     st.markdown("""
-        Download the automatically compiled reports in standard enterprise formats. 
+        Download the automatically compiled reports in standard enterprise formats.
         All charts, data tables, and agent summaries are compiled, formatted, and embedded inside.
         """)
     st.divider()

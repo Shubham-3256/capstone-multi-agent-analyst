@@ -76,7 +76,10 @@ class Trainer:
             )
 
 
-class ModelTimeoutException(Exception):
+class ModelTimeoutError(Exception):
     """Custom exception raised when model training exceeds allowed timeout limits."""
 
     pass
+
+
+ModelTimeoutException = ModelTimeoutError

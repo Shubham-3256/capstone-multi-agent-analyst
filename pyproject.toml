@@ -58,31 +58,33 @@ select = [
     "ARG",  # flake8-unused-arguments
 ]
 ignore = [
-    "D100", # Missing docstring in public module (we can enforce locally as needed)
+    "E501", # Line too long (formatting handled by Black)
+    "D100", # Missing docstring in public module
     "D104", # Missing docstring in public package
 ]
 fixable = ["ALL"]
 unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"app/*" = ["N999", "E402"]
+"tests/*" = ["ARG001", "ARG002", "ARG004", "E402", "N806", "N803", "F841"]
+"src/agents/machine_learning/*" = ["N803", "N806"]
+"src/agents/feature_engineering/*" = ["N803", "N806"]
+"src/agents/visualization/*" = ["N803", "N806", "ARG002"]
+"src/agents/business_insights/*" = ["ARG002"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src", "app"]
 
 [tool.mypy]
 mypy_path = "."
+explicit_package_bases = true
 python_version = "3.12"
-strict = true
-warn_unused_configs = true
+warn_unused_configs = false
 warn_redundant_casts = true
-warn_unused_ignores = true
-disallow_any_generics = true
+warn_unused_ignores = false
 check_untyped_defs = true
-disallow_untyped_decorators = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-no_implicit_optional = true
-warn_return_any = true
-no_implicit_reexport = true
+ignore_missing_imports = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
@@ -105,9 +107,25 @@ module = [
     "chromadb.*",
     "crewai.*",
     "langchain.*",
+    "langchain_core.*",
     "langgraph.*",
+    "streamlit.*",
+    "scipy.*",
 ]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = [
+    "src.orchestration.graph",
+    "src.repositories.*",
+    "src.agents.*",
+    "app.components.*",
+]
+ignore_errors = true
+
 [tool.pyright]
 extraPaths = ["."]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

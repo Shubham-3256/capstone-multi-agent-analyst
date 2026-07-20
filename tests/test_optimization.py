@@ -34,6 +34,7 @@ def test_downcast_dataframe_numeric() -> None:
     assert compressed_df["ints"].dtype == np.int8
 
     # float64 should downcast to float32
+    assert compressed_df["floats"].dtype != initial_floats_dtype
     assert compressed_df["floats"].dtype == np.float32
 
 

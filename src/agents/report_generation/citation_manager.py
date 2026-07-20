@@ -18,12 +18,12 @@ class CitationManager:
         self.tables_registry: dict[str, str] = {}
         self.references_registry: dict[str, str] = {}
 
-    def register_figure(self, chart_id: str, caption: str) -> str:
+    def register_figure(self, chart_id: str, _caption: str) -> str:
         """Register a visual chart, incrementing the counter and returning the label tag.
 
         Args:
             chart_id: Unique chart identifier.
-            caption: Figure description.
+            _caption: Figure description.
 
         Returns:
             str: Assigned label index (e.g. 'Figure 1').
@@ -37,12 +37,12 @@ class CitationManager:
         logger.info(f"CitationManager: Registered {label} for chart key: '{chart_id}'")
         return label
 
-    def register_table(self, table_id: str, description: str) -> str:
+    def register_table(self, table_id: str, _description: str) -> str:
         """Register a data table, incrementing the counter and returning the label tag.
 
         Args:
             table_id: Unique table identifier.
-            description: Table description.
+            _description: Table description.
 
         Returns:
             str: Assigned label index (e.g. 'Table 1').
@@ -56,7 +56,7 @@ class CitationManager:
         logger.info(f"CitationManager: Registered {label} for table key: '{table_id}'")
         return label
 
-    def register_reference(self, ref_key: str, cite_text: str) -> str:
+    def register_reference(self, ref_key: str, _cite_text: str) -> str:
         """Register a source citation footnote, incrementing counter.
 
         Args:

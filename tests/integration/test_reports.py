@@ -73,7 +73,7 @@ def test_report_generation_lifecycle(clean_db):
     assert "pdf" in result.output_paths
     assert "docx" in result.output_paths
 
-    for fmt, path_str in result.output_paths.items():
+    for _fmt, path_str in result.output_paths.items():
         path = Path(path_str)
         assert path.exists()
         assert path.stat().st_size > 0

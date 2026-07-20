@@ -32,7 +32,7 @@ class WorkflowNodes:
     def load_dataset(self, state: WorkflowState) -> dict[str, Any]:
         # Run loader to validate that the file is readable, but do not keep the raw DataFrame in the state
         # to avoid msgpack serialization exceptions during Graph/Streamlit state transitions.
-        result = self.executor.run(
+        self.executor.run(
             "load_dataset",
             state,
             lambda _: DataLoader.load_file(Path(state.dataset_path)),

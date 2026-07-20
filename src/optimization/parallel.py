@@ -14,7 +14,7 @@ T = TypeVar("T")
 R = TypeVar("R")
 
 
-def parallel_map(
+def parallel_map[T, R](
     func: Callable[[T], R],
     items: list[T],
     max_workers: int = OptimizationConfig.PARALLEL_JOBS,

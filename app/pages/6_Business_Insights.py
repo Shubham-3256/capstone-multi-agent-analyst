@@ -86,9 +86,6 @@ def main() -> None:
     with col_c1:
         conf = biz_result.confidence_report
         rating = conf.reliability_rating.upper()
-        r_color = (
-            "green" if rating == "HIGH" else "orange" if rating == "MEDIUM" else "red"
-        )
 
         info_card(
             title="Reliability Rating",

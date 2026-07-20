@@ -38,8 +38,8 @@ class Profiler:
 
         # 1. Audits memory and duplicates
         mem_usage = get_memory_footprint(df)
-        duplicates = get_duplicate_count(df)
-        missing_dict = get_missing_summary(df)
+        get_duplicate_count(df)
+        get_missing_summary(df)
         stats_dict = extract_column_statistics(df)
 
         # 2. Build column profile lists

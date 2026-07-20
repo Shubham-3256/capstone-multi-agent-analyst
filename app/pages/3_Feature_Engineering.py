@@ -149,8 +149,8 @@ def main() -> None:
         st.subheader("Feature Dimensions Selection")
         sel_rep = fe_result.selection_report
         st.markdown(f"""
-            **Method:** `{sel_rep.method.upper()}`  
-            **Features Input Count:** {sel_rep.original_count}  
+            **Method:** `{sel_rep.method.upper()}`
+            **Features Input Count:** {sel_rep.original_count}
             **Features Selected Count:** {sel_rep.selected_count} (Pruned {sel_rep.original_count - sel_rep.selected_count} features)
             """)
 
@@ -178,9 +178,9 @@ def main() -> None:
         st.subheader("Fitted Preprocessing Pipeline Summary")
         pipe_rep = fe_result.pipeline_report
         st.markdown(f"""
-            **Saved Pipeline File Path:**  
+            **Saved Pipeline File Path:**
             `{pipe_rep.pipeline_filepath}`
-            
+
             **Components Pipeline Execution Order:**
             """)
         for idx, comp in enumerate(pipe_rep.components, 1):

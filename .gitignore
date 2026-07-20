@@ -62,6 +62,8 @@ workspace/models/*
 
 workspace/logs/*
 !workspace/logs/.gitkeep
+logs/*
+!logs/.gitkeep
 
 # --- Runtime Artifacts, Cache, Checkpoints, and Databases ---
 workspace/artifacts/

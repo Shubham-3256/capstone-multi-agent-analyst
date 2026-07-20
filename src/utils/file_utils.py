@@ -40,7 +40,6 @@ def calculate_file_sha256(filepath: Path) -> str:
     if not filepath.exists() or not filepath.is_file():
         raise FileNotFoundError(f"File not found for hashing: {filepath}")
 
-    sha = hashlib_sha256 = hashlib_helper = None
     import hashlib
 
     h = hashlib.sha256()
