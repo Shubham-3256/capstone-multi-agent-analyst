@@ -2,7 +2,7 @@
 
 import re
 import time
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -54,7 +54,7 @@ class Cleaner:
         seen_cols: dict[str, int] = {}
         dup_renamed = False
         for idx, col in enumerate(cols):
-            col_str = str(col)
+            col_str = col
             if col_str in seen_cols:
                 seen_cols[col_str] += 1
                 new_col_name = f"{col_str}_{seen_cols[col_str]}"
@@ -75,7 +75,7 @@ class Cleaner:
         old_cols = list(working_df.columns)
         normalized_cols = []
         for col in old_cols:
-            col_str = str(col).strip().lower().replace(" ", "_")
+            col_str = col.strip().lower().replace(" ", "_")
             col_str = re.sub(
                 r"[^\w\-]", "", col_str
             )  # Keep alphanumeric, underscores, hyphens
@@ -117,7 +117,7 @@ class Cleaner:
                 )
                 # Convert empty or whitespace-only strings to NaN
                 empty_mask = working_df[col] == ""
-                empty_count = int(empty_mask.sum())
+                empty_count = empty_mask.sum()
                 if empty_count > 0:
                     working_df.loc[empty_mask, col] = np.nan
                     transformations.append(
@@ -160,7 +160,7 @@ class Cleaner:
         # 7. Handle missing values
         imp_strategies = imputation_strategies or {}
         for col in working_df.columns:
-            null_count = int(working_df[col].isnull().sum())
+            null_count = working_df[col].isnull().sum()
             if null_count == 0:
                 continue
 
@@ -185,7 +185,7 @@ class Cleaner:
                 elif strategy == "mean" and pd.api.types.is_numeric_dtype(
                     working_df[col]
                 ):
-                    mean_val = float(working_df[col].mean())
+                    mean_val = working_df[col].mean()
                     working_df[col] = working_df[col].fillna(mean_val)
                     transformations.append(
                         CleaningAction(
@@ -197,7 +197,7 @@ class Cleaner:
                 elif strategy == "median" and pd.api.types.is_numeric_dtype(
                     working_df[col]
                 ):
-                    median_val = float(working_df[col].median())
+                    median_val = working_df[col].median()
                     working_df[col] = working_df[col].fillna(median_val)
                     transformations.append(
                         CleaningAction(
@@ -232,7 +232,7 @@ class Cleaner:
                         try:
                             fill_val = (
                                 float(const_val)
-                                if "." in str(const_val)
+                                if "." in const_val
                                 else int(const_val)
                             )
                         except ValueError:
@@ -269,7 +269,7 @@ class Cleaner:
                 # Cap values
                 outliers_low = (series < lower).sum()
                 outliers_high = (series > upper).sum()
-                total_outliers = int(outliers_low + outliers_high)
+                total_outliers = outliers_low + outliers_high
 
                 if total_outliers > 0:
                     working_df[col] = np.clip(series, lower, upper)
@@ -289,7 +289,7 @@ class Cleaner:
 
                     outliers_low = (series < lower).sum()
                     outliers_high = (series > upper).sum()
-                    total_outliers = int(outliers_low + outliers_high)
+                    total_outliers = outliers_low + outliers_high
 
                     if total_outliers > 0:
                         working_df[col] = np.clip(series, lower, upper)
@@ -308,7 +308,7 @@ class Cleaner:
                 upper = q3 + 1.5 * iqr
 
                 outliers_mask = (series < lower) | (series > upper)
-                outliers_count = int(outliers_mask.sum())
+                outliers_count = outliers_mask.sum()
                 if outliers_count > 0:
                     working_df = working_df[~outliers_mask]
                     transformations.append(
@@ -346,11 +346,8 @@ class Cleaner:
                     )
                 elif target_type == "int":
                     # Fill nans first if casting to pure int, or use Int64 (nullable int)
-                    working_df[col] = (
-                        pd.to_numeric(working_df[col], errors="coerce")
-                        .round()
-                        .astype("Int64")
-                    )
+                    num_series = cast(pd.Series, pd.to_numeric(working_df[col], errors="coerce"))
+                    working_df[col] = num_series.astype("Int64")
                     transformations.append(
                         CleaningAction(
                             column=col,
@@ -359,9 +356,8 @@ class Cleaner:
                         )
                     )
                 elif target_type == "float":
-                    working_df[col] = pd.to_numeric(
-                        working_df[col], errors="coerce"
-                    ).astype(float)
+                    num_series = cast(pd.Series, pd.to_numeric(working_df[col], errors="coerce"))
+                    working_df[col] = num_series.astype(float)
                     transformations.append(
                         CleaningAction(
                             column=col,
@@ -406,4 +402,5 @@ class Cleaner:
         logger.info(
             f"Cleaner: Cleaning complete. Shape: {initial_shape} -> {final_shape} in {round(duration, 4)}s"
         )
-        return working_df, report
+        return cast(pd.DataFrame, working_df), report
+

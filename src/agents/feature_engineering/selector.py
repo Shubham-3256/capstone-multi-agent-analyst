@@ -1,5 +1,7 @@
 """Custom scikit-learn compatible feature selector transformer."""
 
+from typing import cast
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -155,7 +157,7 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
             pd.DataFrame: DataFrame containing only selected features.
         """
         existing_cols = [col for col in self.columns_to_keep_ if col in X.columns]
-        return X[existing_cols]
+        return cast(pd.DataFrame, X[existing_cols])
 
     def _get_support_mask(self) -> np.ndarray:
         """Internal sklearn method supporting SelectorMixin.
